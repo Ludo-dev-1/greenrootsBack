@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "nodemon --inspect app.js",
-    "db:create": "",
-    "db:seed": "",
+    "db:create": "psql -U greenrootsadmin -d greenroots -f /var/www/html/apothéose/projet-GreenRoots-back/data/create_database.sql",
+    "db:seed": "psql -U greenrootsadmin -d greenroots -f /var/www/html/apothéose/projet-GreenRoots-back/data/seed_database.sql",
     "db:reset": "npm run db:create && npm run db:seed"
   },
   "keywords": [],
