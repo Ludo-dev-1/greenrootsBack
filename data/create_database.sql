@@ -1,12 +1,4 @@
--- -----------------------------------------------------
--- Schemas oquiz
--- -----------------------------------------------------
-
--- Convention 1 : les tables sont nommées au singulier, en minuscule et en anglais.
--- Convention 2 : chaque table contiendra un champ 'created_at' contenant la date de création d'un enregistrement et un champ 'updated_at' contenant la date de mise à jour de cet enregistrement.
-
 BEGIN; 
--- BEGIN déclare le début d'une transaction : un groupe d'instructions SQL qui rend celles-ci dépendantes les unes des autres. Si au moins une des instructions génère une erreur, alors toutes les commandes sont invalidées.
 
 DROP TABLE IF EXISTS "user",
 "category",
@@ -17,32 +9,6 @@ DROP TABLE IF EXISTS "user",
 "picture",
 "article_has_order",
 "article_has_category";
--- Comme c'est un script de création de tables, on s'assure que celles-ci sont bien supprimées avant de les créer. 
--- On peut supprimer plusieurs tables en même temps, cela permet de ne pas avoir de soucis de contraintes de clés étrangères.
--- Note : attention à ne pas lancer ce script en production en revanche :wink:
-
-
-
-/*
-Notes :
-
-- Dans une table on mettra en général 3 champs techniques
-
-- "id" qui servira de clé primaire et assurera l'unicité de chaque enregistrement : 
-- La clé primaire est automatiquement NOT NULL. Pas besoin de le préciser.
-- On spécifie que la colonne sera générée automatiquement par la BDD en suivant une séquence numérique prédéfinie, s'incrémentant de 1 en 1.
-- On peut définir 'BY DEFAULT' (surcharge de la valeur possible) ou 'ALWAYS' (surcharge de la valeur impossible)
-- Ici on utilise BY DEFAULT, car on définit nous même les valeurs des clés primaires (dans le fichier de seeding).
-- Mais on utilisera plus généralement ALWAYS afin de sécurisé l'incrémentation des valeurs du champ
-
-- "created_at" qui permet de savoir à quel moment a été inséré cet enregistrement dans cette BDD
-- Le type d'une date sera toujours timestamptz car une date n'a de valeur que si on connait son contexte (le fuseau horaire)
-- CURRENT_TIMESTAMP (standard SQL) : on peut aussi utiliser now() sur postgreSQL
-
-- "updated_at" permet quand a lui, de connaitre la date de la dernière mise à jour
-
-- Ici le type de la colonne "name" est TEXT et pas VARCHAR car postgreSQL gère très bien l'allocation mémoire, et on aura aucun gain de performance a définir la longueur maximum d'une valeur de colonne. De plus en utilisant TEXT on aura pas le risque d'essayer d'ajouter dans le futur une valeur de longueur non prévue.
-*/
 
 -- -----------------------------------------------------
 -- Table "answer"
@@ -53,12 +19,6 @@ CREATE TABLE "category" (
   "created_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" timestamptz
 );
-
-/*
-Notes : 
-
-- On ne peut pas référencer le champ id de la table question ici, car la table n'existe pas encore. On fera une modification à la fin du script pour ajouter la référence.
-*/
 
 
 -- -----------------------------------------------------
@@ -160,5 +120,4 @@ CREATE TABLE "article_has_order" (
   UNIQUE ("article_id", "order_id")
 );
 
-COMMIT; -- Pour mettre fin à au bloc de transaction (débuté par BEGIN) et l'exécuter : si jamais la moindre erreur se produit lors de l'exécution de la transaction, postgreSQL effectuera un ROLLBACK et toutes les actions seront annulées.
--- Attention : dans le cas d'ajout de données à travers une transaction l'incrémentation de la colonne identité (GENERATED {BY DEFAULT|ALWAYS} AS IDENTITY) n'est pas remise à son point de départ par le rollback. Il n'a pas conservé son état de départ avant la transaction. Cela n'a aucun impact sur le fonctionnement normal de la BDD, les ids non pas forcément besoin de se suivre.
+COMMIT;

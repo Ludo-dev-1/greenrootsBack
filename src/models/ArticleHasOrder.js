@@ -11,22 +11,22 @@ ArticleHasOrder.init({
     article_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        primaryKey: true,
+        primaryKey: true, // Permet de définir une unicité entre les attributs
         references: {
-            model: "article",
-            key: "id",
+            model: "article", // Fait référence à la table article
+            key: "id", // Fait référence à la colonne id de la table article
         },
-        onDelete: "CASCADE",
+        onDelete: "CASCADE", // Si l'article est supprimé, cette entrée sera aussi supprimée
     },
     order_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        primaryKey: true,
+        primaryKey: true, // Permet de définir une unicité entre les attributs
         references: {
-            model: "order",
-            key: "id",
+            model: "order", // Fait référence à la table article
+            key: "id", // Fait référence à la colonne id de la table article
         },
-        onDelete: "CASCADE",
+        onDelete: "CASCADE", // Si l'article est supprimé, cette entrée sera aussi supprimée
     },
     }, {
     sequelize,

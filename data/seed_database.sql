@@ -157,13 +157,10 @@ INSERT INTO "article_has_category" ("article_id", "category_id") VALUES
 
 COMMIT;
 
+
 -- ------------------------------
 -- Mise à jour des séquences d'ID
--- ------------------------------
-
--- Note : Postgres, avec le fait d'ajouter IDENTITY BY DEFAULT au lieu de ALWAYS, ne met pas à jour le curseur de l'incrément de la séquence de façon implicite lorsque l'on choisit manuellement la valeur d'un ID, comme c'est le cas ici.
--- Il faut donc mettre à jour la valeur courante de chacune des séquences en sélectionnant l'id maximum de chaque table une fois l'échantillonnage (seeding) terminé.
-
+-- -----------------------------
 BEGIN;
 
 SELECT setval('user_id_seq', (SELECT MAX(id) from "user"));

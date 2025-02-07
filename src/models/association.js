@@ -9,27 +9,28 @@ import { Tracking } from "./Tracking.js";
 import { ArticleHasOrder } from "./ArticleHasOrder.js";
 import { ArticleHasCategory } from "./ArticleHasCategory.js";
 
-// User <=> Role
+// User <=> Role (One-to-Many)
 User.belongsTo(Role, {foreignKey: "role_id"});
 Role.hasMany(User, {foreignKey: "role_id"});
 
-// Article <=> Picture
+// Article <=> Picture (One-to-Many)
 Article.belongsTo(Picture, {foreignKey: "picture_id"});
 Picture.hasMany(Article, {foreignKey: "picture_id"});
 
-// Order <=> User
+// Order <=> User (One-to-Many)
 Order.belongsTo(User, {foreignKey: "user_id"});
 User.hasMany(Order, {foreignKey: "user_id"});
 
-// Tracking <=> Picture
+// Tracking <=> Picture (One-to-Many)
 Tracking.belongsTo(Picture, {foreignKey: "picture_id"});
 Picture.hasMany(Tracking, {foreignKey: "picture_id"});
 
-// Tracking <=> Order
+// Tracking <=> Order (One-to-Many)
 Tracking.belongsTo(Order, {foreignKey: "order_id"});
 Order.hasMany(Tracking, {foreignKey: "order_id"});
 
 // Article <=> Category
+// Relation Many-to-Many
 Article.belongsToMany(Category, {
     as: "categories",
     through: ArticleHasCategory,
@@ -44,6 +45,7 @@ Category.belongsToMany(Article, {
 });
 
 // Article <=> Order
+// Relation Many-to-Many
 Article.belongsToMany(Order, {
     as: "orders",
     through: ArticleHasOrder,

@@ -13,7 +13,7 @@ Order.init({
         allowNull: false
     },
     price: {
-        type: DataTypes.DECIMAL(10,2),
+        type: DataTypes.DECIMAL(10,2),  // Type de données : décimal avec 10 chiffres dont 2 après la virgule
         allowNull: false
     }
 }, {

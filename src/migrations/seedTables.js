@@ -24,26 +24,26 @@ async function seedDatabase() {
 
         // Insertion des images d'arbres
         await Picture.bulkCreate([
-            { url: "ChenePedoncule", description: "Je trouve que ça passe bien en Amazonie" },
-            { url: "PlataneCommun", description: "Je trouve que ça passe bien en Amazonie" },
-            { url: "HetreCommun", description: "Je trouve que ça passe bien en Amazonie" },
-            { url: "SaulePleureur", description: "Je trouve que ça passe bien en Amazonie" },
-            { url: "BouleauVerruqueux", description: "Je trouve que ça passe bien en Amazonie" },
-            { url: "PinSylvestre", description: "Je trouve que ça passe bien en Amazonie" },
-            { url: "CedreDuLiban", description: "Je trouve que ça passe bien en Amazonie" },
-            { url: "Olivier", description: "Je trouve que ça passe bien en Amazonie" },
-            { url: "Acacia", description: "Je trouve que ça passe bien en Amazonie" },
-            { url: "GinkgoBiloba", description: "Je trouve que ça passe bien en Amazonie" },
-            { url: "SequoiaGeant", description: "Je trouve que ça passe bien en Amazonie" },
-            { url: "MagnoliaGrandiflora", description: "Je trouve que ça passe bien en Amazonie" },
-            { url: "TilleulAGrandesFeuilles", description: "Je trouve que ça passe bien en Amazonie" },
-            { url: "NoyerCommun", description: "Je trouve que ça passe bien en Amazonie" },
-            { url: "CerisierSauvage", description: "Je trouve que ça passe bien en Amazonie" },
-            { url: "CharmeCommun", description: "Je trouve que ça passe bien en Amazonie" },
-            { url: "FreneEleve", description: "Je trouve que ça passe bien en Amazonie" },
-            { url: "Cocotier", description: "Je trouve que ça passe bien en Amazonie" },
-            { url: "Mimosa", description: "Je trouve que ça passe bien en Amazonie" },
-            { url: "Eucalyptus", description: "Je trouve que ça passe bien en Amazonie" }
+            { url: "ChenePedoncule", description: "Arbre robuste à longue durée de vie, utilisé en menuiserie et pour la biodiversité." },
+            { url: "PlataneCommun", description: "Arbre forestier apprécié pour son bois et ses feuilles persistantes en hiver." },
+            { url: "HetreCommun", description: "Arbre robuste à longue durée de vie, utilisé en menuiserie et pour la biodiversité." },
+            { url: "SaulePleureur", description: "Arbre ornemental souvent planté près des points d’eau pour sa silhouette élégante." },
+            { url: "BouleauVerruqueux", description: "Arbre résistant au froid, purifiant l’air et favorisant la biodiversité." },
+            { url: "PinSylvestre", description: "Conifère robuste et résistant, utilisé pour la reforestation et l’exploitation forestière." },
+            { url: "CedreDuLiban", description: "Arbre majestueux, symbole de longévité et apprécié pour son bois imputrescible." },
+            { url: "Olivier", description: "Arbre méditerranéen produisant des olives, symbole de paix et de résilience." },
+            { url: "Acacia", description: "Arbre à croissance rapide, utilisé en agroforesterie et en médecine traditionnelle." },
+            { url: "GinkgoBiloba", description: "Arbre préhistorique aux vertus médicinales, résistant à la pollution." },
+            { url: "SequoiaGeant", description: "Un des plus grands arbres du monde, connu pour sa longévité extrême." },
+            { url: "MagnoliaGrandiflora", description: "Arbre ornemental à fleurs parfumées, populaire dans les parcs et jardins." },
+            { url: "TilleulAGrandesFeuilles", description: "Arbre mellifère favorisant la pollinisation et la biodiversité." },
+            { url: "NoyerCommun", description: "Arbre fruitier produisant des noix, apprécié pour son bois précieux." },
+            { url: "CerisierSauvage", description: "Arbre fruitier donnant des cerises comestibles et apprécié pour ses fleurs printanières." },
+            { url: "CharmeCommun", description: "Arbre rustique utilisé en haie ou en forêt, résistant et facile à entretenir." },
+            { url: "FreneEleve", description: "Arbre élancé, apprécié pour sa résistance et son bois utilisé en ébénisterie." },
+            { url: "Cocotier", description: "Arbre tropical produisant des noix de coco, cultivé en régions chaudes." },
+            { url: "Mimosa", description: "Arbre ornemental à fleurs jaunes parfumées, très apprécié dans les jardins." },
+            { url: "Eucalyptus", description: "Arbre à croissance rapide, utilisé en sylviculture et en huiles essentielles." }
         ]);
 
         // Insertion des articles (arbres)
@@ -86,12 +86,12 @@ async function seedDatabase() {
             { plant_place: "Amazonie", picture_id: 18, growth: "mature", status: "livré et planté", order_id: 1 }
         );
 
-        // Insertion d'une
+        // Insertion d'une relation article-commande
         await ArticleHasOrder.create(
             { order_id: 1, article_id: 18, quantity: 1 }
         );
 
-        // Insertion d'une
+        // Insertion des relations article-catégorie
         await ArticleHasCategory.bulkCreate([
             { article_id: 1, category_id: 10 },
             { article_id: 8, category_id: 1 },
@@ -126,6 +126,7 @@ async function seedDatabase() {
         ]);
 
     } catch (error) {
+        // A remplacer par l'errorHandler
         console.error("Error seeding database:", error);
     }
 }

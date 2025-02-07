@@ -7,22 +7,22 @@ ArticleHasCategory.init({
     article_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        primaryKey: true,
+        primaryKey: true, // Permet de définir une unicité entre les attributs
         references: {
-            model: "article",
-            key: "id",
+            model: "article", // Fait référence à la table article
+            key: "id", // Fait référence à la colonne id de la table article
         },
-        onDelete: "CASCADE",
+        onDelete: "CASCADE", // Si l'article est supprimé, cette entrée sera aussi supprimée
     },
     category_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        primaryKey: true,
+        primaryKey: true, // Permet de définir une unicité entre les attributs
         references: {
-            model: "category",
-            key: "id",
+            model: "category", // Fait référence à la table category
+            key: "id", // Fait référence à la colonne id de la table category
         },
-        onDelete: "CASCADE",
+        onDelete: "CASCADE", // Si l'article est supprimé, cette entrée sera aussi supprimée
     },
     }, {
     sequelize,
