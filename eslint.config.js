@@ -14,10 +14,9 @@ export default {
     eqeqeq: ["error", "always"],
     "no-unused-vars": ["warn"],
     quotes: ["error", "double"],
-    camelcase: ["error", { properties: "always" }],
+    indent: ["error", 2, 4, 8],
     "no-trailing-spaces": "error",
-    indent: ["error", 2],
-    "no-console": ["warn", { allow: ["warn", "error"] }],
+    "no-console": ["warn", { allow: ["warn", "error", "log"] }],
     "no-alert": "error",
   },
 };
