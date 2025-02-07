@@ -6,6 +6,8 @@ import { Picture } from "./Picture.js";
 import { Role } from "./Role.js";
 import { User } from "./User.js";
 import { Tracking } from "./Tracking.js";
+import { ArticleHasOrder } from "./ArticleHasOrder.js";
+import { ArticleHasCategory } from "./ArticleHasCategory.js";
 
 // User <=> Role
 User.belongsTo(Role, {foreignKey: "role_id"});
@@ -30,13 +32,13 @@ Order.hasMany(Tracking, {foreignKey: "order_id"});
 // Article <=> Category
 Article.belongsToMany(Category, {
     as: "categories",
-    through: "article_has_category",
+    through: ArticleHasCategory,
     foreignKey: "article_id",
     otherKey: "category_id"
 });
 Category.belongsToMany(Article, {
     as: "articles",
-    through: "article_has_category",
+    through: ArticleHasCategory,
     foreignKey: "category_id",
     otherKey: "article_id"
 });
@@ -44,15 +46,15 @@ Category.belongsToMany(Article, {
 // Article <=> Order
 Article.belongsToMany(Order, {
     as: "orders",
-    through: "article_has_order",
+    through: ArticleHasOrder,
     foreignKey: "article_id",
     otherKey: "order_id"
 });
 Order.belongsToMany(Article, {
     as: "articles",
-    through: "article_has_order",
+    through: ArticleHasOrder,
     foreignKey: "order_id",
     otherKey: "article_id"
 });
 
-export { Category, Role, Picture, User, Article, Order, Tracking, sequelize };
+export { Category, Role, Picture, User, Article, Order, Tracking, ArticleHasOrder, ArticleHasCategory, sequelize };

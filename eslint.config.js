@@ -14,7 +14,7 @@ export default {
     eqeqeq: ["error", "always"],
     "no-unused-vars": ["warn"],
     quotes: ["error", "double"],
-    camelcase: ["error", { properties: "always" }],
+    //camelcase: ["error", { properties: "always" }],
     "no-trailing-spaces": "error",
     "no-console": ["warn", { allow: ["warn", "error", "log"] }],
     "no-alert": "error",
