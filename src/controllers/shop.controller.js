@@ -8,13 +8,16 @@ const mainRoute = {
             });
 
             if (!result) {
-                return next();
+                error.statusCode = 404;
+                return next(error);
             };
 
             res.status(200).json(result);
 
         } catch (error) {
-            return next();
+            const newError = new Error("Erreur serveur");
+            newError.statusCode = 500;
+            return next(newError);
         }
     },
     getAllArticles: async (req, res, next) => {
@@ -22,13 +25,16 @@ const mainRoute = {
             const result = await Article.findAll();
 
             if (!result) {
-                return next();
+                error.statusCode = 404;
+                return next(error);
             };
 
             res.status(200).json(result);
 
         } catch (error) {
-            return next();
+            const newError = new Error("Erreur serveur");
+            newError.statusCode = 500;
+            return next(newError);
         }
     },
 };

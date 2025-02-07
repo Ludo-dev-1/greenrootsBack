@@ -2,6 +2,7 @@ import "dotenv/config"; // Importation de la configuration des variables d'envir
 import express, { Router } from "express"; // Importation du framework Express
 import cors from "cors";
 import { router } from "./src/router.js";
+import { errorHandler, notFound } from "./src/middlewares/errorHandler.js";
 
 // Création de l'instance Express
 const app = express();
@@ -15,8 +16,12 @@ app.use(express.json());
 
 // Configuration des fichiers statiques
 
-// Liste des routeurs
+// Liste des routes
 app.use(router);
+
+// Gestion des routes d'erreurs
+app.use(notFound);
+app.use(errorHandler);
 
 // Initialisation du port d'écoute
 app.listen(process.env.PORT, () => {
