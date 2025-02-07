@@ -16,7 +16,6 @@ export default {
     quotes: ["error", "double"],
     camelcase: ["error", { properties: "always" }],
     "no-trailing-spaces": "error",
-    indent: ["error", 2],
     "no-console": ["warn", { allow: ["warn", "error", "log"] }],
     "no-alert": "error",
   },
