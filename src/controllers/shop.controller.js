@@ -1,28 +1,63 @@
-import { Article } from "../models/association.js";
+import { Article, Order, Picture, User } from "../models/association.js";
 
 const mainRoute = {
+    // Récupération de tous les articles nouvellement créés
     getNewArticles: async (req, res, next) => {
         try {
-            const result = await Article.findAll({
+            const articles = await Article.findAll({
                 order: [["created_at", "DESC"]]
             });
 
-            if (!result) {
+            if (!articles) {
                 error.statusCode = 404;
                 return next(error);
             };
 
-            res.status(200).json(result);
+            const pictures = await Picture.findAll();
+
+            if (!pictures) {
+                const newError = new Error("Images non trouvées")
+                newError.statusCode = 404;
+                return next(newError);
+            };
+
+            res.status(200).json({ articles, pictures});
 
         } catch (error) {
-            const newError = new Error("Erreur serveur");
-            newError.statusCode = 500;
-            return next(newError);
+            error.statusCode = 500;
+            return next(error);
         }
     },
+
+    // Récupération de tout les articles
     getAllArticles: async (req, res, next) => {
         try {
-            const result = await Article.findAll();
+            const articles = await Article.findAll();
+
+            if (!articles) {
+                error.statusCode = 404;
+                return next(error);
+            };
+
+            const pictures = await Picture.findAll();
+
+            if (!pictures) {
+                const newError = new Error("Images non trouvées")
+                newError.statusCode = 404;
+                return next(newError);
+            };
+
+            res.status(200).json({ articles, pictures});
+
+        } catch (error) {
+            error.statusCode = 500;
+            return next(error);
+        }
+    },
+
+    getOrders: async (req, res, next) => {
+        try {
+            const result = await Order.findAll();
 
             if (!result) {
                 error.statusCode = 404;
@@ -32,9 +67,77 @@ const mainRoute = {
             res.status(200).json(result);
 
         } catch (error) {
-            const newError = new Error("Erreur serveur");
-            newError.statusCode = 500;
-            return next(newError);
+            error.statusCode = 500;
+            return next(error);
+        }
+    },
+
+    registerUserForm: async (req, res, next) => {
+        try {
+            res.status(200).json({ message: "Formulaire d'inscription" });
+
+        } catch (error) {
+            error.statusCode = 500;
+            return next(error);
+        }
+    },
+
+    loginUserForm: async (req, res, next) => {
+        try {
+            res.status(200).json({ message: "Formulaire de connexion" });
+
+        } catch (error) {
+            error.statusCode = 500;
+            return next(error);
+        }
+    },
+    login: async (req, res, next) => {
+        try {
+            res.status(200).json({ message: "Formulaire de connexion" });
+
+        } catch (error) {
+            error.statusCode = 500;
+            return next(error);
+        }
+    },
+
+    forgetPassword: async (req, res, next) => {
+        try {
+            res.status(200).json({ message: "Mot de passe oublié ?" });
+
+        } catch (error) {
+            error.statusCode = 500;
+            return next(error);
+        }
+    },
+
+    getCGU: async (req, res, next) => {
+        try {
+            res.status(200).json({ message: "Conditions Générales d'Utilisation" });
+
+        } catch (error) {
+            error.statusCode = 500;
+            return next(error);
+        }
+    },
+
+    getUserProfile: async (req, res, next) => {
+        try {
+            const userId = req.user.id;
+
+            const user = await User.findByPk(userId);
+            
+            if (!user) {
+                const error = new Error("Utilisateur non trouvé");
+                error.statusCode = 404;
+                return next(error);
+            }
+
+            res.status(200).json({ message: `Bonjour ${user.firstname}`, user: req.user });
+
+        } catch (error) {
+            error.statusCode = 500;
+            return next(error);
         }
     },
 };
