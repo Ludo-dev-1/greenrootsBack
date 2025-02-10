@@ -17,6 +17,7 @@ router.get("/compte", authenticate, cw(mainRoute.getUserProfile)); //user
 router.get("/compte/suivi", authenticate,cw(mainRoute.getOrderTracking)); //user et order et tracking
 // INSCRIPTION
 router.get("/inscription", cw(mainRoute.registerUserForm));
+router.post("/inscription", cw(authController.register));
 // CONNEXION
 router.get("/connexion", cw(mainRoute.loginUserForm));
 router.post("/connexion", cw(authController.login));

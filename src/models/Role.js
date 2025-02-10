@@ -7,7 +7,8 @@ Role.init({
     name: {
         type: DataTypes.TEXT,
         allowNull: false,
-        unique: true
+        unique: true,
+        default: "Membre"
     }
 }, {
     sequelize,
