@@ -77,6 +77,45 @@ const mainRoute = {
         }
     },
 
+    registerUserForm: async (req, res, next) => {
+        try {
+            res.status(200).json({ message: "Formulaire d'inscription" });
+
+        } catch (error) {
+            error.statusCode = 500;
+            return next(error);
+        }
+    },
+
+    loginUserForm: async (req, res, next) => {
+        try {
+            res.status(200).json({ message: "Formulaire de connexion" });
+
+        } catch (error) {
+            error.statusCode = 500;
+            return next(error);
+        }
+    },
+    login: async (req, res, next) => {
+        try {
+            res.status(200).json({ message: "Formulaire de connexion" });
+
+        } catch (error) {
+            error.statusCode = 500;
+            return next(error);
+        }
+    },
+
+    forgetPassword: async (req, res, next) => {
+        try {
+            res.status(200).json({ message: "Mot de passe oublié ?" });
+
+        } catch (error) {
+            error.statusCode = 500;
+            return next(error);
+        }
+    },
+
     getCGU: async (req, res, next) => {
         try {
             res.status(200).json({ message: "Conditions Générales d'Utilisation" });

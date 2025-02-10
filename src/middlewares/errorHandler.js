@@ -5,9 +5,12 @@ const notFound = (req, res, next) => {
 };
 
 const errorHandler = (error, req, res, next) => {
+    console.error("Erreur interceptée :", error);
     const status = error.statusCode || 500;
 
-    res.status(status).json({status, error: Array.isArray(error.message) ? error.message : [error.message] });
+    const defaultError = status === 500 ? `Erreur serveur : ${error.message} ` : error.message;
+
+    res.status(status).json({status, error: Array.isArray(defaultError) ? defaultError : [defaultError] });
 };
 
 export { notFound, errorHandler };

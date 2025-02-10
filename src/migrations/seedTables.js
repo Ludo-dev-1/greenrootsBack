@@ -25,8 +25,8 @@ async function seedDatabase() {
         // Insertion des images d'arbres
         await Picture.bulkCreate([
             { url: "ChenePedoncule", description: "Arbre robuste à longue durée de vie, utilisé en menuiserie et pour la biodiversité." },
-            { url: "PlataneCommun", description: "Arbre forestier apprécié pour son bois et ses feuilles persistantes en hiver." },
-            { url: "HetreCommun", description: "Arbre robuste à longue durée de vie, utilisé en menuiserie et pour la biodiversité." },
+            { url: "PlataneCommun", description: "Arbre ornemental, ne produit pas de fruits, beaucoup planté pour agrémenter le paysage routier." },
+            { url: "HetreCommun", description: "Cet arbre est apprécié pour son rôle crucial dans les écosystèmes forestiers en tant qu'habitat pour de nombreuses espèces." },
             { url: "SaulePleureur", description: "Arbre ornemental souvent planté près des points d’eau pour sa silhouette élégante." },
             { url: "BouleauVerruqueux", description: "Arbre résistant au froid, purifiant l’air et favorisant la biodiversité." },
             { url: "PinSylvestre", description: "Conifère robuste et résistant, utilisé pour la reforestation et l’exploitation forestière." },
@@ -49,8 +49,8 @@ async function seedDatabase() {
         // Insertion des articles (arbres)
         await Article.bulkCreate([
             { name: "Chêne pédonculé", description: "Arbre robuste à longue durée de vie, utilisé en menuiserie et pour la biodiversité.", picture_id: 1, price: 120, available: true },
-            { name: "Platane commun", description: "Arbre forestier apprécié pour son bois et ses feuilles persistantes en hiver.", picture_id: 2, price: 90, available: true },
-            { name: "Hêtre commun", description: "Arbre robuste à longue durée de vie, utilisé en menuiserie et pour la biodiversité.", picture_id: 3, price: 110, available: true },
+            { name: "Platane commun", description: "Arbre ornemental, ne produit pas de fruits, beaucoup planté pour agrémenter le paysage routier.", picture_id: 2, price: 90, available: true },
+            { name: "Hêtre commun", description: "Cet arbre est apprécié pour son rôle crucial dans les écosystèmes forestiers en tant qu'habitat pour de nombreuses espèces.", picture_id: 3, price: 110, available: true },
             { name: "Saule pleureur", description: "Arbre ornemental souvent planté près des points d’eau pour sa silhouette élégante.", picture_id: 4, price: 150, available: true },
             { name: "Bouleau verruqueux", description: "Arbre résistant au froid, purifiant l’air et favorisant la biodiversité.", picture_id: 5, price: 80, available: true },
             { name: "Pin sylvestre", description: "Conifère robuste et résistant, utilisé pour la reforestation et l’exploitation forestière.", picture_id: 6, price: 100, available: true },
@@ -110,7 +110,7 @@ async function seedDatabase() {
             { article_id: 3, category_id: 6 },
             { article_id: 13, category_id: 6 },
             { article_id: 17, category_id: 6 },
-            { article_id: 2, category_id: 7 },
+            { article_id: 2, category_id: 9 },
             { article_id: 9, category_id: 7 },
             { article_id: 20, category_id: 7 },
             { article_id: 6, category_id: 8 },
@@ -122,6 +122,7 @@ async function seedDatabase() {
             { article_id: 3, category_id: 10 },
             { article_id: 5, category_id: 10 },
             { article_id: 13, category_id: 10 },
+            { article_id: 13, category_id: 4 },
             { article_id: 16, category_id: 10 }
         ]);
 
