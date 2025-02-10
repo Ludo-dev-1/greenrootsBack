@@ -1,7 +1,6 @@
 import { generateToken } from "../utils/jwt.js";
 import { User } from "../models/association.js";
 import argon2 from "argon2";
-import Joi from "joi";
 
 const authController = {
     login: async (req, res) => {
@@ -38,12 +37,7 @@ const authController = {
     },
     register: async (req, res) => {
         try {
-            const { firstname, lastname, email, password } = req.body;
-
-            // Validation des données
-            if (!firstname || !lastname || !email || !password) {
-                return res.status(400).json({ error: "Tous les champs sont obligatoires" });
-            }
+            const { firstname, lastname, email, password, repeat_password } = req.body;
 
             const hash = await argon2.hash(password);
 
@@ -74,22 +68,38 @@ const authController = {
         } catch (error) {
             console.error("Erreur dans le contrôleur d'inscription :", error);
             return res.status(500).json({ error: error.message });
+        };
+    },
+
+    registerUserForm: async (req, res, next) => {
+        try {
+            res.status(200).json({ message: "Formulaire d'inscription" });
+
+        } catch (error) {
+            error.statusCode = 500;
+            return next(error);
         }
     },
 
-    joiValidator: async (req, res) => {
-        const schema = Joi.object({
-            firstname: Joi.string().min(3).max(64).required(),
+    loginUserForm: async (req, res, next) => {
+        try {
+            res.status(200).json({ message: "Formulaire de connexion" });
 
-            lastname: Joi.object().required(),
+        } catch (error) {
+            error.statusCode = 500;
+            return next(error);
+        }
+    },
 
-            password: Joi.string().required(),
+    forgetPassword: async (req, res, next) => {
+        try {
+            res.status(200).json({ message: "Mot de passe oublié ?" });
 
-            repeat_password: Joi.ref("password").required(),
-
-            email: Joi.string().email({}).required()
-        });
-    }
+        } catch (error) {
+            error.statusCode = 500;
+            return next(error);
+        }
+    },
 };
 
 export default authController;
