@@ -1,5 +1,5 @@
 import "dotenv/config"; // Importation de la configuration des variables d'environnement
-import express, { Router } from "express"; // Importation du framework Express
+import express from "express"; // Importation du framework Express
 import cors from "cors";
 import { router } from "./src/router.js";
 import { errorHandler, notFound } from "./src/middlewares/errorHandler.js";

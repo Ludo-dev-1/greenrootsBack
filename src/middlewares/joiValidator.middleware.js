@@ -54,6 +54,8 @@ const joiValidator = (req, res, next) => {
                 'any.required': 'La confirmation du mot de passe est obligatoire.'
             }),
 
+        role_id: Joi.number().default(2).required(),
+
     });
 
     try {
