@@ -144,14 +144,24 @@ const shopController = {
                 await picture.save({ transaction });
             }
 
-            // Mise à jour de la catégorie
+            // Mise à jour des catégories
             if (categoryName) {
-                let category = await Category.findOne({
+                let existingCategories = await article.getCategories({ transaction })
+                let newCategories = await Category.findAll({
                     where: { name: categoryName },
                     transaction
                 });
-                await article.setCategories([category], { transaction });
-            }
+
+                // Ajoute les catégories qui ne sont pas encore associées à l'article
+                let categoriesToAdd = newCategories.filter(newCat => !existingCategories.some(exCat => exCat.id === newCat.id));
+                // Retire les catégories qui sont associés à l'article
+                let categoriesToRemove = existingCategories.filter(exCat => !newCategories.some(newCat => newCat.id === exCat.id));
+    
+                // Met à jour l'article avec les catégories ajoutées et retirées
+                await article.addCategories(categoriesToAdd, { transaction });
+                await article.removeCategories(categoriesToRemove, { transaction });
+            };
+
 
             // Sauvegarde des modifications de l'article
             await article.save({ transaction });
@@ -199,17 +209,18 @@ const shopController = {
                 await transaction.rollback();
                 return res.status(404).json({ error: "Article non trouvé" })
             };
+            
+            await article.destroy({ transaction });
 
-            await article.setCategories([], {transaction});
-
+            // Suppression des catégories associées
+            await article.setCategories([], { transaction });
+            
             if (article.picture_id) {
                 await Picture.destroy({
                     where: { id: article.picture_id },
                     transaction
                 });
             };
-
-            await article.destroy({ transaction });
 
             await transaction.commit();
 
