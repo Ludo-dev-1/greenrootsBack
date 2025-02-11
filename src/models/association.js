@@ -14,7 +14,9 @@ User.belongsTo(Role, {foreignKey: "role_id"});
 Role.hasMany(User, {foreignKey: "role_id"});
 
 // Article <=> Picture (One-to-Many)
-Article.belongsTo(Picture, {foreignKey: "picture_id"});
+Article.belongsTo(Picture, {
+    foreignKey: "picture_id",
+});
 Picture.hasMany(Article, {foreignKey: "picture_id"});
 
 // Order <=> User (One-to-Many)

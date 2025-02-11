@@ -1,5 +1,6 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../database.js";
+import { Picture } from "./Picture.js";
 
 export class Article extends Model {}
 
@@ -19,6 +20,14 @@ Article.init({
     available: {
         type: DataTypes.BOOLEAN,
         allowNull: false
+    },
+    picture_id: {
+        type: DataTypes.INTEGER,
+        references: {
+            model: Picture,
+            key: "id",
+            onDelete: "CASCADE"
+        }
     }
 }, {
     sequelize,

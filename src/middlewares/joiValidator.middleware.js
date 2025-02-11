@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-const joiValidator = (req, res, next) => {
+const registerJoiValidator = (req, res, next) => {
     const schema = Joi.object({
         firstname: Joi.string()
             .min(2)
@@ -54,6 +54,8 @@ const joiValidator = (req, res, next) => {
                 'any.required': 'La confirmation du mot de passe est obligatoire.'
             }),
 
+        role_id: Joi.number().default(2),
+
     });
 
     try {
@@ -67,4 +69,59 @@ const joiValidator = (req, res, next) => {
     };
 };
 
-export default joiValidator;
+const crudJoiValidator = (req, res, next) => {
+    const schema = Joi.object({
+        name: Joi.string().min(2).max(100).required().messages({
+            'string.base': 'Le nom doit être une chaîne de caractères.',
+            'string.empty': 'Le champ nom est obligatoire.',
+            'string.min': 'Le nom doit contenir au moins 2 caractères.',
+            'string.max': 'Le nom doit contenir au maximum 100 caractères.',
+            'any.required': 'Le champ nom est obligatoire.'
+        }),
+
+        description: Joi.string().min(10).required().messages({
+            'string.base': 'La description doit être une chaîne de caractères.',
+            'string.empty': 'Le champ description est obligatoire.',
+            'string.min': 'La description de l\'image doit contenir au moins 10 caractères.',
+            'any.required': 'Le champ description est obligatoire.'
+        }),
+
+        price: Joi.number().min(1).max(9999999999).precision(2).required().messages({
+            'number.base': 'Le prix doit être un nombre.',
+            'number.min': 'Le prix doit être supérieur ou égal à 1.',
+            'number.max': 'Le prix doit contenir au maximum 10 chiffres.',
+            'any.required': 'Le champ prix est obligatoire.'
+        }),
+
+        available: Joi.boolean().required().messages({
+            'boolean.base': 'Le champ disponibilité doit être vrai ou faux.',
+            'any.required': 'Le champ disponibilité est obligatoire.'
+        }),
+
+        pictureUrl: Joi.string().min(4).required().messages({
+            'string.base': 'L\'URL de l\'image doit être une chaîne de caractères.',
+            'string.empty': 'Le champ URL de l\'image est obligatoire.',
+            'string.min': 'L\'URL de l\'image doit contenir au moins 4 caractères.',
+            'any.required': 'Le champ URL de l\'image est obligatoire.'
+        }),
+
+        pictureDescription: Joi.string().min(10).required().messages({
+            'string.base': 'La description de l\'image doit être une chaîne de caractères.',
+            'string.empty': 'Le champ description de l\'image est obligatoire.',
+            'string.min': 'La description de l\'image doit contenir au moins 10 caractères.',
+            'any.required': 'Le champ description de l\'image est obligatoire.'
+        })
+    });
+
+    try {
+        const { error } = schema.validate(req.body);
+        if (error) {
+            return res.status(400).json({ error: error.details[0].message });
+        }
+        next();
+    } catch (error) {
+        res.status(400).send({ error: error.message });
+    }
+};
+
+export { registerJoiValidator, crudJoiValidator };

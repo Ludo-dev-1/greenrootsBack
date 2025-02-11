@@ -37,7 +37,7 @@ const authController = {
     },
     register: async (req, res) => {
         try {
-            const { firstname, lastname, email, password, repeat_password } = req.body;
+            const { firstname, lastname, email, password, repeat_password, role_id } = req.body;
 
             const hash = await argon2.hash(password);
 
@@ -52,7 +52,8 @@ const authController = {
                 firstname,
                 lastname,
                 email,
-                password: hash
+                password: hash,
+                role_id,
             });
 
             res.status(201).json({

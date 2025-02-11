@@ -1,11 +1,12 @@
 import { Article, Order, Picture, User, Tracking } from "../models/association.js";
 
-const mainRoute = {
+const mainController = {
     // Récupération de tous les articles nouvellement créés
     getNewArticles: async (req, res, next) => {
         try {
             const articles = await Article.findAll({
-                order: [["created_at", "DESC"]]
+                order: [["created_at", "DESC"]],
+                include: [{ model: Picture }]
             });
 
             if (!articles) {
@@ -13,15 +14,7 @@ const mainRoute = {
                 return next(error);
             };
 
-            const pictures = await Picture.findAll();
-
-            if (!pictures) {
-                const newError = new Error("Images non trouvées")
-                newError.statusCode = 404;
-                return next(newError);
-            };
-
-            res.status(200).json({ articles, pictures});
+            res.status(200).json({ articles });
 
         } catch (error) {
             error.statusCode = 500;
@@ -32,23 +25,39 @@ const mainRoute = {
     // Récupération de tout les articles
     getAllArticles: async (req, res, next) => {
         try {
-            const articles = await Article.findAll();
+            const articles = await Article.findAll({
+                include: [{ model: Picture }]
+            });
 
             if (!articles) {
                 error.statusCode = 404;
                 return next(error);
             };
 
-            const pictures = await Picture.findAll();
+            res.status(200).json({ articles });
 
-            if (!pictures) {
-                const newError = new Error("Images non trouvées")
+        } catch (error) {
+            error.statusCode = 500;
+            return next(error);
+        }
+    },
+
+    // Récupération d'un seul article
+    getOneArticle: async (req, res, next) => {
+        try {
+            const articleId = req.params.id;
+
+            const oneArticle = await Article.findByPk(articleId, {
+                include: [{ model: Picture }]
+            });
+
+            if (!oneArticle) {
+                const newError = new Error("Cet arbre n'existe pas ou a été retiré !");
                 newError.statusCode = 404;
                 return next(newError);
             };
 
-            res.status(200).json({ articles, pictures});
-
+            res.status(201).json(oneArticle);
         } catch (error) {
             error.statusCode = 500;
             return next(error);
@@ -70,45 +79,6 @@ const mainRoute = {
             };
 
             res.status(200).json(orders);
-
-        } catch (error) {
-            error.statusCode = 500;
-            return next(error);
-        }
-    },
-
-    registerUserForm: async (req, res, next) => {
-        try {
-            res.status(200).json({ message: "Formulaire d'inscription" });
-
-        } catch (error) {
-            error.statusCode = 500;
-            return next(error);
-        }
-    },
-
-    loginUserForm: async (req, res, next) => {
-        try {
-            res.status(200).json({ message: "Formulaire de connexion" });
-
-        } catch (error) {
-            error.statusCode = 500;
-            return next(error);
-        }
-    },
-    login: async (req, res, next) => {
-        try {
-            res.status(200).json({ message: "Formulaire de connexion" });
-
-        } catch (error) {
-            error.statusCode = 500;
-            return next(error);
-        }
-    },
-
-    forgetPassword: async (req, res, next) => {
-        try {
-            res.status(200).json({ message: "Mot de passe oublié ?" });
 
         } catch (error) {
             error.statusCode = 500;
@@ -173,4 +143,4 @@ const mainRoute = {
     },
 };
 
-export default mainRoute;
+export default mainController;
