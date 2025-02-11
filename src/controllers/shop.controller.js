@@ -21,6 +21,7 @@ const shopController = {
         }
     },
 
+    // Récupération d'un seul article
     getOneArticle: async (req, res, next) => {
         try {
             const articleId = req.params.id;
@@ -69,6 +70,7 @@ const shopController = {
                 picture_id: newPicture.id
             }, { transaction });
 
+            // Validation de la transaction
             await transaction.commit();
 
             res.status(201).json({
@@ -76,6 +78,7 @@ const shopController = {
                 article: newArticle
             });
         } catch (error) {
+            // Annule les modifications en cas d'erreur de la transaction
             await transaction.rollback();
             console.error("Erreur lors de la création de l'article :", error);
             res.status(500).json({ error: "Erreur serveur lors de la création de l'article" });
@@ -103,19 +106,50 @@ const shopController = {
             const article = await Article.findByPk(articleId, {
                 include: [{
                     model: Picture
-                }]
-            });
+                }],
+            }, { transaction });
+
             if(!article) {
+                await transaction.rollback();
                 return res.status(404).json({ error: "L'article spécifié n'existe pas." });
             }
             
-            // Mise à jour des 
-            // champs de l'article
-    ame) {
+            // Mise à jour des champs de l'article 
+            if (name) article.name = name;
+            if (description) article.description = description;
+            if (price) article.price = price;
+            if (available !== undefined) article.available = available;
             
-               article.name = name;
-            }        } catch (error) {
+            // Mise à jour de l'image associée
+            if (pictureUrl || pictureDescription) {
+                let picture = await Picture.findByPk(article.picture_id);
+                if (pictureUrl) picture.url = pictureUrl;
+                if (pictureDescription) picture.description = pictureDescription;
+                // Sauvegarde des modifications de la photo
+                await picture.save({ transaction });
+            }
             
+            // Sauvegarde des modifications de l'article
+            await article.save({ transaction });
+
+            // Validation de la transaction
+            await transaction.commit();
+
+            // Recharge l'article avec les relations mises à jour
+            const updatedArticle = await Article.findByPk(articleId, {
+                include: [{ model: Picture }]
+            });
+
+            res.status(200).json({
+                message: "Article mis à jour avec succès",
+                article: updatedArticle
+            });
+        }
+        catch (error) {
+            // Annule les modifications en cas d'erreur de la transaction
+            await transaction.rollback();
+            console.error("Erreur lors de la création de l'article :", error);
+            res.status(500).json({ error: "Erreur serveur lors de la mise à de l'article" });
         }
     },
 
@@ -123,15 +157,25 @@ const shopController = {
         try {
             const articleId = req.params.id;
 
-            const deleting = await Article.destroy({
-                where: { id: articleId }
+            const article = await Article.findByPk(articleId, {
+                include: [Picture]
             });
 
-            if (deleting === 0) {
+            if (!article) {
                 return res.status(404).json({ error: "Article non trouvé"})
-            }
+            };
+
+            if (article.picture_id) {
+                await Picture.destroy({
+                    where: {id: article.picture_id}
+                });
+            };
+
+            await article.destroy({
+                where: { id: articleId }
+            });
             
-            await deleting;
+            res.status(200).json({message: "Article supprimé avec succès"});
         } catch (error) {
             error.statusCode = 500;
             return next(error);

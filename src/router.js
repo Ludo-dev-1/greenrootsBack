@@ -19,8 +19,8 @@ router.get("/boutique/:id", cw(mainController.getOneArticle));
 router.get("/api/articles", authenticate, cw(shopController.getAllArticles));
 router.get("/api/articles/:id", authenticate, cw(shopController.getOneArticle));
 router.post("/api/articles", authenticate, cw(shopController.createArticleWithPicture)); // Validation des données lors de la création d'un article : modifier pour utiliser une méthode dans joiValidator.middleware.js
-router.patch("/api/articles/:id", authenticate, cw(shopController));
-router.delete("/api/articles/:id", authenticate, cw(shopController));
+router.patch("/api/articles/:id", authenticate, cw(shopController.updateArticle));
+router.delete("/api/articles/:id", authenticate, cw(shopController.deleteArticle));
 
 // COMMANDE
 router.get("/commande", authenticate, cw(mainController.getOrders)); //order et tracking

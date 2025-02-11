@@ -25,7 +25,8 @@ Article.init({
         type: DataTypes.INTEGER,
         references: {
             model: Picture,
-            key: "id"
+            key: "id",
+            onDelete: "CASCADE"
         }
     }
 }, {
