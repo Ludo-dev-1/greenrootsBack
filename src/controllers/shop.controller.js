@@ -88,7 +88,7 @@ const shopController = {
     updateArticle: async (req, res, next) => {
         const transaction = await sequelize.transaction();
         try {
-            // Vérifier si l'utilisateur est un administrateur
+            // Vérification de si l'utilisateur est un administrateur
             if (req.user.role_id !== 1) {
                 return res.status(403).json({ error: "Accès non autorisé" });
             }
@@ -154,29 +154,39 @@ const shopController = {
     },
 
     deleteArticle: async (req, res, next) => {
+        const transaction = await sequelize.transaction();
         try {
+            // Vérification de si l'utilisateur est un administrateur
+            if (req.user.role_id !== 1) {
+                return res.status(403).json({ error: "Accès non autorisé" });
+            }
+            
             const articleId = req.params.id;
 
             const article = await Article.findByPk(articleId, {
-                include: [Picture]
+                include: [Picture],
+                transaction
             });
 
             if (!article) {
+                await transaction.rollback();
                 return res.status(404).json({ error: "Article non trouvé"})
             };
 
+            await article.destroy({ transaction });
+
             if (article.picture_id) {
                 await Picture.destroy({
-                    where: {id: article.picture_id}
+                    where: {id: article.picture_id},
+                    transaction 
                 });
             };
 
-            await article.destroy({
-                where: { id: articleId }
-            });
+            await transaction.commit();
             
             res.status(200).json({message: "Article supprimé avec succès"});
         } catch (error) {
+            await transaction.rollback();
             error.statusCode = 500;
             return next(error);
         }
