@@ -43,27 +43,27 @@ INSERT INTO "role" ("id", "name") VALUES
 -- ----------------------------------------
 -- Déchargement des données de la table "picture"
 -- ----------------------------------------
-INSERT INTO "picture" ("id", "url", "description") VALUES
-(1, 'Chêne pédonculé', 'Je trouve que ça passe bien en Amazonie'),
-(2, 'Platane commun', 'Je trouve que ça passe bien en Amazonie'),
-(3, 'Hêtre commun', 'Je trouve que ça passe bien en Amazonie'),
-(4, 'Saule pleureur', 'Je trouve que ça passe bien en Amazonie'),
-(5, 'Bouleau verruqueux', 'Je trouve que ça passe bien en Amazonie'),
-(6, 'Pin sylvestre', 'Je trouve que ça passe bien en Amazonie'),
-(7, 'Cèdre du Liban', 'Je trouve que ça passe bien en Amazonie'),
-(8, 'Olivier', 'Je trouve que ça passe bien en Amazonie'),
-(9, 'Acacia', 'Je trouve que ça passe bien en Amazonie'),
-(10, 'Ginkgo biloba', 'Je trouve que ça passe bien en Amazonie'),
-(11, 'Sequoia géant', 'Je trouve que ça passe bien en Amazonie'),
-(12, 'Magnolia grandiflora', 'Je trouve que ça passe bien en Amazonie'),
-(13, 'Tilleul à grandes feuilles', 'Je trouve que ça passe bien en Amazonie'),
-(14, 'Noyer commun', 'Je trouve que ça passe bien en Amazonie'),
-(15, 'Cerisier sauvage', 'Je trouve que ça passe bien en Amazonie'),
-(16, 'Charme commun', 'Je trouve que ça passe bien en Amazonie'),
-(17, 'Frêne élevé', 'Je trouve que ça passe bien en Amazonie'),
-(18, 'Cocotier', 'Je trouve que ça passe bien en Amazonie'),
-(19, 'Mimosa', 'Je trouve que ça passe bien en Amazonie'),
-(20, 'Eucalyptus', 'Je trouve que ça passe bien en Amazonie');
+INSERT INTO "picture" ("id", "url") VALUES
+(1, 'Chêne pédonculé'),
+(2, 'Platane commun'),
+(3, 'Hêtre commun'),
+(4, 'Saule pleureur'),
+(5, 'Bouleau verruqueux'),
+(6, 'Pin sylvestre'),
+(7, 'Cèdre du Liban'),
+(8, 'Olivier'),
+(9, 'Acacia'),
+(10, 'Ginkgo biloba'),
+(11, 'Sequoia géant'),
+(12, 'Magnolia grandiflora'),
+(13, 'Tilleul à grandes feuilles'),
+(14, 'Noyer commun'),
+(15, 'Cerisier sauvage'),
+(16, 'Charme commun'),
+(17, 'Frêne élevé'),
+(18, 'Cocotier'),
+(19, 'Mimosa'),
+(20, 'Eucalyptus');
 
 -- ----------------------------------------
 -- Déchargement des données de la table "article"
