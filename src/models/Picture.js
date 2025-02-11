@@ -14,10 +14,6 @@ Picture.init({
         allowNull: false,
         unique: true
     },
-    description: {
-        type: DataTypes.TEXT,
-        allowNull: false
-    }
 }, {
     sequelize,
     tableName: "picture"

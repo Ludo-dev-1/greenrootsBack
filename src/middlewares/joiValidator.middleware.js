@@ -71,6 +71,11 @@ const registerJoiValidator = (req, res, next) => {
 
 const crudJoiValidator = (req, res, next) => {
     const schema = Joi.object({
+        categoryName: Joi.array().items(Joi.string().required().messages({
+            'string.base': 'Le nom de la catégorie doit être une chaîne de caractères.',
+            'string.empty': 'Le champ nom de la catégorie est obligatoire.',
+            'any.required': 'Le champ nom de la catégorie est obligatoire.'
+        })),
         name: Joi.string().min(2).max(100).required().messages({
             'string.base': 'Le nom doit être une chaîne de caractères.',
             'string.empty': 'Le champ nom est obligatoire.',
@@ -103,13 +108,6 @@ const crudJoiValidator = (req, res, next) => {
             'string.empty': 'Le champ URL de l\'image est obligatoire.',
             'string.min': 'L\'URL de l\'image doit contenir au moins 4 caractères.',
             'any.required': 'Le champ URL de l\'image est obligatoire.'
-        }),
-
-        pictureDescription: Joi.string().min(10).required().messages({
-            'string.base': 'La description de l\'image doit être une chaîne de caractères.',
-            'string.empty': 'Le champ description de l\'image est obligatoire.',
-            'string.min': 'La description de l\'image doit contenir au moins 10 caractères.',
-            'any.required': 'Le champ description de l\'image est obligatoire.'
         })
     });
 

@@ -1,4 +1,4 @@
-import { Article, Picture, sequelize } from "../models/association.js";
+import { Article, Picture, Category, sequelize } from "../models/association.js";
 
 const shopController = {
     // Récupération de tout les articles
@@ -27,7 +27,10 @@ const shopController = {
             const articleId = req.params.id;
 
             const oneArticle = await Article.findByPk(articleId, {
-                include: [{ model: Picture }]
+                include: [
+                    { model: Picture },
+                    { model: Category, as: "categories" }
+                ]
             });
 
             if (!oneArticle) {
@@ -42,25 +45,30 @@ const shopController = {
             return next(error);
         }
     },
-        
+
     createArticleWithPicture: async (req, res, next) => {
         const transaction = await sequelize.transaction();
         try {
             // Vérifier si l'utilisateur est un administrateur
             if (req.user.role_id !== 1) {
                 return res.status(403).json({ error: "Accès non autorisé" });
-            }
+            };
 
-            const { name, description, price, available, pictureUrl, pictureDescription } = req.body;
+            const { categoryName, name, description, price, available, pictureUrl } = req.body;
 
-            if (!name || !description || !price || available === undefined || !pictureUrl || !pictureDescription) {
+            if (!categoryName || !name || !description || !price || available === undefined || !pictureUrl) {
                 return res.status(400).json({ error: "Tous les champs sont obligatoires" });
-            }
+            };
+
+            const categories = await Category.findAll({
+                where: { name: categoryName },
+                transaction
+            });
 
             const newPicture = await Picture.create({
                 url: pictureUrl,
-                description: pictureDescription
-            }, { transaction });
+                transaction 
+            });
 
             const newArticle = await Article.create({
                 name,
@@ -69,6 +77,10 @@ const shopController = {
                 available,
                 picture_id: newPicture.id
             }, { transaction });
+
+            for (const category of categories) {
+                await newArticle.addCategory(category, { transaction }); 
+            }
 
             // Validation de la transaction
             await transaction.commit();
@@ -94,11 +106,11 @@ const shopController = {
             }
             // Récupération de l'ID de l'article depuis les paramètres de la requête
             const articleId = req.params.id;
-            
-            const { name, description, price, available, pictureUrl, pictureDescription } = req.body;
+
+            const { categoryName, name, description, price, available, pictureUrl } = req.body;
 
             // Validation des données
-            if (!name || !description || !price || available === undefined || !pictureUrl || !pictureDescription) {
+            if (!categoryName || !name || !description || !price || available === undefined || !pictureUrl) {
                 return res.status(400).json({ error: "Aucun champ à mettre à jour n'a été fourni." });
             }
 
@@ -106,29 +118,41 @@ const shopController = {
             const article = await Article.findByPk(articleId, {
                 include: [{
                     model: Picture
+                },
+                {
+                    model: Category,
+                    as: "categories"
                 }],
             }, { transaction });
 
-            if(!article) {
+            if (!article) {
                 await transaction.rollback();
                 return res.status(404).json({ error: "L'article spécifié n'existe pas." });
             }
-            
+
             // Mise à jour des champs de l'article 
             if (name) article.name = name;
             if (description) article.description = description;
             if (price) article.price = price;
             if (available !== undefined) article.available = available;
-            
+
             // Mise à jour de l'image associée
-            if (pictureUrl || pictureDescription) {
+            if (pictureUrl) {
                 let picture = await Picture.findByPk(article.picture_id);
-                if (pictureUrl) picture.url = pictureUrl;
-                if (pictureDescription) picture.description = pictureDescription;
+                picture.url = pictureUrl;
                 // Sauvegarde des modifications de la photo
                 await picture.save({ transaction });
             }
-            
+
+            // Mise à jour de la catégorie
+            if (categoryName) {
+                let category = await Category.findOne({
+                    where: { name: categoryName },
+                    transaction
+                });
+                await article.setCategories([category], { transaction });
+            }
+
             // Sauvegarde des modifications de l'article
             await article.save({ transaction });
 
@@ -137,7 +161,10 @@ const shopController = {
 
             // Recharge l'article avec les relations mises à jour
             const updatedArticle = await Article.findByPk(articleId, {
-                include: [{ model: Picture }]
+                include: [
+                    { model: Picture },
+                    { model: Category, as: "categories" }
+                ]
             });
 
             res.status(200).json({
@@ -160,7 +187,7 @@ const shopController = {
             if (req.user.role_id !== 1) {
                 return res.status(403).json({ error: "Accès non autorisé" });
             }
-            
+
             const articleId = req.params.id;
 
             const article = await Article.findByPk(articleId, {
@@ -170,21 +197,23 @@ const shopController = {
 
             if (!article) {
                 await transaction.rollback();
-                return res.status(404).json({ error: "Article non trouvé"})
+                return res.status(404).json({ error: "Article non trouvé" })
+            };
+
+            await article.setCategories([], {transaction});
+
+            if (article.picture_id) {
+                await Picture.destroy({
+                    where: { id: article.picture_id },
+                    transaction
+                });
             };
 
             await article.destroy({ transaction });
 
-            if (article.picture_id) {
-                await Picture.destroy({
-                    where: {id: article.picture_id},
-                    transaction 
-                });
-            };
-
             await transaction.commit();
-            
-            res.status(200).json({message: "Article supprimé avec succès"});
+
+            res.status(200).json({ message: "Article supprimé avec succès" });
         } catch (error) {
             await transaction.rollback();
             error.statusCode = 500;

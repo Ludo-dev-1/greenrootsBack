@@ -24,26 +24,26 @@ async function seedDatabase() {
 
         // Insertion des images d'arbres
         await Picture.bulkCreate([
-            { url: "ChenePedoncule", description: "Arbre robuste à longue durée de vie, utilisé en menuiserie et pour la biodiversité." },
-            { url: "PlataneCommun", description: "Arbre ornemental, ne produit pas de fruits, beaucoup planté pour agrémenter le paysage routier." },
-            { url: "HetreCommun", description: "Cet arbre est apprécié pour son rôle crucial dans les écosystèmes forestiers en tant qu'habitat pour de nombreuses espèces." },
-            { url: "SaulePleureur", description: "Arbre ornemental souvent planté près des points d’eau pour sa silhouette élégante." },
-            { url: "BouleauVerruqueux", description: "Arbre résistant au froid, purifiant l’air et favorisant la biodiversité." },
-            { url: "PinSylvestre", description: "Conifère robuste et résistant, utilisé pour la reforestation et l’exploitation forestière." },
-            { url: "CedreDuLiban", description: "Arbre majestueux, symbole de longévité et apprécié pour son bois imputrescible." },
-            { url: "Olivier", description: "Arbre méditerranéen produisant des olives, symbole de paix et de résilience." },
-            { url: "Acacia", description: "Arbre à croissance rapide, utilisé en agroforesterie et en médecine traditionnelle." },
-            { url: "GinkgoBiloba", description: "Arbre préhistorique aux vertus médicinales, résistant à la pollution." },
-            { url: "SequoiaGeant", description: "Un des plus grands arbres du monde, connu pour sa longévité extrême." },
-            { url: "MagnoliaGrandiflora", description: "Arbre ornemental à fleurs parfumées, populaire dans les parcs et jardins." },
-            { url: "TilleulAGrandesFeuilles", description: "Arbre mellifère favorisant la pollinisation et la biodiversité." },
-            { url: "NoyerCommun", description: "Arbre fruitier produisant des noix, apprécié pour son bois précieux." },
-            { url: "CerisierSauvage", description: "Arbre fruitier donnant des cerises comestibles et apprécié pour ses fleurs printanières." },
-            { url: "CharmeCommun", description: "Arbre rustique utilisé en haie ou en forêt, résistant et facile à entretenir." },
-            { url: "FreneEleve", description: "Arbre élancé, apprécié pour sa résistance et son bois utilisé en ébénisterie." },
-            { url: "Cocotier", description: "Arbre tropical produisant des noix de coco, cultivé en régions chaudes." },
-            { url: "Mimosa", description: "Arbre ornemental à fleurs jaunes parfumées, très apprécié dans les jardins." },
-            { url: "Eucalyptus", description: "Arbre à croissance rapide, utilisé en sylviculture et en huiles essentielles." }
+            { url: "ChenePedoncule"},
+            { url: "PlataneCommun"},
+            { url: "HetreCommun"},
+            { url: "SaulePleureur"},
+            { url: "BouleauVerruqueux"},
+            { url: "PinSylvestre"},
+            { url: "CedreDuLiban"},
+            { url: "Olivier"},
+            { url: "Acacia"},
+            { url: "GinkgoBiloba"},
+            { url: "SequoiaGeant"},
+            { url: "MagnoliaGrandiflora"},
+            { url: "TilleulAGrandesFeuilles"},
+            { url: "NoyerCommun"},
+            { url: "CerisierSauvage"},
+            { url: "CharmeCommun"},
+            { url: "FreneEleve"},
+            { url: "Cocotier"},
+            { url: "Mimosa"},
+            { url: "Eucalyptus"}
         ]);
 
         // Insertion des articles (arbres)
