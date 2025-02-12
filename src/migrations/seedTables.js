@@ -1,4 +1,5 @@
 import { User, Role, Order, Tracking, Picture, Article, Category, ArticleHasOrder, ArticleHasCategory } from "../models/association.js";
+import argon2 from "argon2";
 
 async function seedDatabase() {
     try {
@@ -72,8 +73,10 @@ async function seedDatabase() {
 
         // Insertion des utilisateurs
         await User.bulkCreate([
-            { firstname: "Nathan", lastname: "Begue", email: "nathan.begue@oclock.school", password: "arbre", role_id: 1 },
-            { firstname: "Donovan", lastname: "Grout", email: "donovan.grout@oclock.school", password: "arbre", role_id: 1 }
+            { firstname: "Nathan", lastname: "Begue", email: "nathan.begue@oclock.school", password: await argon2.hash("arbre"), role_id: 1 },
+            { firstname: "Donovan", lastname: "Grout", email: "donovan.grout@oclock.school", password: await argon2.hash("arbre"), role_id: 1 },
+            { firstname: "Ludovic", lastname: "Thibaud", email: "ludovic.thibaud@oclock.school", password: await argon2.hash("arbre"), role_id: 2 },
+            { firstname: "Léo", lastname: "Khatchatourian", email: "leo.khatchatourian@oclock.school", password: await argon2.hash("arbre"), role_id: 2 },
         ]);
 
         // Insertion d'une commande

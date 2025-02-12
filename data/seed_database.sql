@@ -97,6 +97,8 @@ INSERT INTO "article" ("id", "name", "description", "picture_id", "price", "avai
 INSERT INTO "user" ("id", "firstname", "lastname", "email", "password", "role_id") VALUES
 (1, 'Nathan', 'begue', 'nathan.begue@oclock.school', 'arbre', 1),
 (2, 'Donovan', 'Grout', 'donovan.grout@oclock.school', 'arbre', 1);
+(3, 'Ludovic', 'Thibaud', 'ludovic.thibaud@oclock.school','arbre', 2),
+(4, 'Léo', 'Khatchatourian', 'leo.khatchatourian@oclock.school', 'arbre', 2),
 
 -- ----------------------------------------
 -- Déchargement des données de la table "order"

@@ -1,11 +1,14 @@
 import { Article, Picture, Category, sequelize } from "../models/association.js";
 
-const shopController = {
+const adminShopController = {
     // Récupération de tout les articles
     getAllArticles: async (req, res, next) => {
         try {
             const articles = await Article.findAll({
-                include: [{ model: Picture }]
+                include: [
+                    { model: Picture },
+                    { model: Category, as: "categories" }
+                ]
             });
 
             if (!articles) {
@@ -233,4 +236,4 @@ const shopController = {
     }
 };
 
-export default shopController;
+export default adminShopController;

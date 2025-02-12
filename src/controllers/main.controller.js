@@ -1,4 +1,4 @@
-import { Article, Order, Picture, User, Tracking } from "../models/association.js";
+import { Article, Order, ArticleHasOrder, Tracking, Picture, sequelize } from "../models/association.js";
 
 const mainController = {
     // Récupération de tous les articles nouvellement créés
@@ -22,7 +22,7 @@ const mainController = {
         }
     },
 
-    // Récupération de tout les articles
+    // Récupération de tous les articles
     getAllArticles: async (req, res, next) => {
         try {
             const articles = await Article.findAll({
@@ -57,29 +57,7 @@ const mainController = {
                 return next(newError);
             };
 
-            res.status(201).json(oneArticle);
-        } catch (error) {
-            error.statusCode = 500;
-            return next(error);
-        }
-    },
-
-    getOrders: async (req, res, next) => {
-        try {
-            const userId = req.user.id;
-
-            const orders = await Order.findAll({
-                where: { user_id: userId },
-                order: [["date", "DESC"]]
-            });
-
-            if (!orders) {
-                error.statusCode = 404;
-                return next(error);
-            };
-
-            res.status(200).json(orders);
-
+            res.status(200).json(oneArticle);
         } catch (error) {
             error.statusCode = 500;
             return next(error);
@@ -96,19 +74,9 @@ const mainController = {
         }
     },
 
-    getUserProfile: async (req, res, next) => {
+    getOrderPage: async (req, res, next) => {
         try {
-            const userId = req.user.id;
-
-            const user = await User.findByPk(userId);
-
-            if (!user) {
-                const error = new Error("Utilisateur non trouvé");
-                error.statusCode = 404;
-                return next(error);
-            }
-
-            res.status(200).json({ message: `Bonjour ${user.firstname}`, user: req.user });
+            res.status(200).json({ message: "Pages de commandes" });
 
         } catch (error) {
             error.statusCode = 500;
@@ -116,31 +84,60 @@ const mainController = {
         }
     },
 
-    getOrderTracking: async (req, res, next) => {
+/*     createOrder: async (req, res, next) => {
+        const transaction = await sequelize.transaction();
         try {
             const userId = req.user.id;
+            const { article_summary, price } = req.body;
 
-            const tracking = await Tracking.findAll({
+            if (!article_summary || !price) {
+                return res.status(400).json({ error: "Le résumé des articles et le prix sont obligatoires pour passer une commande."});
+            }
+
+            // Création de la commande
+            const newOrder = await Order.create({
+                article_summary,
+                price,
+                date: new Date(),
+                user_id: userId
+            },
+                { transaction }
+            );
+
+            // Création d'un suivi pour la commande
+            const newTracking = await Tracking.create({
+                growth: "En attente de plantation",
+                status: "Commande passée",
+                plant_place: "A définir",
+                order_id: newOrder.id
+            }, 
+                { transaction }
+            );
+
+            const pictures = await Picture.findAll({
+                attributes: ["url"],
                 include: [{
-                    model: Order,
-                    where: { user_id: userId },
-                    include: [{ model: Article, as: 'articles' }]
+                    model: Tracking,
+                    where: { id: newTracking.id },
+                    attributes: []
                 }],
-                order: [[Order, 'date', 'DESC']]
+                transaction: transaction
             });
 
-            if (!tracking || tracking.length === 0) {
-                const error = new Error("Aucun suivi de commande trouvé");
-                error.statusCode = 404;
-                return next(error);
-            }
+            // Validation de la transaction
+            await transaction.commit();
 
-            res.status(200).json(tracking);
+            res.status(201).json({
+                message: "Commande créée avec succès",
+                order: newOrder,
+                pictures: pictures.map(picture => picture.url)
+            });
         } catch (error) {
+            await transaction.rollback();
             error.statusCode = 500;
             return next(error);
         }
-    },
+    }, */
 };
 
 export default mainController;
