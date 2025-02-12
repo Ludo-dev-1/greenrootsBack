@@ -77,28 +77,34 @@ router.patch("/compte", authenticate, crudUserProfileValidator, cw(userControlle
 router.delete("/compte", authenticate, cw(userController.deleteUserProfile));
 // Page de commandes passées
 router.get("/compte/commandes", authenticate, cw(userController.getOrders));
-// Page de suivi des commandes
-router.get("/compte/commandes/:id", authenticate, cw(userController.getOrderTracking));
-router.get("/compte/commandes/:id/suivi/id", authenticate, cw(userController.getOrderTracking));
+// Page de suivi d'une commande
+router.get("/compte/commandes/:id", authenticate, cw()); // A FAIRE
+// Page de suivi des articles d'une commande
+router.get("/compte/commandes/:id/suivi", authenticate, cw()); // A FAIRE
+// Page de suivi d'un article d'une commande 
+router.get("/compte/commandes/:id/suivi/:id", authenticate, cw()); // A FAIRE
 
 
 // ================================
 //     ROUTES ADMIN (ARTICLES)
 // ================================
 
-
+// * CRUD ARTICLES
+// Page des articles (admin)
 router.get("/api/articles", authenticate, cw(adminShopController.getAllArticles));
+// Page d'un article (admin)
 router.get("/api/articles/:id", authenticate, cw(adminShopController.getOneArticle));
+// Création d'un article
 router.post("/api/articles", authenticate, crudAdminShopValidator, cw(adminShopController.createArticleWithPicture));
+// Modification d'un article
 router.patch("/api/articles/:id", authenticate, crudAdminShopValidator, cw(adminShopController.updateArticle));
+// Suppression d'un article
 router.delete("/api/articles/:id", authenticate, cw(adminShopController.deleteArticle));
 
-router.get("/compte/commandes", authenticate, cw(userController.getAllOrders));
+// * COMMANDE / SUIVI (admin)
+// Page de commandes (admin) récupération de toutes les commandes et de leur suivi
+router.get("/compte/commandes", authenticate, cw(userController.getAllOrders)); // A FAIRE
 
-// USER
-// GET /compte/commandes/suivi/:id : Voir le détail du suivi d’un article d’une commande
-// ADMIN
-// PATCH /compte/commandes/suivi/:id : Modifier le suivi du détail d’un article d’une commande (Admin)
 
 
 export { router };

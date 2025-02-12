@@ -1,4 +1,4 @@
-import { Article, Order, Picture } from "../models/association.js";
+import { Article, Order, ArticleHasOrder, Tracking, Picture, sequelize } from "../models/association.js";
 
 const mainController = {
     // Récupération de tous les articles nouvellement créés
@@ -84,32 +84,60 @@ const mainController = {
         }
     },
 
-    createOrder: async (req, res, next) => {
+/*     createOrder: async (req, res, next) => {
+        const transaction = await sequelize.transaction();
         try {
             const userId = req.user.id;
             const { article_summary, price } = req.body;
 
             if (!article_summary || !price) {
-                error.statusCode = 404;
-                return next(error);
+                return res.status(400).json({ error: "Le résumé des articles et le prix sont obligatoires pour passer une commande."});
             }
 
+            // Création de la commande
             const newOrder = await Order.create({
                 article_summary,
                 price,
                 date: new Date(),
                 user_id: userId
+            },
+                { transaction }
+            );
+
+            // Création d'un suivi pour la commande
+            const newTracking = await Tracking.create({
+                growth: "En attente de plantation",
+                status: "Commande passée",
+                plant_place: "A définir",
+                order_id: newOrder.id
+            }, 
+                { transaction }
+            );
+
+            const pictures = await Picture.findAll({
+                attributes: ["url"],
+                include: [{
+                    model: Tracking,
+                    where: { id: newTracking.id },
+                    attributes: []
+                }],
+                transaction: transaction
             });
+
+            // Validation de la transaction
+            await transaction.commit();
 
             res.status(201).json({
                 message: "Commande créée avec succès",
-                order: newOrder
+                order: newOrder,
+                pictures: pictures.map(picture => picture.url)
             });
         } catch (error) {
+            await transaction.rollback();
             error.statusCode = 500;
             return next(error);
         }
-    },
+    }, */
 };
 
 export default mainController;
