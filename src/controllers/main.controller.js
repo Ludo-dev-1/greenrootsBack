@@ -88,66 +88,100 @@ const mainController = {
     },
 
     createOrder: async (req, res, next) => {
+    /*
+        - Valide et calcule le prix total des articles commandés
+        - Crée une nouvelle entrée dans la table Order
+        - Crée des entrées dans ArticleHasOrder pour chaque article de la commande
+        - Crée un suivi global de la commande dans Tracking
+        - Crée des suivis individuels pour chaque article dans ArticleTracking
+    */
         const transaction = await sequelize.transaction();
         try {
             const userId = req.user.id;
-            const { article_summary, price } = req.body;
+            const { articles } = req.body;
 
-            if (!article_summary || !price) {
-                return res.status(400).json({ error: "Le résumé des articles et le prix sont obligatoires pour passer une commande." });
+            // Vérification de la validité des données
+            if (!articles || !Array.isArray(articles) || articles.length === 0) {
+                return res.status(400).json({ error: "Les articles sont obligatoires pour passer une commande." });
             }
 
-            const articleNames = [];
-            for (const article of article_summary) {
-                const articleData = await Article.findByPk(article.id, {transaction});
-                if (articleData) {
-                    articleNames.push(articleData.name)
-                } else {
-                    throw new Error(`Article avec l'id ${article.id} non trouvé.`)
+            let total_price = 0;
+            const articleDetails = [];
+
+            // Calcul du prix total et préparation des détails des articles
+            for (const articleInfo of articles) {
+                const article = await Article.findByPk(articleInfo.id, { transaction });
+                if (!article) {
+                    throw new Error(`Article avec l'ID ${articleInfo.id} non trouvé`);
                 }
+                const articlePrice = article.price * articleInfo.quantity;
+                total_price += articlePrice;
+                articleDetails.push({
+                    name: article.name,
+                    quantity: articleInfo.quantity,
+                    price: articlePrice,
+                    id: article.id
+                });
             }
 
-            // Création de la commande
+            // Création du résumé des articles pour la commande
+            const article_summary = articleDetails.map(ad => `${ad.quantity}x ${ad.name}`).join(', ');
+
+            // Création de la commande (entrée dans la table Order)
             const newOrder = await Order.create({
-                article_summary: article_summary.join(', '),
-                price,
+                article_summary,
+                total_price,
                 date: new Date(),
                 user_id: userId
             }, { transaction });
 
-            for (const article of article_summary) {
-                await ArticleHasOrder.create({
-                    order_id: newOrder.id,
-                    article_id: article.id,
-                    quantity: article.quantity
-                }, { transaction })
-            };
+            // Création du suivi global de la commande dans la table Tracking
+            await Tracking.create({
+                status: "Commande passée",
+                order_id: newOrder.id,
+            }, { transaction });
 
-            const pictures = await Picture.findAll({
-                transaction
-            });
-
-            // Création d'un suivi pour la commande
-            for (const article of article_summary) {
-                await Tracking.create({
-                    growth: "En attente de plantation",
-                    status: "Commande passée",
-                    plant_place: "A définir",
+            // Création des relations ArticleHasOrder et des suivis individuels
+            for (const articleDetail of articleDetails) {
+                // Création de l'entrée dans ArticleHasOrder
+                const articleHasOrder = await ArticleHasOrder.create({
                     order_id: newOrder.id,
-                    article_id: article.id,
-                    picture_id: pictures[0].id
+                    article_id: articleDetail.id,
+                    quantity: articleDetail.quantity
                 }, { transaction });
 
+                // Récupération des informations de l'article, y compris l'image
+                const article = await Article.findByPk(articleDetail.id, {
+                    include: 
+                        [Picture], 
+                        transaction 
+                });
+                
+                // Création d'un suivi pour chaque exemplaire de l'article
+                for (let i = 0; i < articleDetail.quantity; i++) {
+                    await ArticleTracking.create({
+                        growth: "En attente de plantation",
+                        status: "Commande passée",
+                        plant_place: "À définir",
+                        article_has_order_id: articleHasOrder.id,
+                        picture_id: article.picture ? article.picture.id: null
+                    }, { transaction });
+                }
             }
-
 
             // Validation de la transaction
             await transaction.commit();
 
+            // Réponse avec les détails de la commande créée
             res.status(201).json({
                 message: "Commande créée avec succès",
-                order: newOrder,
-
+                order: {
+                    id: newOrder.id,
+                    article_summary: newOrder.article_summary,
+                    total_price: newOrder.total_price,
+                    date: newOrder.date
+                },
+                articleDetails: articleDetails
             });
         } catch (error) {
             await transaction.rollback();

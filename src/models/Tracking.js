@@ -4,17 +4,17 @@ import sequelize from "../database.js";
 export class Tracking extends Model {}
 
 Tracking.init({
-    growth: {
-        type: DataTypes.TEXT,
-        allowNull: false
-    },
     status: {
         type: DataTypes.TEXT,
         allowNull: false
     },
-    plant_place: {
-        type: DataTypes.TEXT,
-        allowNull: false
+    order_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'order',
+            key: 'id'
+        }
     }
 }, {
     sequelize,

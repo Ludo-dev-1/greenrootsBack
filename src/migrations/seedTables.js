@@ -1,4 +1,4 @@
-import { User, Role, Order, Tracking, Picture, Article, Category, ArticleHasOrder, ArticleHasCategory, sequelize } from "../models/association.js";
+import { User, Role, Order, Tracking, ArticleTracking, Picture, Article, Category, ArticleHasOrder, ArticleHasCategory, sequelize } from "../models/association.js";
 import argon2 from "argon2";
 
 async function seedDatabase() {
@@ -81,17 +81,21 @@ async function seedDatabase() {
 
         // Insertion d'une commande
         await Order.create(
-            { article_summary: "Cocotier", date: "06/02/25", price: 5555, user_id: 1 }
+            { article_summary: "Cocotier", date: "06/02/25", total_price: 5555, user_id: 1 }
         );
 
         // Insertion d'un suivi de plantation
         await Tracking.create(
-            { plant_place: "Amazonie", picture_id: 18, growth: "mature", status: "livré et planté", order_id: 1 }
+            { status: "livré et planté", order_id: 1 }
+        );
+
+        await ArticleTracking.create(
+            { growth: "mature", status: "livré et planté", plant_place: "Amazonie", article_has_order_id: 1, picture_id: 18 }
         );
 
         // Insertion d'une relation article-commande
         await ArticleHasOrder.create(
-            { order_id: 1, article_id: 18, quantity: 1 }
+            { id: 1, order_id: 1, article_id: 18, quantity: 1 }
         );
 
         // Insertion des relations article-catégorie

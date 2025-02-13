@@ -4,6 +4,12 @@ import sequelize from "../database.js";
 export class ArticleHasOrder extends Model {}
 
 ArticleHasOrder.init({
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        allowNull: false
+    },
     quantity: {
         type: DataTypes.INTEGER,
         allowNull: false
@@ -11,7 +17,7 @@ ArticleHasOrder.init({
     article_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        primaryKey: true, // Permet de définir une unicité entre les attributs
+        /* primaryKey: true, // Permet de définir une unicité entre les attributs */
         references: {
             model: "article", // Fait référence à la table article
             key: "id", // Fait référence à la colonne id de la table article
@@ -21,7 +27,7 @@ ArticleHasOrder.init({
     order_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        primaryKey: true, // Permet de définir une unicité entre les attributs
+        /* primaryKey: true, // Permet de définir une unicité entre les attributs */
         references: {
             model: "order", // Fait référence à la table article
             key: "id", // Fait référence à la colonne id de la table article
@@ -30,5 +36,11 @@ ArticleHasOrder.init({
     },
     }, {
     sequelize,
-    tableName: "article_has_order"
+    tableName: "article_has_order",
+    indexes: [
+        {
+            unique: true,
+            fields: ['article_id', 'order_id']
+        }
+    ]
 });
