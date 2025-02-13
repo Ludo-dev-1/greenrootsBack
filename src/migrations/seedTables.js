@@ -89,13 +89,14 @@ async function seedDatabase() {
             { status: "livré et planté", order_id: 1 }
         );
 
-        await ArticleTracking.create(
-            { growth: "mature", status: "livré et planté", plant_place: "Amazonie", article_has_order_id: 1, picture_id: 18 }
-        );
-
         // Insertion d'une relation article-commande
         await ArticleHasOrder.create(
-            { id: 1, order_id: 1, article_id: 18, quantity: 1 }
+            { order_id: 1, article_id: 18, quantity: 1 }
+        );
+
+        // Insertion d'un suivi d'article
+        await ArticleTracking.create(
+            { growth: "mature", status: "livré et planté", plant_place: "Amazonie", article_has_order_id: 1, picture_id: 18 }
         );
 
         // Insertion des relations article-catégorie

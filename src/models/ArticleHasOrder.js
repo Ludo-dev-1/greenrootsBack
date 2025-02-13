@@ -4,17 +4,17 @@ import sequelize from "../database.js";
 export class ArticleHasOrder extends Model {}
 
 ArticleHasOrder.init({
-    id: {
+    id: { // Identifiant unique de la relation article-commande
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
         allowNull: false
     },
-    quantity: {
+    quantity: { // Quantité de l'article dans la commande
         type: DataTypes.INTEGER,
         allowNull: false
     },
-    article_id: {
+    article_id: { // Référence à l'article
         type: DataTypes.INTEGER,
         allowNull: false,
         /* primaryKey: true, // Permet de définir une unicité entre les attributs */
@@ -24,7 +24,7 @@ ArticleHasOrder.init({
         },
         onDelete: "CASCADE", // Si l'article est supprimé, cette entrée sera aussi supprimée
     },
-    order_id: {
+    order_id: { // Référence à la commande
         type: DataTypes.INTEGER,
         allowNull: false,
         /* primaryKey: true, // Permet de définir une unicité entre les attributs */
@@ -37,7 +37,7 @@ ArticleHasOrder.init({
     }, {
     sequelize,
     tableName: "article_has_order",
-    indexes: [
+    indexes: [ // Index pour assurer l'unicité de la combinaison article_id et order_id (remplace les "primaryKey: true" des article_id et order_id qui causaient des conflits)
         {
             unique: true,
             fields: ['article_id', 'order_id']

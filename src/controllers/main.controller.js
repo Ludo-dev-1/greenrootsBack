@@ -1,4 +1,4 @@
-import { Article, Order, ArticleHasOrder, Tracking, Picture, sequelize, Category } from "../models/association.js";
+import { Article, Order, ArticleHasOrder, Tracking, ArticleTracking, Picture, sequelize, Category } from "../models/association.js";
 
 const mainController = {
     // Récupération de tous les articles nouvellement créés
@@ -97,6 +97,7 @@ const mainController = {
     */
         const transaction = await sequelize.transaction();
         try {
+            // Extraction des données de la requête
             const userId = req.user.id;
             const { articles } = req.body;
 
@@ -105,15 +106,17 @@ const mainController = {
                 return res.status(400).json({ error: "Les articles sont obligatoires pour passer une commande." });
             }
 
+            // Calcul du prix total et préparation des détails des articles
             let total_price = 0;
             const articleDetails = [];
 
-            // Calcul du prix total et préparation des détails des articles
             for (const articleInfo of articles) {
+                // Récupération des informations de l'article
                 const article = await Article.findByPk(articleInfo.id, { transaction });
                 if (!article) {
                     throw new Error(`Article avec l'ID ${articleInfo.id} non trouvé`);
                 }
+                // Calcul du prix pour cet article
                 const articlePrice = article.price * articleInfo.quantity;
                 total_price += articlePrice;
                 articleDetails.push({
@@ -143,12 +146,24 @@ const mainController = {
 
             // Création des relations ArticleHasOrder et des suivis individuels
             for (const articleDetail of articleDetails) {
-                // Création de l'entrée dans ArticleHasOrder
-                const articleHasOrder = await ArticleHasOrder.create({
-                    order_id: newOrder.id,
-                    article_id: articleDetail.id,
-                    quantity: articleDetail.quantity
-                }, { transaction });
+                // Création de l'entrée dans ArticleHasOrder si elle n'existe pas déjà
+                const [articleHasOrder, created] = await ArticleHasOrder.findOrCreate({
+                    where: {
+                        order_id: newOrder.id,
+                        article_id: articleDetail.id,
+                    },
+                    defaults: {
+                        quantity: articleDetail.quantity
+                    },
+                    transaction
+                });
+
+                if (!created) {
+                    // Si l'entrée existe déjà, mise à jour de la quantité
+                    await articleHasOrder.update({
+                        quantity: articleHasOrder.quantity + articleDetail.quantity
+                    }, { transaction });
+                }
 
                 // Récupération des informations de l'article, y compris l'image
                 const article = await Article.findByPk(articleDetail.id, {
@@ -164,7 +179,7 @@ const mainController = {
                         status: "Commande passée",
                         plant_place: "À définir",
                         article_has_order_id: articleHasOrder.id,
-                        picture_id: article.picture ? article.picture.id: null
+                        picture_id: article.picture_id
                     }, { transaction });
                 }
             }

@@ -12,7 +12,7 @@ import { ArticleHasCategory } from "./ArticleHasCategory.js";
 
 // Tracking <=> Order (One-to-One)
 Tracking.belongsTo(Order, { foreignKey: "order_id" });
-Order.hasOne(Tracking, { foreignKey: "order_id " });
+Order.hasOne(Tracking, { foreignKey: "order_id" });
 
 // User <=> Role (One-to-Many)
 User.belongsTo(Role, {foreignKey: "role_id"});
@@ -28,10 +28,6 @@ Picture.hasMany(Article, {foreignKey: "picture_id", onDelete: "CASCADE"});
 // Order <=> User (One-to-Many)
 Order.belongsTo(User, {foreignKey: "user_id"});
 User.hasMany(Order, {foreignKey: "user_id"});
-
-// Tracking <=> Picture (One-to-Many)
-Tracking.belongsTo(Picture, {foreignKey: "picture_id"});
-Picture.hasMany(Tracking, {foreignKey: "picture_id"});
 
 // ArticleTracking <=> ArticleHasOrder (One-to-Many)
 ArticleTracking.belongsTo(ArticleHasOrder, { foreignKey: "article_has_order_id" });
