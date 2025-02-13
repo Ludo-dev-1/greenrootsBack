@@ -81,7 +81,7 @@ router.get("/compte/commandes", authenticate, cw(userController.getOrders));
 router.get("/compte/commandes/:id", authenticate, cw()); // A FAIRE
 // Page de suivi des articles d'une commande
 router.get("/compte/commandes/:id/suivi", authenticate, cw()); // A FAIRE
-// Page de suivi d'un article d'une commande 
+// Page de suivi d'un article d'une commande
 router.get("/compte/commandes/:id/suivi/:id", authenticate, cw()); // A FAIRE
 
 

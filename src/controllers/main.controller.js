@@ -1,4 +1,4 @@
-import { Article, Order, ArticleHasOrder, Tracking, Picture, sequelize } from "../models/association.js";
+import { Article, Order, ArticleHasOrder, Tracking, Picture, sequelize, Category } from "../models/association.js";
 
 const mainController = {
     // Récupération de tous les articles nouvellement créés
@@ -26,7 +26,10 @@ const mainController = {
     getAllArticles: async (req, res, next) => {
         try {
             const articles = await Article.findAll({
-                include: [{ model: Picture }]
+                include: [
+                    { model: Picture },
+                    { model: Category, as: "categories" }
+                ]
             });
 
             if (!articles) {
@@ -91,31 +94,51 @@ const mainController = {
             const { article_summary, price } = req.body;
 
             if (!article_summary || !price) {
-                return res.status(400).json({ error: "Le résumé des articles et le prix sont obligatoires pour passer une commande."});
+                return res.status(400).json({ error: "Le résumé des articles et le prix sont obligatoires pour passer une commande." });
+            }
+
+            const articleNames = [];
+            for (const article of article_summary) {
+                const articleData = await Article.findByPk(article.id, {transaction});
+                if (articleData) {
+                    articleNames.push(articleData.name)
+                } else {
+                    throw new Error(`Article avec l'id ${article.id} non trouvé.`)
+                }
             }
 
             // Création de la commande
             const newOrder = await Order.create({
-                article_summary,
+                article_summary: article_summary.join(', '),
                 price,
                 date: new Date(),
                 user_id: userId
-            },
-                { transaction }
-            );
+            }, { transaction });
+
+            for (const article of article_summary) {
+                await ArticleHasOrder.create({
+                    order_id: newOrder.id,
+                    article_id: article.id,
+                    quantity: article.quantity
+                }, { transaction })
+            };
 
             const pictures = await Picture.findAll({
                 transaction
             });
-            
+
             // Création d'un suivi pour la commande
-            await Tracking.create({
-                growth: "En attente de plantation",
-                status: "Commande passée",
-                plant_place: "A définir",
-                order_id: newOrder.id,
-                picture_id: pictures.id
-            }, { transaction });
+            for (const article of article_summary) {
+                await Tracking.create({
+                    growth: "En attente de plantation",
+                    status: "Commande passée",
+                    plant_place: "A définir",
+                    order_id: newOrder.id,
+                    article_id: article.id,
+                    picture_id: pictures[0].id
+                }, { transaction });
+
+            }
 
 
             // Validation de la transaction
@@ -124,7 +147,7 @@ const mainController = {
             res.status(201).json({
                 message: "Commande créée avec succès",
                 order: newOrder,
-                
+
             });
         } catch (error) {
             await transaction.rollback();

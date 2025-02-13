@@ -189,14 +189,26 @@ repeat_password: Joi.valid(Joi.ref("password"))
 });
 
 const createOrderSchema = Joi.object({
-    article_summary: Joi.array().items(Joi.string().required().messages({
-        'string.min': 'Le mot de passe doit contenir au moins 2 caractères.',
+    article_summary: Joi.array().items(
+        Joi.object({
+            id: Joi.number().required().messages({
+                'number.base': "L'id de l'article doit être un nombre.",
+                'any.required': "L'id de l'article est obligatoire."
+            }),
+            quantity: Joi.number().required().messages({
+                'number.base': 'La quantité doit être un nombre.',
+                'any.required': 'La quantité est obligatoire.'
+            })
+        })
+    ).required().messages({
+        'array.base': 'Le résumé des articles doit être une liste.',
         'any.required': 'Le résumé des articles est obligatoire.'
-    })),
-    price: Joi.number().min(1).max(9999999999).precision(2).required().messages({
+    }),
+    price: Joi.number().positive().precision(2).max(9999999999).required().messages({
         'number.base': 'Le prix doit être un nombre.',
         'number.positive': 'Le prix doit être positif.',
         'number.precision': 'Le prix ne peut avoir que deux décimales.',
+        'number.max': 'Le prix ne peut pas dépasser 9999999999.',
         'any.required': 'Le prix est obligatoire.'
     }),
 });
