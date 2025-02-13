@@ -84,7 +84,7 @@ const mainController = {
         }
     },
 
-/*     createOrder: async (req, res, next) => {
+    createOrder: async (req, res, next) => {
         const transaction = await sequelize.transaction();
         try {
             const userId = req.user.id;
@@ -104,25 +104,19 @@ const mainController = {
                 { transaction }
             );
 
+            const pictures = await Picture.findAll({
+                transaction
+            });
+            
             // Création d'un suivi pour la commande
-            const newTracking = await Tracking.create({
+            await Tracking.create({
                 growth: "En attente de plantation",
                 status: "Commande passée",
                 plant_place: "A définir",
-                order_id: newOrder.id
-            }, 
-                { transaction }
-            );
+                order_id: newOrder.id,
+                picture_id: pictures.id
+            }, { transaction });
 
-            const pictures = await Picture.findAll({
-                attributes: ["url"],
-                include: [{
-                    model: Tracking,
-                    where: { id: newTracking.id },
-                    attributes: []
-                }],
-                transaction: transaction
-            });
 
             // Validation de la transaction
             await transaction.commit();
@@ -130,14 +124,14 @@ const mainController = {
             res.status(201).json({
                 message: "Commande créée avec succès",
                 order: newOrder,
-                pictures: pictures.map(picture => picture.url)
+                
             });
         } catch (error) {
             await transaction.rollback();
             error.statusCode = 500;
             return next(error);
         }
-    }, */
+    },
 };
 
 export default mainController;

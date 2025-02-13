@@ -3,7 +3,7 @@ import { controllerWrapper as cw } from "./utils/controllerWrapper.js";
 import mainController from "./controllers/main.controller.js";
 import { authenticate } from "./middlewares/auth.middleware.js";
 import authController from "./controllers/auth.controller.js";
-import { registerJoiValidator, crudAdminShopValidator, crudUserProfileValidator, updateForgetPasswordJoiValidator, emailForgetPasswordJoiValidator } from "./middlewares/joiValidator.middleware.js";
+import { registerJoiValidator, crudAdminShopValidator, crudUserProfileValidator, updateForgetPasswordJoiValidator, emailForgetPasswordJoiValidator, createOrderJoiValidator} from "./middlewares/joiValidator.middleware.js";
 import adminShopController from "./controllers/adminshop.controller.js";
 import userController from "./controllers/user.controller.js";
 
@@ -66,7 +66,7 @@ router.post("/changement-mot-de-passe", updateForgetPasswordJoiValidator, cw());
 // Page de validation de commande
 router.get("/commande", authenticate, cw(mainController.getOrderPage));
 // Validation de la commande
-router.post("/commande", authenticate, cw(mainController.createOrder));
+router.post("/commande", authenticate, createOrderJoiValidator, cw(mainController.createOrder));
 
 // * COMPTE
 // Page de compte utilisateur

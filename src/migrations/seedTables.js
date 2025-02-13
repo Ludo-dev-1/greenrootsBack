@@ -1,4 +1,4 @@
-import { User, Role, Order, Tracking, Picture, Article, Category, ArticleHasOrder, ArticleHasCategory } from "../models/association.js";
+import { User, Role, Order, Tracking, Picture, Article, Category, ArticleHasOrder, ArticleHasCategory, sequelize } from "../models/association.js";
 import argon2 from "argon2";
 
 async function seedDatabase() {
@@ -129,6 +129,7 @@ async function seedDatabase() {
             { article_id: 16, category_id: 10 }
         ]);
 
+        await sequelize.close()
     } catch (error) {
         // A remplacer par l'errorHandler
         console.error("Error seeding database:", error);

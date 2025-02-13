@@ -188,8 +188,22 @@ repeat_password: Joi.valid(Joi.ref("password"))
     }),
 });
 
+const createOrderSchema = Joi.object({
+    article_summary: Joi.array().items(Joi.string().required().messages({
+        'string.min': 'Le mot de passe doit contenir au moins 2 caractères.',
+        'any.required': 'Le résumé des articles est obligatoire.'
+    })),
+    price: Joi.number().min(1).max(9999999999).precision(2).required().messages({
+        'number.base': 'Le prix doit être un nombre.',
+        'number.positive': 'Le prix doit être positif.',
+        'number.precision': 'Le prix ne peut avoir que deux décimales.',
+        'any.required': 'Le prix est obligatoire.'
+    }),
+});
+
 export const registerJoiValidator = validate(registerSchema);
 export const crudAdminShopValidator = validate(crudAdminShopSchema);
 export const crudUserProfileValidator = validate(crudUserProfileSchema);
 export const emailForgetPasswordJoiValidator = validate(emailForgetPasswordSchema);
 export const updateForgetPasswordJoiValidator = validate(updateForgetPasswordSchema);
+export const createOrderJoiValidator = validate(createOrderSchema);

@@ -13,7 +13,7 @@ import { ArticleHasCategory } from "./ArticleHasCategory.js";
 User.belongsTo(Role, {foreignKey: "role_id"});
 Role.hasMany(User, {foreignKey: "role_id"});
 
-// Article <=> Picture (One-to-Many)
+// Article <=> Picture (One-to-Many)de
 Article.belongsTo(Picture, {
     foreignKey: "picture_id",
     onDelete: "CASCADE"

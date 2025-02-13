@@ -69,9 +69,8 @@ const adminShopController = {
             });
 
             const newPicture = await Picture.create({
-                url: pictureUrl,
-                transaction 
-            });
+                url: pictureUrl, 
+            }, { transaction });
 
             const newArticle = await Article.create({
                 name,
@@ -126,7 +125,8 @@ const adminShopController = {
                     model: Category,
                     as: "categories"
                 }],
-            }, { transaction });
+                transaction
+            });
 
             if (!article) {
                 await transaction.rollback();
