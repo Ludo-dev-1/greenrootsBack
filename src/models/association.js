@@ -6,8 +6,13 @@ import { Picture } from "./Picture.js";
 import { Role } from "./Role.js";
 import { User } from "./User.js";
 import { Tracking } from "./Tracking.js";
+import { ArticleTracking } from "./ArticleTracking.js";
 import { ArticleHasOrder } from "./ArticleHasOrder.js";
 import { ArticleHasCategory } from "./ArticleHasCategory.js";
+
+// Tracking <=> Order (One-to-One)
+Tracking.belongsTo(Order, { foreignKey: "order_id" });
+Order.hasOne(Tracking, { foreignKey: "order_id " });
 
 // User <=> Role (One-to-Many)
 User.belongsTo(Role, {foreignKey: "role_id"});
@@ -28,9 +33,13 @@ User.hasMany(Order, {foreignKey: "user_id"});
 Tracking.belongsTo(Picture, {foreignKey: "picture_id"});
 Picture.hasMany(Tracking, {foreignKey: "picture_id"});
 
-// Tracking <=> Order (One-to-Many)
-Tracking.belongsTo(Order, {foreignKey: "order_id"});
-Order.hasMany(Tracking, {foreignKey: "order_id"});
+// ArticleTracking <=> ArticleHasOrder (One-to-Many)
+ArticleTracking.belongsTo(ArticleHasOrder, { foreignKey: "article_has_order_id" });
+ArticleHasOrder.hasMany(ArticleTracking, { foreignKey: "article_has_order_id" });
+
+// ArticleTracking <=> Picture (One-To-Many)
+ArticleTracking.belongsTo(Picture, { foreignKey: "picture_id" });
+Picture.hasMany(ArticleTracking, { foreignKey: "picture_id" });
 
 // Article <=> Category
 // Relation Many-to-Many
@@ -62,4 +71,4 @@ Order.belongsToMany(Article, {
     otherKey: "article_id"
 });
 
-export { Category, Role, Picture, User, Article, Order, Tracking, ArticleHasOrder, ArticleHasCategory, sequelize };
+export { Category, Role, Picture, User, Article, Order, Tracking, ArticleTracking, ArticleHasCategory, ArticleHasOrder, sequelize };

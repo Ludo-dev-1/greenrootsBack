@@ -12,7 +12,7 @@ Order.init({
         type: DataTypes.DATE,
         allowNull: false
     },
-    price: {
+    total_price: { // Montant total de la commande, calculé à partir des prix des articles commandés
         type: DataTypes.DECIMAL(10,2),  // Type de données : décimal avec 10 chiffres dont 2 après la virgule
         allowNull: false
     }
