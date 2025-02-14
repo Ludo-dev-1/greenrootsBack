@@ -1,4 +1,4 @@
-import { Article, User, Tracking, Order, sequelize } from "../models/association.js";
+import { Article, User, Tracking, ArticleHasOrder, ArticleTracking, Order, sequelize } from "../models/association.js";
 import argon2 from "argon2";
 
 const userController = {
@@ -130,15 +130,35 @@ const userController = {
                 return next(error);
             }
 
-            // Supprimer l'utilisateur
-            await user.destroy({ transaction });
+            // Supprimer les suivis d'articles associés aux commandes de l'utilisateur
+            await ArticleTracking.destroy({
+                where: {},
+                include: [{
+                    model: ArticleHasOrder,
+                    include: [{
+                        model: Order,
+                        where: { user_id: userId }
+                    }]
+                }],
+                transaction
+            });
+
+            // Supprimer les relations ArticleHasOrder associées aux commandes de l'utilisateur
+            await ArticleHasOrder.destroy({
+                where: {},
+                include: [{
+                    model: Order,
+                    where: { user_id: userId }
+                }],
+                transaction
+            });
 
             // Supprimer les suivis de commandes associés à l'utilisateur
             await Tracking.destroy({
-                where: {}, // Obligatoire même si vide
+                where: {},
                 include: [{
                     model: Order,
-                    where: { user_id: userId } // Filtre sur les commandes associées à l'utilisateur avec l'ID correspondant
+                    where: { user_id: userId }
                 }],
                 transaction
             });
@@ -148,6 +168,9 @@ const userController = {
                 where: { user_id: userId },
                 transaction
             });
+
+            // Supprimer l'utilisateur
+            await user.destroy({ transaction });
 
             // Valider la transaction
             await transaction.commit();

@@ -1,5 +1,11 @@
+import { fileURLToPath } from "node:url";
+import path from "node:path";
 import { User, Role, Order, Tracking, ArticleTracking, Picture, Article, Category, ArticleHasOrder, ArticleHasCategory, sequelize } from "../models/association.js";
 import argon2 from "argon2";
+import { saveImage, convertImageToBase64 } from "../utils/imageUtils.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 async function seedDatabase() {
     try {
@@ -24,28 +30,39 @@ async function seedDatabase() {
         ]);
 
         // Insertion des images d'arbres
-        await Picture.bulkCreate([
-            { url: "ChenePedoncule"},
-            { url: "PlataneCommun"},
-            { url: "HetreCommun"},
-            { url: "SaulePleureur"},
-            { url: "BouleauVerruqueux"},
-            { url: "PinSylvestre"},
-            { url: "CedreDuLiban"},
-            { url: "Olivier"},
-            { url: "Acacia"},
-            { url: "GinkgoBiloba"},
-            { url: "SequoiaGeant"},
-            { url: "MagnoliaGrandiflora"},
-            { url: "TilleulAGrandesFeuilles"},
-            { url: "NoyerCommun"},
-            { url: "CerisierSauvage"},
-            { url: "CharmeCommun"},
-            { url: "FreneEleve"},
-            { url: "Cocotier"},
-            { url: "Mimosa"},
-            { url: "Eucalyptus"}
-        ]);
+        const images = [
+            'chene_pedoncule.webp', 
+            'platane_commun.webp', 
+            'hetre.webp', 
+            'saule.webp', 
+            'bouleau_verruqueux.webp',
+            'pin_sylvestre.webp', 
+            'cedre_du_liban.webp', 
+            'olivier.webp', 
+            'acacia.webp', 
+            'ginkgo_biloba.webp',
+            'sequoia_geant.webp', 
+            'magnolia.webp', 
+            'tilleul_a_grandes_feuilles.webp', 
+            'noyer.webp',
+            'cerisier_sauvage.webp', 
+            'charme_commun.webp', 
+            'frene_eleve.webp', 
+            'cocotier.webp', 
+            'mimosa.webp',
+            'eucalyptus.webp'
+        ];
+
+        const imagePromises = images.map(async (imageName) => {
+            const imagePath = path.join(__dirname, '..', '..', 'images', imageName);
+            const base64Image = convertImageToBase64(imagePath);
+            const savedImagePath = await saveImage(base64Image, imageName);
+
+            return { url: savedImagePath };
+        });
+
+        const pictures = await Promise.all(imagePromises);
+        await Picture.bulkCreate(pictures);
 
         // Insertion des articles (arbres)
         await Article.bulkCreate([

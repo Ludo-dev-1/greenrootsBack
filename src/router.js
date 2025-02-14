@@ -7,7 +7,8 @@ import { registerJoiValidator, crudAdminShopValidator, crudUserProfileValidator,
 import adminShopController from "./controllers/adminshop.controller.js";
 import adminOrderController from "./controllers/adminOrder.controller.js";
 import userController from "./controllers/user.controller.js";
-import imageMiddleware from "./middlewares/imageHandler.middleware.js";
+import orderController from "./controllers/order.controller.js";
+import { uploadImage } from "./middlewares/imageHandler.middleware.js";
 
 const router = Router();
 
@@ -69,7 +70,7 @@ router.post("/mot-de-passe-oublie", emailForgetPasswordJoiValidator, cw(authCont
 // Page de validation de commande
 router.get("/commande", authenticate, cw(mainController.getOrderPage));
 // Validation de la commande
-router.post("/commande", authenticate, createOrderJoiValidator, cw(mainController.createOrder));
+router.post("/commande", authenticate, createOrderJoiValidator, cw(orderController.createOrder));
 
 // * COMPTE CRUD
 // Page de compte utilisateur
@@ -77,17 +78,17 @@ router.get("/compte", authenticate, cw(userController.getUserProfile));
 // Modification des infos utilisateur
 router.patch("/compte", authenticate, crudUserProfileValidator, cw(userController.updateUserProfile));
 // Suppression du compte 
-router.delete("/compte", authenticate, cw(userController.deleteUserProfile)); // A MODIFIER
+router.delete("/compte", authenticate, cw(userController.deleteUserProfile));
 
 // * COMPTE COMMANDE
 // Page de commandes passées
 router.get("/compte/commandes", authenticate, cw(userController.getOrders));
 // Page de suivi d'une commande
-router.get("/compte/commandes/:id", authenticate, cw(mainController.getOrderDetails));
+router.get("/compte/commandes/:id", authenticate, cw(orderController.getOrderDetails));
 // Page de suivi des articles d'une commande
-router.get("/compte/commandes/:id/suivi", authenticate, cw(mainController.getOrderTracking));
+router.get("/compte/commandes/:id/suivi", authenticate, cw(orderController.getOrderTracking));
 // Page de suivi d'un article d'une commande
-router.get("/compte/commandes/:orderId/suivi/:trackingId", authenticate, cw(mainController.getArticleTracking));
+router.get("/compte/commandes/:orderId/suivi/:trackingId", authenticate, cw(orderController.getArticleTracking));
 
 
 // ================================
@@ -100,20 +101,21 @@ router.get("/api/articles", authenticate, cw(adminShopController.getAllArticles)
 // Page d'un article (admin)
 router.get("/api/articles/:id", authenticate, cw(adminShopController.getOneArticle));
 // Création d'un article
-router.post("/api/articles", authenticate, crudAdminShopValidator, imageMiddleware, cw(adminShopController.createArticleWithPicture));
+router.post("/api/articles", authenticate, crudAdminShopValidator, uploadImage, cw(adminShopController.createArticleWithPicture));
 // Modification d'un article
 router.patch("/api/articles/:id", authenticate, crudAdminShopValidator, cw(adminShopController.updateArticle));
 // Suppression d'un article
 router.delete("/api/articles/:id", authenticate, cw(adminShopController.deleteArticle));
 
 // * COMMANDE / SUIVI (admin)
-// Page de commandes (admin) récupération de toutes les commandes et de leur suivi
+// Page de commandes (admin) récupération de toutes les commandes
 router.get("/api/commandes", authenticate, cw(adminOrderController.getAllOrders));
 // Page de suivi d'une commande
-router.get("/api/commandes/:id", authenticate, cw(adminOrderController.getOrderDetails)); // A FAIRE
+router.get("/api/commandes/:id", authenticate, cw(adminOrderController.getOrderDetailsAdmin));
 // Page de suivi des articles d'une commande
-router.get("/api/commandes/:id/suivi", authenticate, cw(adminOrderController.getOrderTracking)); // A FAIRE
-router.patch("/api/commandes/:orderId/suivi/:trackingId", authenticate, cw(adminOrderController.updateArticleTracking)); // A FAIRE
+router.get("/api/commandes/:id/suivi", authenticate, cw(adminOrderController.getOrderTrackingAdmin));
+router.get("/api/commandes/:orderId/suivi/:trackingId", authenticate, cw(adminOrderController.getArticleTrackingAdmin)); // A FAIRE
+router.patch("/api/commandes/:orderId/suivi/:trackingId", authenticate, cw(adminOrderController.updateArticleTracking)); // A DEBUG
 
 
 export { router };

@@ -1,32 +1,22 @@
-import sharp from "sharp";
-import { Picture } from '../models/association.js'; // Assurez-vous de remplacer par le chemin correct vers votre modèle
+import fs from 'fs';
 
-const imageMiddleware = async (req, res, next) => {
-  try {
-    const imageRecord = await Picture.findOne({ where: { id: req.params.pictureId } });
+const uploadImage = (req, res, next) => {
+  const base64Image = req.body.pictureUrl.split(';base64,').pop();
+  const basePath = 'public/uploads/';
+  const imageName = `${Date.now()}.png`;
+  const imagePath = `${basePath}${imageName}`;
 
-    if (!imageRecord) {
-      return res.status(404).send('Image not found');
+  fs.writeFile(imagePath, base64Image, { encoding: 'base64' }, (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({
+        message: 'Error while saving image',
+      });
     }
 
-    const imagePath = imageRecord.path; // Chemin de l'image dans votre base de données
-
-    sharp(imagePath)
-      .resize(800) // Redimensionne l'image
-      .toBuffer()
-      .then(data => {
-        req.base64Image = data.toString('base64'); // Ajoutez la chaîne Base64 à la requête
-        next(); // Passez au prochain middleware ou routeur
-      })
-      .catch(err => {
-        console.error(err);
-        res.status(500).send('Error processing image');
-      });
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Error retrieving image path from database');
-  }
+    req.base64Image = imagePath;
+    next();
+  });
 };
 
-export default imageMiddleware;
+export { uploadImage };
