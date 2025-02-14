@@ -69,7 +69,7 @@ const adminShopController = {
             });
 
             const newPicture = await Picture.create({
-                url: `/uploads/${req.file.filename}`, 
+                url: req.base64Image
             }, { transaction });
 
             const newArticle = await Article.create({

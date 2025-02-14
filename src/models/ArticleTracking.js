@@ -16,6 +16,14 @@ ArticleTracking.init({
         type: DataTypes.TEXT,
         allowNull: false
     },
+    article_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'article',
+            key: 'id'
+        }
+    },
     article_has_order_id: {
         type: DataTypes.INTEGER,
         allowNull: false,

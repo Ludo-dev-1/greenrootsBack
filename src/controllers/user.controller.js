@@ -1,4 +1,4 @@
-import { Article, User, Tracking, Order, sequelize } from "../models/association.js";
+import { Article, User, Tracking, ArticleHasOrder, ArticleTracking, Order, sequelize } from "../models/association.js";
 import argon2 from "argon2";
 
 const userController = {
@@ -28,7 +28,10 @@ const userController = {
         try {
             const userId = req.user.id;
 
-            const user = await User.findByPk(userId);
+            const user = await User.findByPk(userId, 
+                {
+                    attributes: ["firstname", "lastname", "email", "created_at", "updated_at"]
+                });
 
             if (!user) {
                 const error = new Error("Utilisateur non trouvé");
@@ -36,7 +39,13 @@ const userController = {
                 return next(error);
             }
 
-            res.status(200).json({ message: `Bonjour ${user.firstname}`, user: req.user });
+            res.status(200).json({
+                firstname: user.firstname,
+                lastname: user.lastname,
+                email: user.email,
+                created_at: user.created_at,
+                updated_at: user.updated_at
+            });
 
         } catch (error) {
             error.statusCode = 500;
@@ -121,15 +130,35 @@ const userController = {
                 return next(error);
             }
 
-            // Supprimer l'utilisateur
-            await user.destroy({ transaction });
+            // Supprimer les suivis d'articles associés aux commandes de l'utilisateur
+            await ArticleTracking.destroy({
+                where: {},
+                include: [{
+                    model: ArticleHasOrder,
+                    include: [{
+                        model: Order,
+                        where: { user_id: userId }
+                    }]
+                }],
+                transaction
+            });
+
+            // Supprimer les relations ArticleHasOrder associées aux commandes de l'utilisateur
+            await ArticleHasOrder.destroy({
+                where: {},
+                include: [{
+                    model: Order,
+                    where: { user_id: userId }
+                }],
+                transaction
+            });
 
             // Supprimer les suivis de commandes associés à l'utilisateur
             await Tracking.destroy({
-                where: {}, // Obligatoire même si vide
+                where: {},
                 include: [{
                     model: Order,
-                    where: { user_id: userId } // Filtre sur les commandes associées à l'utilisateur avec l'ID correspondant
+                    where: { user_id: userId }
                 }],
                 transaction
             });
@@ -139,6 +168,9 @@ const userController = {
                 where: { user_id: userId },
                 transaction
             });
+
+            // Supprimer l'utilisateur
+            await user.destroy({ transaction });
 
             // Valider la transaction
             await transaction.commit();
