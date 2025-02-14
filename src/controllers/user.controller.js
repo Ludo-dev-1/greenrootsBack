@@ -28,7 +28,10 @@ const userController = {
         try {
             const userId = req.user.id;
 
-            const user = await User.findByPk(userId);
+            const user = await User.findByPk(userId, 
+                {
+                    attributes: ["firstname", "lastname", "email", "created_at", "updated_at"]
+                });
 
             if (!user) {
                 const error = new Error("Utilisateur non trouvé");
@@ -36,7 +39,13 @@ const userController = {
                 return next(error);
             }
 
-            res.status(200).json({ message: `Bonjour ${user.firstname}`, user: req.user });
+            res.status(200).json({
+                firstname: user.firstname,
+                lastname: user.lastname,
+                email: user.email,
+                created_at: user.created_at,
+                updated_at: user.updated_at
+            });
 
         } catch (error) {
             error.statusCode = 500;

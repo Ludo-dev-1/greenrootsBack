@@ -1,4 +1,4 @@
-import { Article, Order, ArticleHasOrder, Tracking, ArticleTracking, Picture, sequelize, Category } from "../models/association.js";
+import { Article, Order, ArticleHasOrder, Tracking, ArticleTracking, Picture, Category, sequelize } from "../models/association.js";
 
 const mainController = {
     // Récupération de tous les articles nouvellement créés
@@ -151,8 +151,6 @@ const mainController = {
                     where: {
                         order_id: newOrder.id,
                         article_id: articleDetail.id,
-                    },
-                    defaults: {
                         quantity: articleDetail.quantity
                     },
                     transaction
@@ -178,6 +176,7 @@ const mainController = {
                         growth: "En attente de plantation",
                         status: "Commande passée",
                         plant_place: "À définir",
+                        article_id: articleDetail.id,
                         article_has_order_id: articleHasOrder.id,
                         picture_id: article.picture_id
                     }, { transaction });
@@ -204,6 +203,169 @@ const mainController = {
             return next(error);
         }
     },
+
+    // Récupération des détails d'une commande spécifique
+    getOrderDetails: async (req, res, next) => {
+        try {
+            // Extraction des données de la requête
+            const orderId = req.params.id;
+            const userId = req.user.id;
+
+            // Recherche de la commande dans la BDD
+            const order = await Order.findOne({
+                // Filtre pour trouver la commande spécifique de l'utilisateur connecté
+                where: { id: orderId, user_id: userId },
+                include: [
+                    {
+                        model: Article,
+                        as: "articles",
+                        // Inclusion des informations de la table de jonction
+                        through: { 
+                            model: ArticleHasOrder,
+                            attributes: ["quantity"] // On ne récupère que la quantité
+                        },
+                    }
+                ]
+            });
+
+            // Vérification de l'existence de la commande
+            if (!order) {
+                error.statusCode = 404;
+                return next(error);
+            }
+
+            // Réponse avec les détails de la commande
+            res.status(200).json(order);
+        } catch (error) {
+            error.statusCode = 500;
+            return next(error);
+        }
+    },
+
+    // Récupération du suivi de tous les articles d'une commande spécifique
+    getOrderTracking: async (req, res, next) => {
+        try {
+            // Extraction des données de la requête
+            const orderId = req.params.id;
+            const userId = req.user.id;
+    
+            // Recherche de la commande dans la base de données
+            const order = await Order.findOne({
+                where: { id: orderId, user_id: userId },
+                // Inclusion des données associées (jointures)
+                include: [
+                    {
+                        model: Article,
+                        as: "articles",
+                        // Inclusion des informations de la table de jonction ArticleHasOrder
+                        through: { 
+                            model: ArticleHasOrder,
+                            attributes: ["quantity"] // On ne récupère que la quantité
+                        },
+                        // Inclusion des suivis pour chaque article
+                        include: [
+                            {
+                                model: ArticleTracking,
+                                include: [Picture] // Inclusion des images pour chaque suivi
+                            }
+                        ]
+                    }
+                ]
+            });
+
+            // Si aucune commande n'est trouvée, renvoie une erreur 404
+            if (!order) {
+                return res.status(404).json({ error: "Commande non trouvée" });
+            }
+
+/*             // Formatage des données de la commande pour la réponse
+            const formattedOrder = {
+                id: order.id,
+                article_summary: order.article_summary,
+                date: order.date,
+                total_price: order.total_price,
+                // Transformation des données de chaque article
+                articles: order.articles.map(article => ({
+                    name: article.name,
+                    quantity: article.ArticleHasOrder.quantity,
+                    // Calcul du prix total pour cet article
+                    price: parseFloat(article.price) * article.ArticleHasOrder.quantity,
+                    // Transformation des données de suivi pour chaque exemplaire de l'article
+                    trackings: article.ArticleTrackings.map(tracking => ({
+                        id: tracking.id,
+                        status: tracking.status,
+                        growth: tracking.growth,
+                        plant_place: tracking.plant_place,
+                        picture_url: tracking.Picture.url
+                    }))
+                }))
+            }; */
+            
+            // Réponse (pour la réponse formatée, modifier "order" en "formattedOrder")
+            res.status(200).json(order);
+        } catch (error) {
+            error.statusCode = 500;
+            return next(error);
+        }
+    },
+
+    // Récupération du suivi d'un article spécifique d'une commande spécifique
+    getArticleTracking: async (req, res, next) => {
+        try {
+            // Extraction des données de la requête
+            const orderId = req.params.orderId;
+            const trackingId = req.params.trackingId;
+            const userId = req.user.id;
+
+            // Recherche du suivi d'article spécifique dans la base de données
+            const articleTracking = await ArticleTracking.findOne({
+                where: { id: trackingId }, // Recherche le suivi par son ID
+                include: [
+                    {
+                        // Inclut les informations de la relation Article-Commande
+                        model: ArticleHasOrder,
+                        include: [
+                            {
+                                model: Order,
+                                // Vérifie que la commande appartient à l'utilisateur
+                                where: { id: orderId, user_id: userId }
+                            },
+                            {
+                                // Inclut les informations de l'article
+                                model: Article
+                            }
+                        ]
+                    },
+                    {
+                        // Inclut l'image associée au suivi
+                        model: Picture
+                    }
+                ]
+            });
+
+            // Si aucun suivi d'article (!articleTracking) n'est trouvé ou si l'utilisateur n'a pas accès à cette commande (!articleTracking.ArticleHasOrder.Order)
+            if (!articleTracking || !articleTracking.ArticleHasOrder.Order) { 
+                return res.status(404).json({ error: "Suivi d'article non trouvé ou non autorisé" });
+            }
+
+            // Formatage des données du suivi d'article pour la réponse
+/*             const formattedTracking = {
+                orderId: orderId,
+                // Extrait le nom de l'article associé au suivi
+                articleName: articleTracking.ArticleHasOrder.Article.name,
+                status: articleTracking.status,
+                growth: articleTracking.growth,
+                plant_place: articleTracking.plant_place,
+                picture_url: articleTracking.Picture
+            }; */
+
+            // Réponse (pour la réponse formatée, modifier "articleTracking" en "formattedTracking")
+            res.status(200).json(articleTracking);
+        } catch (error) {
+            error.statusCode = 500;
+            return next(error);
+        }
+    }
 };
 
 export default mainController;

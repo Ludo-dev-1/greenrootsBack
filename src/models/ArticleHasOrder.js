@@ -40,7 +40,7 @@ ArticleHasOrder.init({
     indexes: [ // Index pour assurer l'unicité de la combinaison article_id et order_id (remplace les "primaryKey: true" des article_id et order_id qui causaient des conflits)
         {
             unique: true,
-            fields: ['article_id', 'order_id']
+            fields: ["article_id", "order_id"]
         }
     ]
 });
