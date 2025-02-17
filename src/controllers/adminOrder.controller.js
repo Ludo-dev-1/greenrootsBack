@@ -1,4 +1,4 @@
-import { Order, User, Article, ArticleHasOrder, Tracking, ArticleTracking, Picture } from "../models/association.js";
+import { Order, User, Article, ArticleHasOrder, Tracking, ArticleTracking, Picture, sequelize } from "../models/association.js";
 
 const adminOrderController = {
     getAllOrders: async (req, res, next) => {
@@ -110,7 +110,7 @@ const adminOrderController = {
         }
     },
 
-/*     updateArticleTracking: async (req, res, next) => {
+    getArticleTrackingAdmin: async (req, res, next) => {
         try {
             // Vérifier si l'utilisateur est un administrateur
             if (req.user.role_id !== 1) {
@@ -118,22 +118,69 @@ const adminOrderController = {
             }
 
             const { orderId, trackingId } = req.params;
-            const { status, growth, plant_place } = req.body;
 
-            // Vérifier si la commande existe
-            const order = await Order.findByPk(orderId);
-            if (!order) {
+            const articleTracking = await ArticleTracking.findOne({
+                where: { id: trackingId },
+                include: [
+                    {
+                        model: Picture
+                    },
+                    {
+                        model: ArticleHasOrder,
+                        include: [
+                            {
+                                model: Order,
+                                where: { id: orderId }
+                            }
+                        ]
+                    }
+                ]
+            });
+
+            if (!articleTracking) {
                 error.statusCode = 404;
                 return next(error);
             }
 
-            // Trouver et mettre à jour le suivi de l'article
+            res.status(200).json(articleTracking);
+        } catch (error) {
+            error.statusCode = 500;
+            return next(error);
+        }
+    },
+
+    updateArticleTracking: async (req, res, next) => {
+        const transaction = await sequelize.transaction();
+        try {
+            // Vérifier si l'utilisateur est un administrateur
+            if (req.user.role_id !== 1) {
+                return res.status(403).json({ error: "Accès non autorisé" });
+            }
+
+            const { orderId, trackingId } = req.params;
+            const { status, growth, plant_place, picture_url } = req.body;
+
             const articleTracking = await ArticleTracking.findOne({
                 where: { id: trackingId },
-                include: [{ model: Picture }]
+                include: [
+                    {
+                        model: Picture
+                    },
+                    {
+                        model: ArticleHasOrder,
+                        include: [
+                            {
+                                model: Order,
+                                where: { id: orderId }
+                            }
+                        ]
+                    }
+                ],
+                transaction
             });
 
             if (!articleTracking) {
+                await transaction.rollback();
                 error.statusCode = 404;
                 return next(error);
             }
@@ -142,8 +189,14 @@ const adminOrderController = {
             if (status) articleTracking.status = status;
             if (growth) articleTracking.growth = growth;
             if (plant_place) articleTracking.plant_place = plant_place;
+            if (picture_url) articleTracking.picture_url = picture_url;
 
             // Mise à jour de l'image
+
+            // Sauvegarde des changements
+            await articleTracking.save({ transaction });
+
+            await transaction.commit();
 
             res.status(200).json({
                 message: "Suivi d'article mis à jour avec succès",
@@ -157,10 +210,11 @@ const adminOrderController = {
             });
 
         } catch (error) {
+            await transaction.rollback();
             error.statusCode = 500;
             return next(error);
-        }
-    } */
+        };
+    }
 };
 
 export default adminOrderController;

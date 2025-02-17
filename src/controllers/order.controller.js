@@ -121,6 +121,7 @@ const orderController = {
     // Récupération des détails d'une commande spécifique
     getOrderDetails: async (req, res, next) => {
         try {
+            
             // Extraction des données de la requête
             const orderId = req.params.id;
             const userId = req.user.id;
@@ -147,6 +148,8 @@ const orderController = {
                 error.statusCode = 404;
                 return next(error);
             }
+
+
 
             // Réponse avec les détails de la commande
             res.status(200).json(order);
@@ -228,12 +231,12 @@ const orderController = {
         try {
             // Extraction des données de la requête
             const orderId = req.params.orderId;
-            const trackingId = req.params.trackingId;
+            const articleTrackingId = req.params.articleTrackingId;
             const userId = req.user.id;
 
             // Recherche du suivi d'article spécifique dans la base de données
             const articleTracking = await ArticleTracking.findOne({
-                where: { id: trackingId }, // Recherche le suivi par son ID
+                where: { id: articleTrackingId }, // Recherche le suivi par son ID
                 include: [
                     {
                         // Inclut les informations de la relation Article-Commande
@@ -276,6 +279,55 @@ const orderController = {
             // Réponse (pour la réponse formatée, modifier "articleTracking" en "formattedTracking")
             res.status(200).json(articleTracking);
         } catch (error) {
+            error.statusCode = 500;
+            return next(error);
+        }
+    },
+
+    // Personnalisation du nom d'un article acheté
+    updateArticleTrackingName: async (req, res, next) => {
+        const transaction = await sequelize.transaction();
+        try {
+            const { orderId, articleTrackingId } = req.params;
+            const { nickname } = req.body;
+            const userId = req.user.id;
+
+            const articleTracking = await ArticleTracking.findOne({
+                where: { id: articleTrackingId },
+                include: [
+                    {
+                        model: ArticleHasOrder,
+                        include: [
+                            {
+                                model: Order,
+                                where: { id: orderId, user_id: userId }
+                            }
+                        ]
+                    }
+                ],
+                transaction
+            });
+
+            if (!articleTracking) {
+                await transaction.rollback();
+                error.statusCode = 404;
+                return next(error);
+            }
+
+            articleTracking.nickname = nickname;
+            await articleTracking.save({ transaction });
+
+            await transaction.commit();
+
+            res.status(200).json({
+                message: "Nom personnalisé de l'article mis à jour avec succès",
+                articleTracking: {
+                    id: articleTracking.id,
+                    nickname: articleTracking.nickname
+                }
+            });
+        } catch (error) {
+            await transaction.rollback();
             error.statusCode = 500;
             return next(error);
         }

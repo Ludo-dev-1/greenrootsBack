@@ -1,5 +1,5 @@
 import { generateToken } from "../utils/jwt.js";
-import { User } from "../models/association.js";
+import { User, sequelize } from "../models/association.js";
 import argon2 from "argon2";
 
 const authController = {
@@ -14,14 +14,16 @@ const authController = {
     },
 
     register: async (req, res) => {
+        const transaction = await sequelize.transaction();
         try {
             const { firstname, lastname, email, password, repeat_password, role_id } = req.body;
 
             const hash = await argon2.hash(password);
 
             // Vérification de l'existence de l'utilisateur
-            const existingUser = await User.findOne({ where: { email } });
+            const existingUser = await User.findOne({ where: { email }, transaction });
             if (existingUser) {
+                await transaction.rollback();
                 return res.status(400).json({ error: "Une erreur s'est produite lors de la création du compte" });
             }
 
@@ -32,7 +34,9 @@ const authController = {
                 email,
                 password: hash,
                 role_id,
-            });
+            }, { transaction });
+
+            await transaction.commit();
 
             res.status(201).json({
                 message: "Utilisateur créé avec succès",
@@ -45,6 +49,7 @@ const authController = {
                 }
             });
         } catch (error) {
+            await transaction.rollback();
             console.error("Erreur dans le contrôleur d'inscription :", error);
             return res.status(500).json({ error: error.message });
         };

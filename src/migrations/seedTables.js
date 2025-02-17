@@ -2,10 +2,19 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { User, Role, Order, Tracking, ArticleTracking, Picture, Article, Category, ArticleHasOrder, ArticleHasCategory, sequelize } from "../models/association.js";
 import argon2 from "argon2";
-import { saveImage, convertImageToBase64 } from "../utils/imageUtils.js";
+import { saveImage, convertImageToBase64 } from "../utils/pictureUtils.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const fakeReq = {
+    protocol: 'http',
+    get: (header) => {
+      if (header === 'host') {
+        return 'localhost:3000'; // Change cette valeur selon ton environnement
+      }
+    }
+  };
 
 async function seedDatabase() {
     try {
@@ -56,9 +65,9 @@ async function seedDatabase() {
         const imagePromises = images.map(async (imageName) => {
             const imagePath = path.join(__dirname, '..', '..', 'images', imageName);
             const base64Image = convertImageToBase64(imagePath);
-            const savedImagePath = await saveImage(base64Image, imageName);
+            const publicUrl = await saveImage(base64Image, imageName, fakeReq);
 
-            return { url: savedImagePath };
+            return { url: publicUrl };
         });
 
         const pictures = await Promise.all(imagePromises);
@@ -113,7 +122,7 @@ async function seedDatabase() {
 
         // Insertion d'un suivi d'article
         await ArticleTracking.create(
-            { growth: "mature", status: "livré et planté", plant_place: "Amazonie", article_id: 18, article_has_order_id: 1, picture_id: 18 }
+            { growth: "mature", status: "livré et planté", plant_place: "Amazonie", nickname: "Coco", article_id: 18, article_has_order_id: 1, picture_id: 18 }
         );
 
         // Insertion des relations article-catégorie

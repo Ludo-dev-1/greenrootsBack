@@ -2,7 +2,7 @@
 import fs from 'fs';
 import path from 'node:path';
 
-const saveImage = (base64Image, imageName) => {
+const saveImage = (base64Image, imageName, req) => {
   const basePath = 'public/uploads/';
   const imagePath = `${basePath}${imageName}`;
 
@@ -11,7 +11,8 @@ const saveImage = (base64Image, imageName) => {
       if (err) {
         reject(err);
       } else {
-        resolve(imagePath);
+        const publicUrl = `${req.protocol}://${req.get('host')}/uploads/${imageName}`;
+        resolve(publicUrl);
       }
     });
   });
