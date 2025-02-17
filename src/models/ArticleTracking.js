@@ -16,7 +16,7 @@ ArticleTracking.init({
         type: DataTypes.TEXT,
         allowNull: false
     },
-    custom_name: {
+    nickname: {
         type: DataTypes.STRING,
         allowNull: true
     },

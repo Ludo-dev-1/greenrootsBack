@@ -36,8 +36,8 @@ userRouter.get("/compte/commandes/:id", authenticate, cw(orderController.getOrde
 // Page de suivi des articles d'une commande
 userRouter.get("/compte/commandes/:id/suivi", authenticate, cw(orderController.getOrderTracking));
 // Page de suivi d'un article d'une commande
-userRouter.get("/compte/commandes/:orderId/suivi/:trackingId", authenticate, cw(orderController.getArticleTracking));
-// Personnalisation du nom d'un article dans le suivi
-userRouter.patch("/compte/commandes/:orderId/suivi/:trackingId/nom", authenticate, cw(orderController.updateArticleTrackingName));
+userRouter.get("/compte/commandes/:orderId/suivi/:articleTrackingId", authenticate, cw(orderController.getArticleTracking));
+// Modification du nom d'un article dans le suivi
+userRouter.patch("/compte/commandes/:orderId/suivi/:articleTrackingId", authenticate, cw(orderController.updateArticleTrackingName));
 
 export { userRouter };

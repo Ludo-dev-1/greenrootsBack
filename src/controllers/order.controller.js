@@ -228,12 +228,12 @@ const orderController = {
         try {
             // Extraction des données de la requête
             const orderId = req.params.orderId;
-            const trackingId = req.params.trackingId;
+            const articleTrackingId = req.params.articleTrackingId;
             const userId = req.user.id;
 
             // Recherche du suivi d'article spécifique dans la base de données
             const articleTracking = await ArticleTracking.findOne({
-                where: { id: trackingId }, // Recherche le suivi par son ID
+                where: { id: articleTrackingId }, // Recherche le suivi par son ID
                 include: [
                     {
                         // Inclut les informations de la relation Article-Commande
@@ -285,12 +285,12 @@ const orderController = {
     updateArticleTrackingName: async (req, res, next) => {
         const transaction = await sequelize.transaction();
         try {
-            const { orderId, trackingId } = req.params;
-            const { custom_name } = req.body;
+            const { orderId, articleTrackingId } = req.params;
+            const { nickname } = req.body;
             const userId = req.user.id;
 
             const articleTracking = await ArticleTracking.findOne({
-                where: { id: trackingId },
+                where: { id: articleTrackingId },
                 include: [
                     {
                         model: ArticleHasOrder,
@@ -311,7 +311,7 @@ const orderController = {
                 return next(error);
             }
 
-            articleTracking.custom_name = custom_name;
+            articleTracking.nickname = nickname;
             await articleTracking.save({ transaction });
 
             await transaction.commit();
@@ -320,7 +320,7 @@ const orderController = {
                 message: "Nom personnalisé de l'article mis à jour avec succès",
                 articleTracking: {
                     id: articleTracking.id,
-                    custom_name: articleTracking.custom_name
+                    nickname: articleTracking.nickname
                 }
             });
         } catch (error) {

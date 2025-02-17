@@ -113,7 +113,7 @@ async function seedDatabase() {
 
         // Insertion d'un suivi d'article
         await ArticleTracking.create(
-            { growth: "mature", status: "livré et planté", plant_place: "Amazonie", custom_name: "Coco", article_id: 18, article_has_order_id: 1, picture_id: 18 }
+            { growth: "mature", status: "livré et planté", plant_place: "Amazonie", nickname: "Coco", article_id: 18, article_has_order_id: 1, picture_id: 18 }
         );
 
         // Insertion des relations article-catégorie
