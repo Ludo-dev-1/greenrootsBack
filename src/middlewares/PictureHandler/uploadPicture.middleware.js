@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-const uploadImage = (req, res, next) => {
+const uploadPicture = (req, res, next) => {
   const base64Image = req.body.pictureUrl.split(';base64,').pop();
   const basePath = 'public/uploads/';
   const imageName = `${Date.now()}.png`;
@@ -19,4 +19,4 @@ const uploadImage = (req, res, next) => {
   });
 };
 
-export { uploadImage };
+export { uploadPicture };

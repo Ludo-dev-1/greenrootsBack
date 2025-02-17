@@ -66,10 +66,20 @@ const mainController = {
             return next(error);
         }
     },
+    
+    getOrderPage: async (req, res, next) => {
+        try {
+            res.status(200).json({ message: "Pages de commandes" });
+            
+        } catch (error) {
+            error.statusCode = 500;
+            return next(error);
+        }
+    },
 
     getCGU: async (req, res, next) => {
         try {
-            res.status(200).json({ message: "Conditions Générales d'Utilisation" });
+            res.status(200).json({ message: "Conditions Générales d'Utilisations" });
 
         } catch (error) {
             error.statusCode = 500;
@@ -77,9 +87,19 @@ const mainController = {
         }
     },
 
-    getOrderPage: async (req, res, next) => {
+    getCGV: async (req, res, next) => {
         try {
-            res.status(200).json({ message: "Pages de commandes" });
+            res.status(200).json({ message: "Conditions Générales de ventes" });
+
+        } catch (error) {
+            error.statusCode = 500;
+            return next(error);
+        }
+    },
+
+    getTermsAndConditions: async (req, res, next) => {
+        try {
+            res.status(200).json({ message: "Mentions légales" });
 
         } catch (error) {
             error.statusCode = 500;

@@ -1,9 +1,9 @@
 // middlewares/modifyImageMiddleware.js
 import fs from 'fs';
 import path from 'node:path';
-import { Picture } from '../models/association.js';
+import { Picture } from '../../models/association.js';
 
-const modifyImage = async (req, res, next) => {
+const modifyPicture = async (req, res, next) => {
   const { imageId, newImageBase64 } = req.body;
 
   // Vérifiez si l'image existe dans la base de données
@@ -45,4 +45,4 @@ const modifyImage = async (req, res, next) => {
   });
 };
 
-export { modifyImage };
+export { modifyPicture };

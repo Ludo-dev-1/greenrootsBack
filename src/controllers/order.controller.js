@@ -279,6 +279,55 @@ const orderController = {
             error.statusCode = 500;
             return next(error);
         }
+    },
+
+    // Personnalisation du nom d'un article acheté
+    updateArticleTrackingName: async (req, res, next) => {
+        const transaction = await sequelize.transaction();
+        try {
+            const { orderId, trackingId } = req.params;
+            const { custom_name } = req.body;
+            const userId = req.user.id;
+
+            const articleTracking = await ArticleTracking.findOne({
+                where: { id: trackingId },
+                include: [
+                    {
+                        model: ArticleHasOrder,
+                        include: [
+                            {
+                                model: Order,
+                                where: { id: orderId, user_id: userId }
+                            }
+                        ]
+                    }
+                ],
+                transaction
+            });
+
+            if (!articleTracking) {
+                await transaction.rollback();
+                error.statusCode = 404;
+                return next(error);
+            }
+
+            articleTracking.custom_name = custom_name;
+            await articleTracking.save({ transaction });
+
+            await transaction.commit();
+
+            res.status(200).json({
+                message: "Nom personnalisé de l'article mis à jour avec succès",
+                articleTracking: {
+                    id: articleTracking.id,
+                    custom_name: articleTracking.custom_name
+                }
+            });
+        } catch (error) {
+            await transaction.rollback();
+            error.statusCode = 500;
+            return next(error);
+        }
     }
 }
 

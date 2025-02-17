@@ -1,7 +1,10 @@
 import "dotenv/config"; // Importation de la configuration des variables d'environnement
 import express from "express"; // Importation du framework Express
 import cors from "cors";
-import { router } from "./src/router.js";
+import { mainRouter } from "./src/routers/mainRouter.js";
+import { authRouter } from "./src/routers/authRouter.js";
+import { userRouter } from "./src/routers/userRouter.js";
+import { adminRouter } from "./src/routers/adminRouter.js";
 import { errorHandler, notFound } from "./src/middlewares/errorHandler.js";
 
 // Création de l'instance Express
@@ -17,7 +20,10 @@ app.use(express.json());
 // Configuration des fichiers statiques
 
 // Liste des routes
-app.use(router);
+app.use(mainRouter);
+app.use(authRouter);
+app.use(userRouter);
+app.use(adminRouter);
 
 // Gestion des routes d'erreurs
 app.use(notFound);
