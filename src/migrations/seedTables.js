@@ -7,6 +7,15 @@ import { saveImage, convertImageToBase64 } from "../utils/pictureUtils.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const fakeReq = {
+    protocol: 'http',
+    get: (header) => {
+      if (header === 'host') {
+        return 'localhost:3000'; // Change cette valeur selon ton environnement
+      }
+    }
+  };
+
 async function seedDatabase() {
     try {
         // Insertion des catégories d'arbres
@@ -56,9 +65,9 @@ async function seedDatabase() {
         const imagePromises = images.map(async (imageName) => {
             const imagePath = path.join(__dirname, '..', '..', 'images', imageName);
             const base64Image = convertImageToBase64(imagePath);
-            const savedImagePath = await saveImage(base64Image, imageName);
+            const publicUrl = await saveImage(base64Image, imageName, fakeReq);
 
-            return { url: savedImagePath };
+            return { url: publicUrl };
         });
 
         const pictures = await Promise.all(imagePromises);

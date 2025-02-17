@@ -121,6 +121,7 @@ const orderController = {
     // Récupération des détails d'une commande spécifique
     getOrderDetails: async (req, res, next) => {
         try {
+            
             // Extraction des données de la requête
             const orderId = req.params.id;
             const userId = req.user.id;
@@ -190,6 +191,13 @@ const orderController = {
             // Si aucune commande n'est trouvée, renvoie une erreur 404
             if (!order) {
                 return res.status(404).json({ error: "Commande non trouvée" });
+            }
+
+            // Vérification que l'utilisateur est bien le propriétaire de la commande
+            if (order.user_id !== userId) {
+                const error = new Error("Accès non autorisé");
+                error.statusCode = 403;
+                return next(error);
             }
 
             /* // Formatage des données de la commande pour la réponse

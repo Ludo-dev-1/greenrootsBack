@@ -14,18 +14,18 @@ const mainRouter = Router();
 mainRouter.get("/", cw(mainController.getNewArticles));
 
 // * BOUTIQUE
-// Page de tout les articles (accessibles par tout le monde)
+// Page de tous les articles (accessibles par tout le monde)
 mainRouter.get("/boutique", cw(mainController.getAllArticles));
 // Page de détails d'un article (accessible par tout le monde)
 mainRouter.get("/boutique/article/:id", cw(mainController.getOneArticle));
 
 // * CGU
 // Page de conditions générale d'utilisation
-mainRouter.get("/conditions-générales-d'utilisations", cw(mainController.getCGU));
+mainRouter.get("/conditions-generales-d-utilisation", cw(mainController.getCGU));
 
 // * CGV
 // Page de conditions générale de vente
-mainRouter.get("/conditions-générales-de-ventes", cw(mainController.getCGV));
+mainRouter.get("/conditions-generales-de-vente", cw(mainController.getCGV));
 
 // * MENTIONS LÉGALES
 // Page de Mentions légales

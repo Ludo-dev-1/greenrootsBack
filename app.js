@@ -18,6 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Configuration des fichiers statiques
+app.use("/uploads", express.static("public/uploads"));
 
 // Liste des routes
 app.use(mainRouter);

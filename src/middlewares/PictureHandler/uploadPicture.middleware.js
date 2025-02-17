@@ -14,7 +14,7 @@ const uploadPicture = (req, res, next) => {
       });
     }
 
-    req.base64Image = imagePath;
+    req.base64Image = `${req.protocol}://${req.get('host')}/uploads/${imageName}`;
     next();
   });
 };
