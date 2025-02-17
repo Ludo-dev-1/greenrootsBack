@@ -42,7 +42,7 @@ const orderController = {
                 }
     
                 // Création du résumé des articles pour la commande
-                const article_summary = articleDetails.map(ad => `${ad.quantity}x ${ad.name}`).join(', ');
+                const article_summary = articleDetails.map(ad => `${ad.quantity}x ${ad.name}`).join(", ");
     
                 // Création de la commande (entrée dans la table Order)
                 const newOrder = await Order.create({
@@ -121,15 +121,14 @@ const orderController = {
     // Récupération des détails d'une commande spécifique
     getOrderDetails: async (req, res, next) => {
         try {
-            
             // Extraction des données de la requête
             const orderId = req.params.id;
             const userId = req.user.id;
 
             // Recherche de la commande dans la BDD
             const order = await Order.findOne({
-                // Filtre pour trouver la commande spécifique de l'utilisateur connecté
-                where: { id: orderId, user_id: userId },
+                // Filtre pour trouver la commande spécifique
+                where: { id: orderId },
                 include: [
                     {
                         model: Article,
@@ -149,7 +148,12 @@ const orderController = {
                 return next(error);
             }
 
-
+            // Vérification que l'utilisateur est bien le propriétaire de la commande
+            if (order.user_id !== userId) {
+                const error = new Error("Accès non autorisé");
+                error.statusCode = 403;
+                return next(error);
+            }
 
             // Réponse avec les détails de la commande
             res.status(200).json(order);
@@ -168,7 +172,7 @@ const orderController = {
     
             // Recherche de la commande dans la base de données
             const order = await Order.findOne({
-                where: { id: orderId, user_id: userId },
+                where: { id: orderId },
                 // Inclusion des données associées (jointures)
                 include: [
                     {
@@ -193,6 +197,13 @@ const orderController = {
             // Si aucune commande n'est trouvée, renvoie une erreur 404
             if (!order) {
                 return res.status(404).json({ error: "Commande non trouvée" });
+            }
+
+            // Vérification que l'utilisateur est bien le propriétaire de la commande
+            if (order.user_id !== userId) {
+                const error = new Error("Accès non autorisé");
+                error.statusCode = 403;
+                return next(error);
             }
 
             /* // Formatage des données de la commande pour la réponse
@@ -265,6 +276,13 @@ const orderController = {
                 return res.status(404).json({ error: "Suivi d'article non trouvé ou non autorisé" });
             }
 
+            // Vérification que l'utilisateur est bien le propriétaire de la commande
+            if (articleTracking.ArticleHasOrder.Order.user_id !== userId) {
+                const error = new Error("Accès non autorisé");
+                error.statusCode = 403;
+                return next(error);
+            }
+
             // Formatage des données du suivi d'article pour la réponse
 /*             const formattedTracking = {
                 orderId: orderId,
@@ -311,6 +329,14 @@ const orderController = {
             if (!articleTracking) {
                 await transaction.rollback();
                 error.statusCode = 404;
+                return next(error);
+            }
+
+            // Vérification que l'utilisateur est bien le propriétaire de la commande
+            if (articleTracking.ArticleHasOrder.Order.user_id !== userId) {
+                await transaction.rollback();
+                const error = new Error("Accès non autorisé");
+                error.statusCode = 403;
                 return next(error);
             }
 

@@ -1,9 +1,22 @@
 import { Article, Picture, Category, sequelize } from "../models/association.js";
 
 const adminShopController = {
+    // Fonction de vérification du rôle administrateur 
+    checkAdminAccess: (req, res, next) => {
+        if (req.user.role_id !== 1) {
+            const error = new Error("Accès non autorisé");
+            error.statusCode = 403;
+            next(error);
+            return false;
+        }
+        return true;
+    },
+
     // Récupération de tout les articles
     getAllArticles: async (req, res, next) => {
         try {
+            if (!adminShopController.checkAdminAccess(req, res, next)) return;
+
             const articles = await Article.findAll({
                 include: [
                     { model: Picture },
@@ -27,6 +40,8 @@ const adminShopController = {
     // Récupération d'un seul article
     getOneArticle: async (req, res, next) => {
         try {
+            if (!adminShopController.checkAdminAccess(req, res, next)) return;
+
             const articleId = req.params.id;
 
             const oneArticle = await Article.findByPk(articleId, {
@@ -42,7 +57,7 @@ const adminShopController = {
                 return next(newError);
             };
 
-            res.status(201).json(oneArticle);
+            res.status(200).json(oneArticle);
         } catch (error) {
             error.statusCode = 500;
             return next(error);
@@ -52,6 +67,8 @@ const adminShopController = {
     createArticleWithPicture: async (req, res, next) => {
         const transaction = await sequelize.transaction();
         try {
+            if (!adminShopController.checkAdminAccess(req, res, next)) return;
+
             // Vérifier si l'utilisateur est un administrateur
             if (req.user.role_id !== 1) {
                 return res.status(403).json({ error: "Accès non autorisé" });
@@ -102,6 +119,7 @@ const adminShopController = {
     updateArticle: async (req, res, next) => {
         const transaction = await sequelize.transaction();
         try {
+            if (!adminShopController.checkAdminAccess(req, res, next)) return;
             // Vérification de si l'utilisateur est un administrateur
             if (req.user.role_id !== 1) {
                 return res.status(403).json({ error: "Accès non autorisé" });
@@ -134,6 +152,7 @@ const adminShopController = {
             }
 
             // Mise à jour des champs de l'article 
+
             if (name) article.name = name;
             if (description) article.description = description;
             if (price) article.price = price;
@@ -188,14 +207,15 @@ const adminShopController = {
         catch (error) {
             // Annule les modifications en cas d'erreur de la transaction
             await transaction.rollback();
-            console.error("Erreur lors de la création de l'article :", error);
-            res.status(500).json({ error: "Erreur serveur lors de la mise à de l'article" });
+            console.error("Erreur lors de la mise à jour de l'article :", error);
+            res.status(500).json({ error: "Erreur serveur lors de la mise à jour de l'article" });
         }
     },
 
     deleteArticle: async (req, res, next) => {
         const transaction = await sequelize.transaction();
         try {
+            if (!adminShopController.checkAdminAccess(req, res, next)) return;
             // Vérification de si l'utilisateur est un administrateur
             if (req.user.role_id !== 1) {
                 return res.status(403).json({ error: "Accès non autorisé" });

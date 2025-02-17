@@ -21,7 +21,7 @@ adminRouter.get("/api/articles/:id", authenticate, cw(adminShopController.getOne
 // Création d'un article
 adminRouter.post("/api/articles", authenticate, crudAdminShopValidator, uploadPicture, cw(adminShopController.createArticleWithPicture));
 // Modification d'un article
-adminRouter.patch("/api/articles/:id", authenticate, crudAdminShopValidator, modifyPicture, cw(adminShopController.updateArticle));// EN ATTENTE DE TEST POUR LES IMAGES
+adminRouter.patch("/api/articles/:id", authenticate, crudAdminShopValidator, cw(adminShopController.updateArticle));// EN ATTENTE DE TEST POUR LES IMAGES
 // Suppression d'un article 
 adminRouter.delete("/api/articles/:id", authenticate, cw(adminShopController.deleteArticle));
 

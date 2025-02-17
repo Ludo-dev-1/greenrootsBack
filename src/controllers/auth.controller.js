@@ -1,5 +1,6 @@
 import { generateToken } from "../utils/jwt.js";
 import { User, sequelize } from "../models/association.js";
+import { sendEmail } from "../services/emailService.js";
 import argon2 from "argon2";
 
 const authController = {
@@ -36,7 +37,10 @@ const authController = {
                 role_id,
             }, { transaction });
 
+            sendEmail(email, "Confirmation de création de compte", "confirmation", { firstname });
+            
             await transaction.commit();
+
 
             res.status(201).json({
                 message: "Utilisateur créé avec succès",
