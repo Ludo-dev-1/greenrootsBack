@@ -61,9 +61,9 @@ const userController = {
                 include: [{
                     model: Order,
                     where: { user_id: userId },
-                    include: [{ model: Article, as: 'articles' }]
+                    include: [{ model: Article, as: "articles" }]
                 }],
-                order: [[Order, 'date', 'DESC']]
+                order: [[Order, "date", "DESC"]]
             });
 
             if (!tracking || tracking.length === 0) {
