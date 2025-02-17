@@ -149,6 +149,8 @@ const orderController = {
                 return next(error);
             }
 
+
+
             // Réponse avec les détails de la commande
             res.status(200).json(order);
         } catch (error) {
@@ -191,13 +193,6 @@ const orderController = {
             // Si aucune commande n'est trouvée, renvoie une erreur 404
             if (!order) {
                 return res.status(404).json({ error: "Commande non trouvée" });
-            }
-
-            // Vérification que l'utilisateur est bien le propriétaire de la commande
-            if (order.user_id !== userId) {
-                const error = new Error("Accès non autorisé");
-                error.statusCode = 403;
-                return next(error);
             }
 
             /* // Formatage des données de la commande pour la réponse
