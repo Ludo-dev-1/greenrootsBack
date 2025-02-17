@@ -80,6 +80,7 @@ const userController = {
     },
 
     updateUserProfile: async (req, res, next) => {
+        const transaction = await sequelize.transaction();
         try {
             const userId = req.user.id;
             const { firstname, lastname, email, password, repeat_password } = req.body;
@@ -99,18 +100,23 @@ const userController = {
             }
 
             const updatedUser = await User.update(updateFields, {
-                where: { id: userId }, returning: true
+                where: { id: userId }, 
+                returning: true,
+                transaction
             });
 
             if (!updatedUser[0]) {
                 return res.status(404).json({ error: "Utilisateur non trouvé" });
             }
 
+            await transaction.commit();
+
             res.status(200).json({
                 message: "Profil mis à jour avec succès",
                 user: updatedUser[1][0], // Les données mises à jour
             });
         } catch (error) {
+            await transaction.rollback();
             error.statusCode = 500;
             return next(error);
         }

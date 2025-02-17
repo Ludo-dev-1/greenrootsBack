@@ -9,6 +9,7 @@ import adminOrderController from "./controllers/adminOrder.controller.js";
 import userController from "./controllers/user.controller.js";
 import orderController from "./controllers/order.controller.js";
 import { uploadImage } from "./middlewares/imageHandler.middleware.js";
+import { modifyImage } from "./middlewares/modifyImage.middleware.js";
 
 const router = Router();
 
@@ -103,7 +104,7 @@ router.get("/api/articles/:id", authenticate, cw(adminShopController.getOneArtic
 // Création d'un article
 router.post("/api/articles", authenticate, crudAdminShopValidator, uploadImage, cw(adminShopController.createArticleWithPicture));
 // Modification d'un article
-router.patch("/api/articles/:id", authenticate, crudAdminShopValidator, cw(adminShopController.updateArticle));
+router.patch("/api/articles/:id", authenticate, crudAdminShopValidator, modifyImage, cw(adminShopController.updateArticle));
 // Suppression d'un article
 router.delete("/api/articles/:id", authenticate, cw(adminShopController.deleteArticle));
 
@@ -114,8 +115,8 @@ router.get("/api/commandes", authenticate, cw(adminOrderController.getAllOrders)
 router.get("/api/commandes/:id", authenticate, cw(adminOrderController.getOrderDetailsAdmin));
 // Page de suivi des articles d'une commande
 router.get("/api/commandes/:id/suivi", authenticate, cw(adminOrderController.getOrderTrackingAdmin));
-router.get("/api/commandes/:orderId/suivi/:trackingId", authenticate, cw(adminOrderController.getArticleTrackingAdmin)); // A FAIRE
-router.patch("/api/commandes/:orderId/suivi/:trackingId", authenticate, cw(adminOrderController.updateArticleTracking)); // A DEBUG
+router.get("/api/commandes/:orderId/suivi/:trackingId", authenticate, cw(adminOrderController.getArticleTrackingAdmin));
+router.patch("/api/commandes/:orderId/suivi/:trackingId", authenticate, modifyImage, cw(adminOrderController.updateArticleTracking)); // A DEBUG
 
 
 export { router };
