@@ -1,5 +1,6 @@
 import { Article, Order, ArticleHasOrder, Tracking, ArticleTracking, Picture, User, sequelize } from "../models/association.js";
-import { sendEmail } from "../services/emailService.js"
+import { sendEmail } from "../services/emailService.js";
+import { withTransaction } from "../utils/commonOperations.js";
 
 const orderController = {
     createOrder: async (req, res, next) => {
@@ -10,7 +11,6 @@ const orderController = {
             - Crée un suivi global de la commande dans Tracking
             - Crée des suivis individuels pour chaque article dans ArticleTracking
         */
-        const transaction = await sequelize.transaction();
         try {
             // Extraction des données de la requête
             const userId = req.user.id;
@@ -18,112 +18,122 @@ const orderController = {
 
             // Vérification de la validité des données
             if (!articles || !Array.isArray(articles) || articles.length === 0) {
-                return res.status(400).json({ error: "Les articles sont obligatoires pour passer une commande." });
+                const error = new Error("Les articles sont obligatoires pour passer une commande.");
+                error.statusCode = 400;
+                return next(error);
             }
 
-            // Calcul du prix total et préparation des détails des articles
-            let total_price = 0;
-            const articleDetails = [];
+            const result = await withTransaction(async (transaction) => {
 
-            for (const articleInfo of articles) {
-                // Récupération des informations de l'article
-                const article = await Article.findByPk(articleInfo.id, { transaction });
-                if (!article) {
-                    throw new Error(`Article avec l'ID ${articleInfo.id} non trouvé`);
-                }
-                // Calcul du prix pour cet article
-                const articlePrice = article.price * articleInfo.quantity;
-                total_price += articlePrice;
-                articleDetails.push({
-                    name: article.name,
-                    quantity: articleInfo.quantity,
-                    price: articlePrice,
-                    id: article.id
-                });
-            }
+                // Calcul du prix total et préparation des détails des articles
+                let total_price = 0;
+                const articleDetails = [];
 
-            // Création du résumé des articles pour la commande
-            const article_summary = articleDetails.map(ad => `${ad.quantity}x ${ad.name}`).join(", ");
-
-            // Création de la commande (entrée dans la table Order)
-            const newOrder = await Order.create({
-                article_summary,
-                total_price,
-                date: new Date(),
-                user_id: userId
-            }, { transaction });
-
-            // Création du suivi global de la commande dans la table Tracking
-            await Tracking.create({
-                status: "Commande passée",
-                order_id: newOrder.id,
-            }, { transaction });
-
-            // Création des relations ArticleHasOrder et des suivis individuels
-            for (const articleDetail of articleDetails) {
-                // Création de l'entrée dans ArticleHasOrder si elle n'existe pas déjà
-                const [articleHasOrder, created] = await ArticleHasOrder.findOrCreate({
-                    where: {
-                        order_id: newOrder.id,
-                        article_id: articleDetail.id,
-                        quantity: articleDetail.quantity
-                    },
-                    transaction
-                });
-
-                if (!created) {
-                    // Si l'entrée existe déjà, mise à jour de la quantité
-                    await articleHasOrder.update({
-                        quantity: articleHasOrder.quantity + articleDetail.quantity
-                    }, { transaction });
+                for (const articleInfo of articles) {
+                    // Récupération des informations de l'article
+                    const article = await Article.findByPk(articleInfo.id, { transaction });
+                    if (!article) {
+                        const error = new Error(`Article avec l'ID ${articleInfo.id} non trouvé`);
+                        error.statusCode = 404;
+                        throw error;
+                    }
+                    // Calcul du prix pour cet article
+                    const articlePrice = article.price * articleInfo.quantity;
+                    total_price += articlePrice;
+                    articleDetails.push({
+                        name: article.name,
+                        quantity: articleInfo.quantity,
+                        price: articlePrice,
+                        id: article.id
+                    });
                 }
 
-                // Récupération des informations de l'article, y compris l'image
-                const article = await Article.findByPk(articleDetail.id, {
-                    include:
-                        [Picture],
-                    transaction
+                // Création du résumé des articles pour la commande
+                const article_summary = articleDetails.map(ad => `${ad.quantity}x ${ad.name}`).join(", ");
+
+                // Création de la commande (entrée dans la table Order)
+                const newOrder = await Order.create({
+                    article_summary,
+                    total_price,
+                    date: new Date(),
+                    user_id: userId
+                }, { transaction });
+
+                // Création du suivi global de la commande dans la table Tracking
+                await Tracking.create({
+                    status: "Commande passée",
+                    order_id: newOrder.id,
+                }, { transaction });
+
+                // Création des relations ArticleHasOrder et des suivis individuels
+                for (const articleDetail of articleDetails) {
+                    // Création de l'entrée dans ArticleHasOrder si elle n'existe pas déjà
+                    const [articleHasOrder, created] = await ArticleHasOrder.findOrCreate({
+                        where: {
+                            order_id: newOrder.id,
+                            article_id: articleDetail.id,
+                            quantity: articleDetail.quantity
+                        },
+                        transaction
+                    });
+
+                    if (!created) {
+                        // Si l'entrée existe déjà, mise à jour de la quantité
+                        await articleHasOrder.update({
+                            quantity: articleHasOrder.quantity + articleDetail.quantity
+                        }, { transaction });
+                    }
+
+                    // Récupération des informations de l'article, y compris l'image
+                    const article = await Article.findByPk(articleDetail.id, {
+                        include:
+                            [Picture],
+                        transaction
+                    });
+
+                    // Création d'un suivi pour chaque exemplaire de l'article
+                    for (let i = 0; i < articleDetail.quantity; i++) {
+                        await ArticleTracking.create({
+                            growth: "En attente de plantation",
+                            status: "Commande passée",
+                            plant_place: "À définir",
+                            article_id: articleDetail.id,
+                            article_has_order_id: articleHasOrder.id,
+                            picture_id: article.picture_id
+                        }, { transaction });
+                    }
+                }
+
+                // Récupération des informations de l'utilisateur pour l'e-mail
+                const user = await User.findByPk(userId, { transaction });
+                const email = user.email;
+                const firstname = user.firstname;
+    
+                // Envoi de l'e-mail de confirmation de commande
+                await sendEmail(email, "Confirmation de commande", "newOrder", { 
+                    firstname, 
+                    createdAt: newOrder.date,
+                    orderId: newOrder.id,
+                    articleDetails,
+                    totalPrice: newOrder.total_price
                 });
 
-                // Création d'un suivi pour chaque exemplaire de l'article
-                for (let i = 0; i < articleDetail.quantity; i++) {
-                    await ArticleTracking.create({
-                        growth: "En attente de plantation",
-                        status: "Commande passée",
-                        plant_place: "À définir",
-                        article_id: articleDetail.id,
-                        article_has_order_id: articleHasOrder.id,
-                        picture_id: article.picture_id
-                    }, { transaction });
-                }
-            }
-
-            // Récupération des informations de l'utilisateur pour l'e-mail
-            const user = await User.findByPk(userId);
-            const email = user.email;
-            const firstname = user.firstname;
-
-            // Envoi de l'e-mail de confirmation de commande
-            sendEmail(email, "Confirmation de commande", "newOrder", { firstname });
-
-            // Validation de la transaction
-            await transaction.commit();
+                return { newOrder, articleDetails };
+            });
 
             // Réponse avec les détails de la commande créée
             res.status(201).json({
                 message: "Commande créée avec succès",
                 order: {
-                    id: newOrder.id,
-                    article_summary: newOrder.article_summary,
-                    total_price: newOrder.total_price,
-                    date: newOrder.date
+                    id: result.newOrder.id,
+                    article_summary: result.newOrder.article_summary,
+                    total_price: result.newOrder.total_price,
+                    date: result.newOrder.date
                 },
-                articleDetails: articleDetails
+                articleDetails: result.articleDetails
             });
         } catch (error) {
-            await transaction.rollback();
-            error.statusCode = 500;
-            return next(error);
+            next(error);
         }
     },
 
@@ -145,7 +155,7 @@ const orderController = {
                         // Inclusion des informations de la table de jonction
                         through: {
                             model: ArticleHasOrder,
-                            attributes: ["quantity"] // On ne récupère que la quantité
+                            attributes: ["quantity"]
                         },
                     }
                 ]
@@ -153,6 +163,7 @@ const orderController = {
 
             // Vérification de l'existence de la commande
             if (!order) {
+                const error = new Error("Commande non trouvée");
                 error.statusCode = 404;
                 return next(error);
             }
@@ -167,7 +178,6 @@ const orderController = {
             // Réponse avec les détails de la commande
             res.status(200).json(order);
         } catch (error) {
-            error.statusCode = 500;
             return next(error);
         }
     },
@@ -190,7 +200,7 @@ const orderController = {
                         // Inclusion des informations de la table de jonction ArticleHasOrder
                         through: {
                             model: ArticleHasOrder,
-                            attributes: ["quantity"] // On ne récupère que la quantité
+                            attributes: ["quantity"]
                         },
                         // Inclusion des suivis pour chaque article
                         include: [
@@ -205,7 +215,9 @@ const orderController = {
 
             // Si aucune commande n'est trouvée, renvoie une erreur 404
             if (!order) {
-                return res.status(404).json({ error: "Commande non trouvée" });
+                const error = new Error("Commande non trouvée");
+                error.statusCode = 404;
+                return next(error);
             }
 
             // Vérification que l'utilisateur est bien le propriétaire de la commande
@@ -241,8 +253,7 @@ const orderController = {
             // Réponse (pour la réponse formatée, modifier "order" en "formattedOrder")
             res.status(200).json(order);
         } catch (error) {
-            error.statusCode = 500;
-            return next(error);
+            next(error);
         }
     },
 
@@ -282,7 +293,9 @@ const orderController = {
 
             // Si aucun suivi d'article (!articleTracking) n'est trouvé ou si l'utilisateur n'a pas accès à cette commande (!articleTracking.ArticleHasOrder.Order)
             if (!articleTracking || !articleTracking.ArticleHasOrder.Order) {
-                return res.status(404).json({ error: "Suivi d'article non trouvé ou non autorisé" });
+                const error = new Error("Suivi d'article non trouvé ou non autorisé");
+                error.statusCode = 404;
+                return next(error);
             }
 
             // Vérification que l'utilisateur est bien le propriétaire de la commande
@@ -313,66 +326,65 @@ const orderController = {
 
     // Personnalisation du nom d'un article acheté
     updateArticleTrackingName: async (req, res, next) => {
-        const transaction = await sequelize.transaction();
         try {
             const { orderId, articleTrackingId } = req.params;
             const { nickname } = req.body;
             const userId = req.user.id;
 
-            const articleTracking = await ArticleTracking.findOne({
-                where: { id: articleTrackingId },
-                include: [
-                    {
-                        model: ArticleHasOrder,
-                        include: [
-                            {
-                                model: Order,
-                                where: { id: orderId, user_id: userId }
-                            }
-                        ]
-                    }
-                ],
-                transaction
+            const result = await withTransaction(async (transaction) => {
+                const articleTracking = await ArticleTracking.findOne({
+                    where: { id: articleTrackingId },
+                    include: [
+                        {
+                            model: ArticleHasOrder,
+                            include: [
+                                {
+                                    model: Order,
+                                    where: { id: orderId, user_id: userId }
+                                }
+                            ]
+                        }
+                    ],
+                    transaction
+                });
+
+                if (!articleTracking) {
+                    const error = new Error("Suivi d'article non trouvé");
+                    error.statusCode = 404;
+                    throw error;
+                }
+
+                // Vérification que l'utilisateur est bien le propriétaire de la commande
+                if (articleTracking.ArticleHasOrder.Order.user_id !== userId) {
+                    const error = new Error("Accès non autorisé");
+                    error.statusCode = 403;
+                    throw error;
+                }
+
+                articleTracking.nickname = nickname;
+
+                await articleTracking.save({ transaction });
+
+                // Récupération des informations de l'utilisateur pour l'e-mail
+                const user = await User.findByPk(userId, { transaction });
+                const email = user.email;
+                const firstname = user.firstname;
+    
+                // Envoi de l'e-mail de confirmation de commande
+                await sendEmail(email, "Nouvelles informations concernant le suivi de votre arbre", "newNicknameUpdate", { firstname, nickname: articleTracking.nickname });
+
+                return articleTracking;
             });
-
-            if (!articleTracking) {
-                await transaction.rollback();
-                error.statusCode = 404;
-                return next(error);
-            }
-
-            // Vérification que l'utilisateur est bien le propriétaire de la commande
-            if (articleTracking.ArticleHasOrder.Order.user_id !== userId) {
-                await transaction.rollback();
-                const error = new Error("Accès non autorisé");
-                error.statusCode = 403;
-                return next(error);
-            }
-
-            articleTracking.nickname = nickname;
-            await articleTracking.save({ transaction });
-
-            // Récupération des informations de l'utilisateur pour l'e-mail
-            const user = await User.findByPk(userId);
-            const email = user.email;
-            const firstname = user.firstname;
-
-            // Envoi de l'e-mail de confirmation de commande
-            sendEmail(email, "Nouvelles informations concernant le suivi de votre arbre", "newNicknameUpdate", { firstname, nickname: articleTracking.nickname }); 
-
-            await transaction.commit();
 
             res.status(200).json({
                 message: "Nom personnalisé de l'article mis à jour avec succès",
                 articleTracking: {
-                    id: articleTracking.id,
-                    nickname: articleTracking.nickname
+                    id: result.id,
+                    nickname: result.nickname
                 }
             });
         } catch (error) {
-            await transaction.rollback();
-            error.statusCode = 500;
-            return next(error);
+            next(error);
         }
     }
 }

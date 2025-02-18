@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { controllerWrapper as cw } from "../utils/controllerWrapper.js";
 import mainController from "../controllers/main.controller.js";
-import { authenticate } from "../middlewares/auth.middleware.js";
+import { authenticate } from "../middlewares/token/auth.middleware.js";
 import { crudUserProfileValidator } from "../middlewares/JoiValidator/crudUserProfileValidator.middleware.js";
 import { createOrderJoiValidator } from "../middlewares/JoiValidator/CreateOrderJoiValidator.middleware.js";
 import userController from "../controllers/user.controller.js";

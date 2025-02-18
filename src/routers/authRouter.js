@@ -30,8 +30,8 @@ authRouter.get("/mot-de-passe-oublie", cw(authController.forgetPassword));
 authRouter.post("/mot-de-passe-oublie", emailForgetPasswordJoiValidator, cw(authController.forgetPasswordPost));
 // * BONUS 
 // // Page de changement de mot de passe
-// authRouter.get("/changement-mot-de-passe", cw()); // A FAIRE
+// authRouter.get("/changement-mot-de-passe", cw(authController.getResetPassword)); // A FAIRE
 // // Validation du changement de mot de passe
-// authRouter.post("/changement-mot-de-passe", updateForgetPasswordJoiValidator, cw()); // A FAIRE
+// authRouter.post("/changement-mot-de-passe", updateForgetPasswordJoiValidator, cw(authController.resetPassword)); // A FAIRE
 
 export { authRouter };

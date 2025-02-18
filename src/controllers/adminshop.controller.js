@@ -2,20 +2,10 @@ import { Article, Picture, Category, sequelize } from "../models/association.js"
 import { withTransaction } from "../utils/commonOperations.js";
 
 const adminShopController = {
-    // Fonction de vérification du rôle administrateur 
-    checkAdminAccess: (req, res, next) => {
-        if (req.user.role_id !== 1) {
-            next(new Error("Accès non autorisé"));
-            return false;
-        }
-        return true;
-    },
 
     // Récupération de tout les articles
     getAllArticles: async (req, res, next) => {
         try {
-            if (!adminShopController.checkAdminAccess(req, res, next)) return;
-
             const articles = await Article.findAll({
                 include: [
                     { model: Picture },
@@ -23,8 +13,10 @@ const adminShopController = {
                 ]
             });
 
-            if (!articles) {
-                return next(new Error ("Aucun article trouvé"));
+            if (!articles || articles.length === 0) {
+                const error = new Error("Aucun article trouvé");
+                error.statusCode = 404;
+                return next(error);
             };
 
             res.status(200).json({ articles });
@@ -37,8 +29,6 @@ const adminShopController = {
     // Récupération d'un seul article
     getOneArticle: async (req, res, next) => {
         try {
-            if (!adminShopController.checkAdminAccess(req, res, next)) return;
-
             const articleId = req.params.id;
 
             const oneArticle = await Article.findByPk(articleId, {
@@ -49,7 +39,9 @@ const adminShopController = {
             });
 
             if (!oneArticle) {
-                return next(newError("Cet arbre n'existe pas ou a été retiré !"));
+                const error = new Error("Cet arbre n'existe pas ou a été retiré !");
+                error.statusCode = 404;
+                return next(error);
             };
 
             res.status(200).json(oneArticle);
@@ -60,13 +52,12 @@ const adminShopController = {
 
     createArticleWithPicture: async (req, res, next) => {
         try {
-            // Vérification de si l'utilisateur est un administrateur
-            if (!adminShopController.checkAdminAccess(req, res, next)) return;
-
             const { categoryName, name, description, price, available, pictureUrl } = req.body;
 
             if (!categoryName || !name || !description || !price || available === undefined || !pictureUrl) {
-                return next(new Error("Tous les champs sont obligatoires"));
+                const error = new Error("Tous les champs sont obligatoires");
+                error.statusCode = 400;
+                return next(error);
             };
 
             const result = await withTransaction(async (transaction) => {
@@ -74,6 +65,12 @@ const adminShopController = {
                     where: { name: categoryName },
                     transaction
                 });
+
+                if (categories.length === 0) {
+                    const error = new Error("Catégorie(s) non trouvée(s)");
+                    error.statusCode = 404;
+                    throw error;
+                }
     
                 const newPicture = await Picture.create({
                     url: req.base64Image
@@ -105,9 +102,6 @@ const adminShopController = {
 
     updateArticle: async (req, res, next) => {
         try {
-            // Vérification de si l'utilisateur est un administrateur
-            if (!adminShopController.checkAdminAccess(req, res, next)) return;
-
             // Récupération de l'ID de l'article depuis les paramètres de la requête
             const articleId = req.params.id;
 
@@ -115,7 +109,9 @@ const adminShopController = {
 
             // Validation des données
             if (!categoryName && !name && !description && !price && available === undefined && !pictureUrl) {
-                return next(new Error("Aucun champ à mettre à jour n'a été fourni."));
+                const error = new Error("Aucun champ à mettre à jour n'a été fourni.");
+                error.statusCode = 400;
+                return next(error);
             }
 
             // Récupération de l'article existant
@@ -132,7 +128,9 @@ const adminShopController = {
                 });
 
                 if (!article) {
-                    throw new Error("L'article spécifié n'existe pas.");
+                    const error = new Error("L'article spécifié n'existe pas.");
+                    error.statusCode = 404;
+                    throw error;
                 }
 
                 // Mise à jour des champs de l'article 
@@ -157,6 +155,12 @@ const adminShopController = {
                         where: { name: categoryName },
                         transaction
                     });
+
+                    if (newCategories.length === 0) {
+                        const error = new Error("Catégorie(s) non trouvée(s)");
+                        error.statusCode = 404;
+                        throw error;
+                    }
 
                     // Ajoute les catégories qui ne sont pas encore associées à l'article
                     let categoriesToAdd = newCategories.filter(newCat => !existingCategories.some(exCat => exCat.id === newCat.id));
@@ -192,9 +196,6 @@ const adminShopController = {
 
     deleteArticle: async (req, res, next) => {
         try {
-            // Vérification de si l'utilisateur est un administrateur
-            if (!adminShopController.checkAdminAccess(req, res, next)) return;
-
             const articleId = req.params.id;
 
             await withTransaction(async (transaction) => {
@@ -204,7 +205,9 @@ const adminShopController = {
                 });
 
                 if (!article) {
-                    throw new Error("Article non trouvé");
+                    const error = new Error("Article non trouvé");
+                    error.statusCode = 404;
+                    throw error;
                 };
 
                 await article.destroy({ transaction });

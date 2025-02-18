@@ -1,19 +1,16 @@
 import { Order, User, Article, ArticleHasOrder, Tracking, ArticleTracking, Picture, sequelize } from "../models/association.js";
 import { sendEmail } from "../services/emailService.js";
+import { withTransaction } from "../utils/commonOperations.js";
 
 const adminOrderController = {
     getAllOrders: async (req, res, next) => {
         try {
-            // Vérifier si l'utilisateur est un administrateur
-            if (req.user.role_id !== 1) {
-                return res.status(403).json({ error: "Accès non autorisé" });
-            }
-
             const orders = await Order.findAll({
                 order: [["date", "DESC"]]
             });
 
-            if (!orders) {
+            if (!orders || orders.length === 0) {
+                const error = new Error("Aucune commande trouvée");
                 error.statusCode = 404;
                 return next(error);
             };
@@ -21,18 +18,12 @@ const adminOrderController = {
             res.status(200).json(orders);
 
         } catch (error) {
-            error.statusCode = 500;
-            return next(error);
+            next(error);
         }
     },
 
     getOrderDetailsAdmin: async (req, res, next) => {
         try {
-            // Vérifier si l'utilisateur est un administrateur
-            if (req.user.role_id !== 1) {
-                return res.status(403).json({ error: "Accès non autorisé" });
-            };
-
             const orderId = req.params.id;
 
             const order = await Order.findByPk(orderId, {
@@ -53,24 +44,19 @@ const adminOrderController = {
             });
 
             if (!order) {
+                const error = new Error("Commande non trouvée");
                 error.statusCode = 404;
                 return next(error);
             }
 
             res.status(200).json(order);
         } catch (error) {
-            error.statusCode = 500;
-            return next(error);
+            next(error);
         }
     },
 
     getOrderTrackingAdmin: async (req, res, next) => {
         try {
-            // Vérifier si l'utilisateur est un administrateur
-            if (req.user.role_id !== 1) {
-                return res.status(403).json({ error: "Accès non autorisé" });
-            }
-
             const orderId = req.params.id;
 
             const order = await Order.findByPk(orderId, {
@@ -100,24 +86,19 @@ const adminOrderController = {
             });
 
             if (!order) {
+                const error = new Error("Commande non trouvée");
                 error.statusCode = 404;
                 return next(error);
             }
 
             res.status(200).json(order);
         } catch (error) {
-            error.statusCode = 500;
-            return next(error);
+            next(error);
         }
     },
 
     getArticleTrackingAdmin: async (req, res, next) => {
         try {
-            // Vérifier si l'utilisateur est un administrateur
-            if (req.user.role_id !== 1) {
-                return res.status(403).json({ error: "Accès non autorisé" });
-            }
-
             const { orderId, trackingId } = req.params;
 
             const articleTracking = await ArticleTracking.findOne({
@@ -139,89 +120,89 @@ const adminOrderController = {
             });
 
             if (!articleTracking) {
+                const error = new Error("Suivi d'article non trouvé");
                 error.statusCode = 404;
                 return next(error);
             }
 
             res.status(200).json(articleTracking);
         } catch (error) {
-            error.statusCode = 500;
-            return next(error);
+            next(error);
         }
     },
 
     updateArticleTracking: async (req, res, next) => {
-        const transaction = await sequelize.transaction();
         try {
-            // Vérifier si l'utilisateur est un administrateur
-            if (req.user.role_id !== 1) {
-                return res.status(403).json({ error: "Accès non autorisé" });
-            }
-
             const userId = req.user.id;
             const { orderId, trackingId } = req.params;
             const { status, growth, plant_place, picture_url } = req.body;
 
-            const articleTracking = await ArticleTracking.findOne({
-                where: { id: trackingId },
-                include: [
-                    {
-                        model: Picture
-                    },
-                    {
-                        model: ArticleHasOrder,
-                        include: [
-                            {
-                                model: Order,
-                                where: { id: orderId }
-                            }
-                        ]
-                    }
-                ],
-                transaction
+            const updatedTracking = await withTransaction(async (transaction) => {
+                const articleTracking = await ArticleTracking.findOne({
+                    where: { id: trackingId },
+                    include: [
+                        {
+                            model: Picture
+                        },
+                        {
+                            model: ArticleHasOrder,
+                            include: [
+                                {
+                                    model: Order,
+                                    where: { id: orderId }
+                                }
+                            ]
+                        }
+                    ],
+                    transaction
+                });
+    
+                if (!articleTracking) {
+                    const error = new Error("Suivi d'article non trouvé");
+                    error.statusCode = 404;
+                    throw error;
+                }
+
+                // Mettre à jour les champs
+                if (status) articleTracking.status = status;
+                if (growth) articleTracking.growth = growth;
+                if (plant_place) articleTracking.plant_place = plant_place;
+                if (picture_url) articleTracking.picture_url = picture_url;
+
+                // Récupération des informations de l'utilisateur pour l'e-mail
+                const user = await User.findByPk(userId, { transaction });
+                const email = user.email;
+                const firstname = user.firstname;
+
+                // Envoi de l'e-mail de update de suivi
+                await sendEmail(email, "Nouvelles informations concernant le suivi de votre arbre", "newTrackingUpdate", {
+                    firstname,
+                    growth: articleTracking.growth,
+                    status: articleTracking.status,
+                    plant_place: articleTracking.plant_place,
+                    nickname: articleTracking.nickname ? articleTracking.nickname : "",
+                });
+                
+
+                // Sauvegarde des changements
+                await articleTracking.save({ transaction });
+
+                return articleTracking;
             });
-
-            if (!articleTracking) {
-                await transaction.rollback();
-                error.statusCode = 404;
-                return next(error);
-            }
-
-            // Mettre à jour les champs
-            if (status) articleTracking.status = status;
-            if (growth) articleTracking.growth = growth;
-            if (plant_place) articleTracking.plant_place = plant_place;
-            if (picture_url) articleTracking.picture_url = picture_url;
-
-            // Récupération des informations de l'utilisateur pour l'e-mail
-            const user = await User.findByPk(userId);
-            const email = user.email;
-            const firstname = user.firstname;
-
-            // Envoi de l'e-mail de update de suivi
-            sendEmail(email, "Nouvelles informations concernant le suivi de votre arbre", "newTrackingUpdate", { firstname });
-
-            // Sauvegarde des changements
-            await articleTracking.save({ transaction });
-
-            await transaction.commit();
 
             res.status(200).json({
                 message: "Suivi d'article mis à jour avec succès",
                 articleTracking: {
-                    id: articleTracking.id,
-                    status: articleTracking.status,
-                    growth: articleTracking.growth,
-                    plant_place: articleTracking.plant_place,
-                    picture_url: articleTracking.Picture.url
+                    id: updatedTracking.id,
+                    status: updatedTracking.status,
+                    growth: updatedTracking.growth,
+                    plant_place: updatedTracking.plant_place,
+                    picture_url: updatedTracking.Picture.url
                 }
             });
-
         } catch (error) {
-            await transaction.rollback();
-            error.statusCode = 500;
-            return next(error);
-        };
+            next(error);
+        }
     }
 };
 
