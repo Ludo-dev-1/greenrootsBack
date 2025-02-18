@@ -15,7 +15,7 @@ const userController = {
             });
 
             if (!orders || orders.length === 0) {
-                const error = new Error("Aucune commande trouvée");
+                const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + " (Commande)");
                 error.statusCode = STATUS_CODES.NOT_FOUND;
                 return next(error);
             };
@@ -36,7 +36,7 @@ const userController = {
             });
 
             if (!user) {
-                const error = new Error("Utilisateur non trouvé");
+                const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + " (Utilisateur)");
                 error.statusCode = STATUS_CODES.NOT_FOUND;
                 return next(error);
             }
@@ -62,7 +62,7 @@ const userController = {
             });
 
             if (!tracking || tracking.length === 0) {
-                const error = new Error("Aucun suivi de commande trouvé");
+                const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + " (Suivi de commande)");
                 error.statusCode = STATUS_CODES.NOT_FOUND;
                 return next(error);
             }
@@ -79,8 +79,8 @@ const userController = {
             const { firstname, lastname, email, password, repeat_password } = req.body;
 
             if (!firstname && !lastname && !email && !password && !repeat_password) {
-                const error = new Error("Aucun champ à mettre à jour");
-                error.statusCode = 400;
+                const error = new Error(ERROR_MESSAGES.INVALID_INPUT + " (Aucun champ à mettre à jour)");
+                error.statusCode = STATUS_CODES.BAD_REQUEST;
                 return next(error);
             }
 
@@ -92,8 +92,8 @@ const userController = {
                 if (password && password === repeat_password) {
                     updateFields.password = await argon2.hash(password);
                 } else if (password !== repeat_password) {
-                    const error = new Error("Les mots de passe ne correspondent pas");
-                    error.statusCode = 400;
+                    const error = new Error(ERROR_MESSAGES.INVALID_INPUT + " (Les mots de passe ne correspondent pas)");
+                    error.statusCode = STATUS_CODES.BAD_REQUEST;
                     throw error;
                 }
 
@@ -104,7 +104,7 @@ const userController = {
                 });
 
                 if (updateCount === 0) {
-                    const error = new Error("Utilisateur non trouvé");
+                    const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + " (Utilisateur)");
                     error.statusCode = STATUS_CODES.NOT_FOUND;
                     throw error;
                 }
@@ -141,7 +141,7 @@ const userController = {
                 const user = await User.findByPk(userId, { transaction });
                 
                 if (!user) {
-                    const error = new Error("Utilisateur non trouvé");
+                    const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + " (Utilisateur)");
                     error.statusCode = STATUS_CODES.NOT_FOUND;
                     throw error;
                 }

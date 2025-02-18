@@ -18,6 +18,7 @@ const authRouter = Router();
 authRouter.get("/inscription", cw(authController.registerUserForm));
 // Validation de l'inscription
 authRouter.post("/inscription", registerJoiValidator, cw(authController.register));
+authRouter.get("/verification/:verifyToken", cw(authController.verifyEmail));
 
 // * CONNEXION
 // Page de connexion

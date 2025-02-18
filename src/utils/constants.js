@@ -16,7 +16,7 @@ export const STATUS_CODES = {
 export const ERROR_MESSAGES = {
     AUTHENTICATION_REQUIRED: "Authentification requise",
     UNAUTHORIZED_ACCESS: "Accès non autorisé",
-    ROUTE_NOT_FOUND: "Route non trouvée",
+    ROUTE_NOT_FOUND: "Root non trouvée",
     SERVER_ERROR: "Une erreur est survenue",
     RESOURCE_NOT_FOUND: "Ressource non trouvée",
     INVALID_INPUT: "Données d'entrée invalides"
