@@ -3,6 +3,8 @@ import { controllerWrapper as cw } from "../utils/controllerWrapper.js";
 import authController from "../controllers/auth.controller.js";
 import { registerJoiValidator } from "../middlewares/JoiValidator/registerJoiValidator.middleware.js";
 import { emailForgetPasswordJoiValidator } from "../middlewares/JoiValidator/emailForgetPasswordJoiValidator.middleware.js";
+import { generateResetToken, verifyResetToken } from "../middlewares/token/reset.middleware.js";
+import { updateForgetPasswordJoiValidator } from "../middlewares/JoiValidator/updateForgetPasswordJoiValidator.middleware.js"
 
 const authRouter = Router();
 
@@ -27,11 +29,11 @@ authRouter.post("/connexion", cw(authController.login));
 // Page du mot de passe oublié
 authRouter.get("/mot-de-passe-oublie", cw(authController.forgetPassword));
 // Validation de l'email pour l'envoi du lien de réinitialisation
-authRouter.post("/mot-de-passe-oublie", emailForgetPasswordJoiValidator, cw(authController.forgetPasswordPost));
+authRouter.post("/mot-de-passe-oublie", emailForgetPasswordJoiValidator, generateResetToken, cw(authController.forgetPasswordPost));
 // * BONUS 
-// // Page de changement de mot de passe
-// authRouter.get("/changement-mot-de-passe", cw(authController.getResetPassword)); // A FAIRE
-// // Validation du changement de mot de passe
-// authRouter.post("/changement-mot-de-passe", updateForgetPasswordJoiValidator, cw(authController.resetPassword)); // A FAIRE
+// Page de changement de mot de passe
+authRouter.get("/changement-mot-de-passe/:token", verifyResetToken, cw(authController.getResetPassword)); 
+// Validation du changement de mot de passe
+authRouter.post("/changement-mot-de-passe/:token", verifyResetToken, updateForgetPasswordJoiValidator, cw(authController.resetPassword));
 
 export { authRouter };

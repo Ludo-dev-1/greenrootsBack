@@ -1,6 +1,8 @@
 import { Article, User, Tracking, ArticleHasOrder, ArticleTracking, Order, sequelize } from "../models/association.js";
 import argon2 from "argon2";
 import { withTransaction } from "../utils/commonOperations.js";
+import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.js";
+
 
 const userController = {
     getOrders: async (req, res, next) => {
@@ -14,11 +16,11 @@ const userController = {
 
             if (!orders || orders.length === 0) {
                 const error = new Error("Aucune commande trouvée");
-                error.statusCode = 404;
+                error.statusCode = STATUS_CODES.NOT_FOUND;
                 return next(error);
             };
 
-            res.status(200).json(orders);
+            res.status(STATUS_CODES.OK).json(orders);
 
         } catch (error) {
             next(error);
@@ -35,11 +37,11 @@ const userController = {
 
             if (!user) {
                 const error = new Error("Utilisateur non trouvé");
-                error.statusCode = 404;
+                error.statusCode = STATUS_CODES.NOT_FOUND;
                 return next(error);
             }
 
-            res.status(200).json(user);
+            res.status(STATUS_CODES.OK).json(user);
 
         } catch (error) {
             next(error);
@@ -61,11 +63,11 @@ const userController = {
 
             if (!tracking || tracking.length === 0) {
                 const error = new Error("Aucun suivi de commande trouvé");
-                error.statusCode = 404;
+                error.statusCode = STATUS_CODES.NOT_FOUND;
                 return next(error);
             }
 
-            res.status(200).json(tracking);
+            res.status(STATUS_CODES.OK).json(tracking);
         } catch (error) {
             next(error);
         }
@@ -103,7 +105,7 @@ const userController = {
 
                 if (updateCount === 0) {
                     const error = new Error("Utilisateur non trouvé");
-                    error.statusCode = 404;
+                    error.statusCode = STATUS_CODES.NOT_FOUND;
                     throw error;
                 }
 
@@ -117,10 +119,10 @@ const userController = {
             });
 
             if (!updatedUser[0]) {
-                return res.status(404).json({ error: "Utilisateur non trouvé" });
+                return res.status(STATUS_CODES.NOT_FOUND).json({ error: "Utilisateur non trouvé" });
             } */
 
-            res.status(200).json({
+            res.status(STATUS_CODES.OK).json({
                 message: "Profil mis à jour avec succès",
                 user: result
                 /* user: updatedUser[1][0], */ // Les données mises à jour
@@ -140,7 +142,7 @@ const userController = {
                 
                 if (!user) {
                     const error = new Error("Utilisateur non trouvé");
-                    error.statusCode = 404;
+                    error.statusCode = STATUS_CODES.NOT_FOUND;
                     throw error;
                 }
                 
@@ -188,7 +190,7 @@ const userController = {
             });
 
             // Réponse
-            res.status(200).json({ message: "Profil utilisateur et données associées supprimés avec succès" });
+            res.status(STATUS_CODES.OK).json({ message: "Profil utilisateur et données associées supprimés avec succès" });
         } catch (error) {
             next(error);
         }

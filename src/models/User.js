@@ -25,7 +25,16 @@ User.init({
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 2 
-    }
+    },
+    // Champs de réinitialisation de token
+    resetToken: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      resetTokenExpiration: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
 }, {
     sequelize,
     tableName: "user"

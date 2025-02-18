@@ -1,52 +1,57 @@
-import express from 'express';
 import crypto from 'crypto';
-import { User } from './models/association'; // Assurez-vous que le modèle User est correctement importé
-import sendEmail from './utils/sendEmail'; // Assurez-vous que cette fonction envoie effectivement des emails
+import { Op } from 'sequelize';
+import { User } from "../../models/association.js"
 
-const router = express.Router();
+const generateResetToken = async (req, res, next) => {
+    try {
+        const { email } = req.body;
 
-router.post('/send-password-reset', async (req, res) => {
-    const { email } = req.body;
+        // Vérification de l'existence de l'utilisateur
+        const user = await User.findOne({ where: { email } });
 
-    // Vérifiez si l'utilisateur existe
-    const user = await User.findOne({ where: { email } });
-    if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+        if (!user) {
+            const error = new Error("Aucun compte associé à cet email n'a été trouvé.");
+            error.statusCode = 404;
+            throw error;
+        }
+
+        // Générer un token de réinitialisation sécurisé
+        const token = crypto.randomBytes(32).toString('hex');
+
+        // Sauvegarder le token dans la base de données avec une durée de validité
+        user.resetToken = token;
+        user.resetTokenExpiration = Date.now() + 3600000; // 1 heure de validité
+        await user.save();
+
+        // Ajoutez le token généré à la requête pour une utilisation ultérieure
+        req.resetToken = token;
+        req.user = user;
+        next();
+    } catch (error) {
+        next(error);
     }
+};
 
-    // Générer un token de réinitialisation sécurisé
-    const token = crypto.randomBytes(32).toString('hex');
+const verifyResetToken = async (req, res, next) => {
+    const { token } = req.params;
 
-    // Sauvegarder le token dans la base de données (par exemple, comme un champ sur le modèle User)
-    user.resetToken = token;
-    user.resetTokenExpiration = Date.now() + 3600000; // 1 heure de validité
-    await user.save();
+    try {
+        const user = await User.findOne({
+            where: {
+                resetToken: token,
+                resetTokenExpiration: { [Op.gt]: Date.now() },
+            },
+        });
 
-    // Créer le lien de réinitialisation
-    const resetLink = `http://localhost:3000/reset-password/${token}`;
+        if (!user) {
+            return res.status(400).json({ message: "Token invalide ou expiré" });
+        }
 
-    // Envoyer l'email avec le lien de réinitialisation
-    const emailContent = `
-        <img src="http://localhost:3000/uploads/cocotier.webp" alt="Image de cocotier" width="100%">
-        </div>
-        <div class="header">
-            <h1>Changement de mot de passe</h1>
-        </div>
-        <div class="content">
-            <h1>Bonjour ${user.firstname},</h1>
-            <p>Voici le lien pour modifier votre mot de passe :</p>
-            <p><a href="${resetLink}" class="button">Changer le mot de passe</a></p>
-            <p>Si vous n'êtes pas à l'origine de cette demande, veuillez contacter le support immédiatement !!</p>
-            <h2>GreenRoots, parce qu’un arbre planté aujourd’hui est une forêt pour demain.</h2>
-        </div>
-        <div class="footer">
-            <p>&copy; 2025 GreenRoots. Tous droits réservés.</p>
-        </div>
-    `;
+        req.user = user;
+        next();
+    } catch (error) {
+        next(error);
+    }
+};
 
-    await sendEmail(user.email, 'Réinitialisation de votre mot de passe', emailContent);
-
-    res.status(200).json({ message: 'Password reset link sent' });
-});
-
-export default router;
+export { generateResetToken, verifyResetToken };

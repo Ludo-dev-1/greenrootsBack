@@ -105,17 +105,14 @@ const authController = {
 
     forgetPasswordPost: async (req, res, next) => {
         try {
-            const { email } = req.body;
-
-            // Vérification de l'existence de l'utilisateur
-            const user = await User.findOne({ where: { email } });
-            
-            if (!user) {
-                const error = new Error("Aucun compte associé à cet email n'a été trouvé.");
-                error.statusCode = 404;
-                throw error;
-            }
-
+            const { resetToken, user } = req;
+    
+            // Créer le lien de réinitialisation
+            const resetLink = `http://localhost:3000/changement-mot-de-passe/${resetToken}`;
+    
+            // Envoyer l'email avec le lien de réinitialisation
+            await sendEmail(user.email, "Changement de mot de passe", "forgetPassword", {email: user.email, resetLink, firstname: user.firstname});
+    
             // Réponse
             res.status(200).json({
                 message: "Un email de réinitialisation a été envoyé à votre adresse email."
@@ -127,19 +124,32 @@ const authController = {
 
     getResetPassword: async (req, res, next) => {
         try {
-            res.status(200).json({ message: "Mot de passe oublié ?" });
+            res.status(200).json({ message: "Changement de mot de passe" });
         } catch (error) {
             next(error);
         }
     },
 
     resetPassword: async (req, res, next) => {
-        try {
-            res.status(200).json({ message: "Mot de passe oublié ?" });
-        } catch (error) {
-            next(error);
-        }
-    },
+            try {
+                const { newPassword, repeat_password  } = req.body;
+                const user = req.user;
+        
+                if (newPassword !== repeat_password) {
+                    return res.status(400).json({ message: "Les mots de passes ne correspondent pas" })
+                };
+                const hashedPassword = await argon2.hash(newPassword)
+                // Mettre à jour le mot de passe de l'utilisateur
+                user.password = hashedPassword;
+                user.resetToken = null;
+                user.resetTokenExpiration = null;
+                await user.save();
+        
+                res.status(200).json({ message: 'Mot de passe modifié avec succès' });
+            } catch (error) {
+                next(error);
+            }
+        },  
 };
 
 export default authController;

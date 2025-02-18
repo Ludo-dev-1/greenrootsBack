@@ -2,7 +2,7 @@ import Joi from "joi";
 import { validate } from "./joiValidatorGeneric.middleware.js";
 
 const updateForgetPasswordSchema = Joi.object({
-    password: Joi.string()
+    newPassword: Joi.string()
     .min(14)
     .pattern(new RegExp('(?=.*[a-z])'))
     .pattern(new RegExp('(?=.*[A-Z])'))
@@ -15,7 +15,7 @@ const updateForgetPasswordSchema = Joi.object({
         'any.required': 'Le mot de passe est obligatoire.'
     }),
 
-repeat_password: Joi.valid(Joi.ref("password"))
+repeat_password: Joi.valid(Joi.ref("newPassword"))
     .required()
     .messages({
         'any.only': 'Les mots de passe doivent correspondre.',
