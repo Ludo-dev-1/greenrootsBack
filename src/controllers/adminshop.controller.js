@@ -1,12 +1,11 @@
 import { Article, Picture, Category, sequelize } from "../models/association.js";
+import { withTransaction } from "../utils/commonOperations.js";
 
 const adminShopController = {
     // Fonction de vérification du rôle administrateur 
     checkAdminAccess: (req, res, next) => {
         if (req.user.role_id !== 1) {
-            const error = new Error("Accès non autorisé");
-            error.statusCode = 403;
-            next(error);
+            next(new Error("Accès non autorisé"));
             return false;
         }
         return true;
@@ -25,15 +24,13 @@ const adminShopController = {
             });
 
             if (!articles) {
-                error.statusCode = 404;
-                return next(error);
+                return next(new Error ("Aucun article trouvé"));
             };
 
             res.status(200).json({ articles });
 
         } catch (error) {
-            error.statusCode = 500;
-            return next(error);
+            next(error);
         }
     },
 
@@ -52,144 +49,128 @@ const adminShopController = {
             });
 
             if (!oneArticle) {
-                const newError = new Error("Cet arbre n'existe pas ou a été retiré !");
-                newError.statusCode = 404;
-                return next(newError);
+                return next(newError("Cet arbre n'existe pas ou a été retiré !"));
             };
 
             res.status(200).json(oneArticle);
         } catch (error) {
-            error.statusCode = 500;
-            return next(error);
+            next(error);
         }
     },
 
     createArticleWithPicture: async (req, res, next) => {
-        const transaction = await sequelize.transaction();
         try {
+            // Vérification de si l'utilisateur est un administrateur
             if (!adminShopController.checkAdminAccess(req, res, next)) return;
-
-            // Vérifier si l'utilisateur est un administrateur
-            if (req.user.role_id !== 1) {
-                return res.status(403).json({ error: "Accès non autorisé" });
-            };
 
             const { categoryName, name, description, price, available, pictureUrl } = req.body;
 
             if (!categoryName || !name || !description || !price || available === undefined || !pictureUrl) {
-                return res.status(400).json({ error: "Tous les champs sont obligatoires" });
+                return next(new Error("Tous les champs sont obligatoires"));
             };
 
-            const categories = await Category.findAll({
-                where: { name: categoryName },
-                transaction
+            const result = await withTransaction(async (transaction) => {
+                const categories = await Category.findAll({
+                    where: { name: categoryName },
+                    transaction
+                });
+    
+                const newPicture = await Picture.create({
+                    url: req.base64Image
+                }, { transaction });
+    
+                const newArticle = await Article.create({
+                    name,
+                    description,
+                    price,
+                    available,
+                    picture_id: newPicture.id
+                }, { transaction });
+    
+                for (const category of categories) {
+                    await newArticle.addCategory(category, { transaction }); 
+                }
+
+                return newArticle;
             });
-
-            const newPicture = await Picture.create({
-                url: req.base64Image
-            }, { transaction });
-
-            const newArticle = await Article.create({
-                name,
-                description,
-                price,
-                available,
-                picture_id: newPicture.id
-            }, { transaction });
-
-            for (const category of categories) {
-                await newArticle.addCategory(category, { transaction }); 
-            }
-
-            // Validation de la transaction
-            await transaction.commit();
 
             res.status(201).json({
                 message: "Article créé avec succès",
-                article: newArticle
+                article: result
             });
         } catch (error) {
-            // Annule les modifications en cas d'erreur de la transaction
-            await transaction.rollback();
-            console.error("Erreur lors de la création de l'article :", error);
-            res.status(500).json({ error: "Erreur serveur lors de la création de l'article" });
+            next(error);
         }
     },
 
     updateArticle: async (req, res, next) => {
-        const transaction = await sequelize.transaction();
         try {
-            if (!adminShopController.checkAdminAccess(req, res, next)) return;
             // Vérification de si l'utilisateur est un administrateur
-            if (req.user.role_id !== 1) {
-                return res.status(403).json({ error: "Accès non autorisé" });
-            }
+            if (!adminShopController.checkAdminAccess(req, res, next)) return;
+
             // Récupération de l'ID de l'article depuis les paramètres de la requête
             const articleId = req.params.id;
 
             const { categoryName, name, description, price, available, pictureUrl } = req.body;
 
             // Validation des données
-            if (!categoryName || !name || !description || !price || available === undefined || !pictureUrl) {
-                return res.status(400).json({ error: "Aucun champ à mettre à jour n'a été fourni." });
+            if (!categoryName && !name && !description && !price && available === undefined && !pictureUrl) {
+                return next(new Error("Aucun champ à mettre à jour n'a été fourni."));
             }
 
             // Récupération de l'article existant
-            const article = await Article.findByPk(articleId, {
-                include: [{
-                    model: Picture
-                },
-                {
-                    model: Category,
-                    as: "categories"
-                }],
-                transaction
-            });
-
-            if (!article) {
-                await transaction.rollback();
-                return res.status(404).json({ error: "L'article spécifié n'existe pas." });
-            }
-
-            // Mise à jour des champs de l'article 
-
-            if (name) article.name = name;
-            if (description) article.description = description;
-            if (price) article.price = price;
-            if (available !== undefined) article.available = available;
-
-            // Mise à jour de l'image associée
-            if (pictureUrl) {
-                let picture = await Picture.findByPk(article.picture_id);
-                picture.url = pictureUrl;
-                // Sauvegarde des modifications de la photo
-                await picture.save({ transaction });
-            }
-
-            // Mise à jour des catégories
-            if (categoryName) {
-                let existingCategories = await article.getCategories({ transaction })
-                let newCategories = await Category.findAll({
-                    where: { name: categoryName },
+            await withTransaction(async (transaction) => {
+                const article = await Article.findByPk(articleId, {
+                    include: [{
+                        model: Picture
+                    },
+                    {
+                        model: Category,
+                        as: "categories"
+                    }],
                     transaction
                 });
 
-                // Ajoute les catégories qui ne sont pas encore associées à l'article
-                let categoriesToAdd = newCategories.filter(newCat => !existingCategories.some(exCat => exCat.id === newCat.id));
-                // Retire les catégories qui sont associés à l'article
-                let categoriesToRemove = existingCategories.filter(exCat => !newCategories.some(newCat => newCat.id === exCat.id));
-    
-                // Met à jour l'article avec les catégories ajoutées et retirées
-                await article.addCategories(categoriesToAdd, { transaction });
-                await article.removeCategories(categoriesToRemove, { transaction });
-            };
+                if (!article) {
+                    throw new Error("L'article spécifié n'existe pas.");
+                }
 
+                // Mise à jour des champs de l'article 
 
-            // Sauvegarde des modifications de l'article
-            await article.save({ transaction });
+                if (name) article.name = name;
+                if (description) article.description = description;
+                if (price) article.price = price;
+                if (available !== undefined) article.available = available;
 
-            // Validation de la transaction
-            await transaction.commit();
+                // Mise à jour de l'image associée
+                if (pictureUrl) {
+                    let picture = await Picture.findByPk(article.picture_id, { transaction });
+                    picture.url = pictureUrl;
+                    // Sauvegarde des modifications de la photo
+                    await picture.save({ transaction });
+                }
+
+                // Mise à jour des catégories
+                if (categoryName) {
+                    let existingCategories = await article.getCategories({ transaction })
+                    let newCategories = await Category.findAll({
+                        where: { name: categoryName },
+                        transaction
+                    });
+
+                    // Ajoute les catégories qui ne sont pas encore associées à l'article
+                    let categoriesToAdd = newCategories.filter(newCat => !existingCategories.some(exCat => exCat.id === newCat.id));
+                    // Retire les catégories qui sont associés à l'article
+                    let categoriesToRemove = existingCategories.filter(exCat => !newCategories.some(newCat => newCat.id === exCat.id));
+        
+                    // Met à jour l'article avec les catégories ajoutées et retirées
+                    await article.addCategories(categoriesToAdd, { transaction });
+                    await article.removeCategories(categoriesToRemove, { transaction });
+
+                };
+                // Sauvegarde des modifications de l'article
+                await article.save({ transaction });
+            });
 
             // Recharge l'article avec les relations mises à jour
             const updatedArticle = await Article.findByPk(articleId, {
@@ -205,53 +186,43 @@ const adminShopController = {
             });
         }
         catch (error) {
-            // Annule les modifications en cas d'erreur de la transaction
-            await transaction.rollback();
-            console.error("Erreur lors de la mise à jour de l'article :", error);
-            res.status(500).json({ error: "Erreur serveur lors de la mise à jour de l'article" });
+            next(error);
         }
     },
 
     deleteArticle: async (req, res, next) => {
-        const transaction = await sequelize.transaction();
         try {
-            if (!adminShopController.checkAdminAccess(req, res, next)) return;
             // Vérification de si l'utilisateur est un administrateur
-            if (req.user.role_id !== 1) {
-                return res.status(403).json({ error: "Accès non autorisé" });
-            }
+            if (!adminShopController.checkAdminAccess(req, res, next)) return;
 
             const articleId = req.params.id;
 
-            const article = await Article.findByPk(articleId, {
-                include: [Picture],
-                transaction
-            });
-
-            if (!article) {
-                await transaction.rollback();
-                return res.status(404).json({ error: "Article non trouvé" })
-            };
-            
-            await article.destroy({ transaction });
-
-            // Suppression des catégories associées
-            await article.setCategories([], { transaction });
-            
-            if (article.picture_id) {
-                await Picture.destroy({
-                    where: { id: article.picture_id },
+            await withTransaction(async (transaction) => {
+                const article = await Article.findByPk(articleId, {
+                    include: [Picture],
                     transaction
                 });
-            };
 
-            await transaction.commit();
+                if (!article) {
+                    throw new Error("Article non trouvé");
+                };
+
+                await article.destroy({ transaction });
+
+                // Suppression des catégories associées
+                await article.setCategories([], { transaction });
+
+                if (article.picture_id) {
+                    await Picture.destroy({
+                        where: { id: article.picture_id },
+                        transaction
+                    });
+                }
+            });
 
             res.status(200).json({ message: "Article supprimé avec succès" });
         } catch (error) {
-            await transaction.rollback();
-            error.statusCode = 500;
-            return next(error);
+            next(error);
         }
     }
 };

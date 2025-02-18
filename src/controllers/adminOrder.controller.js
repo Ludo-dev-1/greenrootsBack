@@ -1,4 +1,5 @@
 import { Order, User, Article, ArticleHasOrder, Tracking, ArticleTracking, Picture, sequelize } from "../models/association.js";
+import { sendEmail } from "../services/emailService.js";
 
 const adminOrderController = {
     getAllOrders: async (req, res, next) => {
@@ -157,6 +158,7 @@ const adminOrderController = {
                 return res.status(403).json({ error: "Accès non autorisé" });
             }
 
+            const userId = req.user.id;
             const { orderId, trackingId } = req.params;
             const { status, growth, plant_place, picture_url } = req.body;
 
@@ -191,7 +193,13 @@ const adminOrderController = {
             if (plant_place) articleTracking.plant_place = plant_place;
             if (picture_url) articleTracking.picture_url = picture_url;
 
-            // Mise à jour de l'image
+            // Récupération des informations de l'utilisateur pour l'e-mail
+            const user = await User.findByPk(userId);
+            const email = user.email;
+            const firstname = user.firstname;
+
+            // Envoi de l'e-mail de update de suivi
+            sendEmail(email, "Nouvelles informations concernant le suivi de votre arbre", "newTrackingUpdate", { firstname });
 
             // Sauvegarde des changements
             await articleTracking.save({ transaction });

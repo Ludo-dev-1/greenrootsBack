@@ -59,7 +59,8 @@ async function seedDatabase() {
             'frene_eleve.webp', 
             'cocotier.webp', 
             'mimosa.webp',
-            'eucalyptus.webp'
+            'eucalyptus.webp',
+            'logo.webp'
         ];
 
         const imagePromises = images.map(async (imageName) => {
