@@ -25,7 +25,25 @@ User.init({
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 2 
-    }
+    },
+    emailVerified: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
+      verificationToken: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    // Champs de réinitialisation de token (mot de passe)
+    resetToken: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      resetTokenExpiration: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      }
 }, {
     sequelize,
     tableName: "user"

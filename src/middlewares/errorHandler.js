@@ -1,16 +1,20 @@
+import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.js";
+
 const notFound = (req, res, next) => {
-    const error = new Error("Aucun arbre de ce nom trouvé");
-    error.statusCode = 404;
+    const error = new Error(ERROR_MESSAGES.ROUTE_NOT_FOUND);
+    error.statusCode = STATUS_CODES.NOT_FOUND;
     next(error);
 };
 
 const errorHandler = (error, req, res, next) => {
     console.error("Erreur interceptée :", error);
-    const status = error.statusCode || 500;
+    const status = error.statusCode || STATUS_CODES.SERVER_ERROR;
+    const errorMessage = error.message || ERROR_MESSAGES.SERVER_ERROR;
 
-    const defaultError = status === 500 ? `Erreur serveur : ${error.message} ` : error.message;
-
-    res.status(status).json({status, error: Array.isArray(defaultError) ? defaultError : [defaultError] });
+    res.status(status).json({
+        status, 
+        error: Array.isArray(errorMessage) ? errorMessage : [errorMessage] 
+    });
 };
 
 export { notFound, errorHandler };

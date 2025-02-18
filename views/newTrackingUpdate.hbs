@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Confirmation de commande</title>
+    <title>Nouvelles informations concernant le suivi de votre arbre</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -55,25 +55,19 @@
 </head>
 <body>
     <div class="container">
-        <div>
-            <img src="http://localhost:3000/uploads/cocotier.webp" alt="Image de cocotier" width="100%">
-        </div>
         <div class="header">
-            <h1>Confirmation de commande</h1>
+            <h1>Nouvelles informations concernant le suivi de votre arbre</h1>
         </div>
         <div class="content">
             <h1>Bonjour {{firstname}},</h1>
-            <p>Votre numéro de commande : {{createdAt}}-{{orderId}}</p>
-            <p>Récapitulatif des articles :</p>
+            <p>Votre arbre {{nickname}} vient de recevoir une nouvelle mise à jour :</p>
             <ul>
-                {{#each articleDetails}}
-                <li>{{quantity}}x {{name}} - {{price}} €</li>
-                {{/each}}
+                <li>Croissance : {{growth}}</li>
+                <li>Status : {{status}}</li>
+                <li>Lieu de plantation : {{plant_place}}</li>
             </ul>
-            <p>Prix total : {{totalPrice}} €</p>
-            <p>Nous vous remercions encore une fois pour votre confiance</p>
             <h2>GreenRoots, parce qu’un arbre planté aujourd’hui est une forêt pour demain.</h2>
-            <a href="https://example.com" class="button">Voir votre commande</a>
+            <a href="https://example.com" class="button">Voir les détails</a>
         </div>
         <div class="footer">
             <p>&copy; 2025 GreenRoots. Tous droits réservés.</p>

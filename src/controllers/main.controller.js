@@ -1,4 +1,5 @@
-import { Article, Order, ArticleHasOrder, Tracking, ArticleTracking, Picture, Category, sequelize } from "../models/association.js";
+import { Article, Picture, Category } from "../models/association.js";
+import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.js";
 
 const mainController = {
     // Récupération de tous les articles nouvellement créés
@@ -9,16 +10,16 @@ const mainController = {
                 include: [{ model: Picture }]
             });
 
-            if (!articles) {
-                error.statusCode = 404;
+            if (!articles || articles.length === 0) {
+                const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND);
+                error.statusCode = STATUS_CODES.NOT_FOUND;
                 return next(error);
             };
 
-            res.status(200).json({ articles });
+            res.status(STATUS_CODES.OK).json({ articles });
 
         } catch (error) {
-            error.statusCode = 500;
-            return next(error);
+            next(error);
         }
     },
 
@@ -32,16 +33,16 @@ const mainController = {
                 ]
             });
 
-            if (!articles) {
-                error.statusCode = 404;
+            if (!articles || articles.length === 0) {
+                const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND);
+                error.statusCode = STATUS_CODES.NOT_FOUND;
                 return next(error);
             };
 
-            res.status(200).json({ articles });
+            res.status(STATUS_CODES.OK).json({ articles });
 
         } catch (error) {
-            error.statusCode = 500;
-            return next(error);
+            next(error);
         }
     },
 
@@ -55,59 +56,50 @@ const mainController = {
             });
 
             if (!oneArticle) {
-                const newError = new Error("Cet arbre n'existe pas ou a été retiré !");
-                newError.statusCode = 404;
-                return next(newError);
+                const error = new Error("Cet arbre n'existe pas ou a été retiré !");
+                error.statusCode = STATUS_CODES.NOT_FOUND;
+                return next(error);
             };
 
-            res.status(200).json(oneArticle);
+            res.status(STATUS_CODES.OK).json(oneArticle);
         } catch (error) {
-            error.statusCode = 500;
-            return next(error);
+            next(error);
         }
     },
     
     // Page de validation de commande
     getOrderPage: async (req, res, next) => {
         try {
-            res.status(200).json({ message: "Pages de commandes" });
-            
+            res.status(STATUS_CODES.OK).json({ message: "Pages de commandes" });
         } catch (error) {
-            error.statusCode = 500;
-            return next(error);
+            next(error);
         }
     },
 
     // Page des Conditions Générales d'Utilisation
     getCGU: async (req, res, next) => {
         try {
-            res.status(200).json({ message: "Conditions Générales d'Utilisation" });
-
+            res.status(STATUS_CODES.OK).json({ message: "Conditions Générales d'Utilisation" });
         } catch (error) {
-            error.statusCode = 500;
-            return next(error);
+            next(error);
         }
     },
 
     // Page des Conditions Générales de Vente
     getCGV: async (req, res, next) => {
         try {
-            res.status(200).json({ message: "Conditions Générales de Vente" });
-
+            res.status(STATUS_CODES.OK).json({ message: "Conditions Générales de Vente" });
         } catch (error) {
-            error.statusCode = 500;
-            return next(error);
+            next(error);
         }
     },
 
     // Page des Mentions Légales
     getTermsAndConditions: async (req, res, next) => {
         try {
-            res.status(200).json({ message: "Mentions légales" });
-
+            res.status(STATUS_CODES.OK).json({ message: "Mentions légales" });
         } catch (error) {
-            error.statusCode = 500;
-            return next(error);
+            next(error);
         }
     },
 };
