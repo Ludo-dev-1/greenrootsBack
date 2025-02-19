@@ -11,12 +11,12 @@ const adminOrderController = {
             });
 
             if (!orders || orders.length === 0) {
-                const error = new Error("Aucune commande trouvée");
-                error.statusCode = 404;
+                const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + " (Commande)");
+                error.statusCode = STATUS_CODES.NOT_FOUND;;
                 return next(error);
             };
 
-            res.status(200).json(orders);
+            res.status(STATUS_CODES.OK).json(orders);
 
         } catch (error) {
             next(error);
@@ -45,12 +45,12 @@ const adminOrderController = {
             });
 
             if (!order) {
-                const error = new Error("Commande non trouvée");
-                error.statusCode = 404;
+                const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + " (Commande)");
+                error.statusCode = STATUS_CODES.NOT_FOUND;;
                 return next(error);
             }
 
-            res.status(200).json(order);
+            res.status(STATUS_CODES.OK).json(order);
         } catch (error) {
             next(error);
         }
@@ -87,12 +87,12 @@ const adminOrderController = {
             });
 
             if (!order) {
-                const error = new Error("Commande non trouvée");
-                error.statusCode = 404;
+                const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + " (Commande)");
+                error.statusCode = STATUS_CODES.NOT_FOUND;;
                 return next(error);
             }
 
-            res.status(200).json(order);
+            res.status(STATUS_CODES.OK).json(order);
         } catch (error) {
             next(error);
         }
@@ -121,12 +121,12 @@ const adminOrderController = {
             });
 
             if (!articleTracking) {
-                const error = new Error("Suivi d'article non trouvé");
-                error.statusCode = 404;
+                const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + " (Suivi d'article)");
+                error.statusCode = STATUS_CODES.NOT_FOUND;;
                 return next(error);
             }
 
-            res.status(200).json(articleTracking);
+            res.status(STATUS_CODES.OK).json(articleTracking);
         } catch (error) {
             next(error);
         }
@@ -159,8 +159,8 @@ const adminOrderController = {
                 });
     
                 if (!articleTracking) {
-                    const error = new Error("Suivi d'article non trouvé");
-                    error.statusCode = 404;
+                    const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + " (Suivi d'article)");
+                    error.statusCode = STATUS_CODES.NOT_FOUND;;
                     throw error;
                 }
 
@@ -191,7 +191,7 @@ const adminOrderController = {
                 return articleTracking;
             });
 
-            res.status(200).json({
+            res.status(STATUS_CODES.OK).json({
                 message: "Suivi d'article mis à jour avec succès",
                 articleTracking: {
                     id: updatedTracking.id,

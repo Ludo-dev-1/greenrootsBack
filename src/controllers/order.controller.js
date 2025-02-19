@@ -177,7 +177,7 @@ const orderController = {
             }
 
             // Réponse avec les détails de la commande
-            res.status(OK).json(order);
+            res.status(STATUS_CODES.OK).json(order);
         } catch (error) {
             next(error);
         }
@@ -252,7 +252,7 @@ const orderController = {
             }; */
 
             // Réponse (pour la réponse formatée, modifier "order" en "formattedOrder")
-            res.status(OK).json(order);
+            res.status(STATUS_CODES.OK).json(order);
         } catch (error) {
             next(error);
         }
@@ -318,7 +318,7 @@ const orderController = {
                         }; */
 
             // Réponse (pour la réponse formatée, modifier "articleTracking" en "formattedTracking")
-            res.status(OK).json(articleTracking);
+            res.status(STATUS_CODES.OK).json(articleTracking);
         } catch (error) {
             next(error);
         }
@@ -376,7 +376,7 @@ const orderController = {
                 return articleTracking;
             });
 
-            res.status(OK).json({
+            res.status(STATUS_CODES.OK).json({
                 message: "Nom personnalisé de l'article mis à jour avec succès",
                 articleTracking: {
                     id: result.id,

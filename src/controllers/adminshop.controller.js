@@ -16,11 +16,11 @@ const adminShopController = {
 
             if (!articles || articles.length === 0) {
                 const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + " (Article)");
-                error.statusCode = NOT_FOUND;
+                error.statusCode = STATUS_CODES.NOT_FOUND;
                 return next(error);
             };
 
-            res.status(OK).json({ articles });
+            res.status(STATUS_CODES.OK).json({ articles });
 
         } catch (error) {
             next(error);
@@ -41,11 +41,11 @@ const adminShopController = {
 
             if (!oneArticle) {
                 const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + (" Cet arbre n'existe pas ou a été retiré !)"));
-                error.statusCode = NOT_FOUND;
+                error.statusCode = STATUS_CODES.NOT_FOUND;
                 return next(error);
             };
 
-            res.status(OK).json(oneArticle);
+            res.status(STATUS_CODES.OK).json(oneArticle);
         } catch (error) {
             next(error);
         }
@@ -57,7 +57,7 @@ const adminShopController = {
 
             if (!categoryName || !name || !description || !price || available === undefined || !pictureUrl) {
                 const error = new Error(ERROR_MESSAGES.INVALID_INPUT + " (Tous les champs sont obligatoires)");
-                error.statusCode = BAD_REQUEST;
+                error.statusCode = STATUS_CODES.BAD_REQUEST;
                 return next(error);
             };
 
@@ -69,7 +69,7 @@ const adminShopController = {
 
                 if (categories.length === 0) {
                     const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + " (Catégorie)");
-                    error.statusCode = NOT_FOUND;
+                    error.statusCode = STATUS_CODES.NOT_FOUND;
                     throw error;
                 }
     
@@ -92,7 +92,7 @@ const adminShopController = {
                 return newArticle;
             });
 
-            res.status(CREATED).json({
+            res.status(STATUS_CODES.CREATED).json({
                 message: "Article créé avec succès",
                 article: result
             });
@@ -111,7 +111,7 @@ const adminShopController = {
             // Validation des données
             if (!categoryName && !name && !description && !price && available === undefined && !pictureUrl) {
                 const error = new Error(ERROR_MESSAGES.INVALID_INPUT + " (Aucun champ à mettre à jour n'a été fourni.)");
-                error.statusCode = BAD_REQUEST;
+                error.statusCode = STATUS_CODES.BAD_REQUEST;
                 return next(error);
             }
 
@@ -130,7 +130,7 @@ const adminShopController = {
 
                 if (!article) {
                     const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + " (Article)");
-                    error.statusCode = NOT_FOUND;
+                    error.statusCode = STATUS_CODES.NOT_FOUND;
                     throw error;
                 }
 
@@ -159,7 +159,7 @@ const adminShopController = {
 
                     if (newCategories.length === 0) {
                         const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + " (Catégorie)");
-                        error.statusCode = NOT_FOUND;
+                        error.statusCode = STATUS_CODES.NOT_FOUND;
                         throw error;
                     }
 
@@ -185,7 +185,7 @@ const adminShopController = {
                 ]
             });
 
-            res.status(OK).json({
+            res.status(STATUS_CODES.OK).json({
                 message: "Article mis à jour avec succès",
                 article: updatedArticle
             });
@@ -207,7 +207,7 @@ const adminShopController = {
 
                 if (!article) {
                     const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + " (Article)");
-                    error.statusCode = NOT_FOUND;
+                    error.statusCode = STATUS_CODES.NOT_FOUND;
                     throw error;
                 };
 
@@ -224,7 +224,7 @@ const adminShopController = {
                 }
             });
 
-            res.status(OK).json({ message: "Article supprimé avec succès" });
+            res.status(STATUS_CODES.OK).json({ message: "Article supprimé avec succès" });
         } catch (error) {
             next(error);
         }
