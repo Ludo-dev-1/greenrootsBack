@@ -22,7 +22,7 @@ const orderController = {
                 const error = new Error(ERROR_MESSAGES.INVALID_INPUT + "(Les articles sont obligatoires pour passer une commande.)");
                 error.statusCode = STATUS_CODES.BAD_REQUEST;
                 return next(error);
-            }
+            };
 
             const result = await withTransaction(async (transaction) => {
 

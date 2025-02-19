@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { Op } from 'sequelize';
-import { User } from "../../models/association.js"
+import { User } from "../../models/association.js";
+import { STATUS_CODES, ERROR_MESSAGES } from "../../utils/constants.js";
 
 const generateResetToken = async (req, res, next) => {
     try {
@@ -10,8 +11,8 @@ const generateResetToken = async (req, res, next) => {
         const user = await User.findOne({ where: { email } });
 
         if (!user) {
-            const error = new Error("Aucun compte associé à cet email n'a été trouvé.");
-            error.statusCode = 404;
+            const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + " (Aucun compte associé à cet email n'a été trouvé.)");
+            error.statusCode = STATUS_CODES.NOT_FOUND;
             throw error;
         }
 
@@ -44,7 +45,9 @@ const verifyResetToken = async (req, res, next) => {
         });
 
         if (!user) {
-            return res.status(400).json({ message: "Token invalide ou expiré" });
+            const error = new Error(ERROR_MESSAGES.INVALID_INPUT + " (Token invalide ou expiré)");
+            error.statusCode = STATUS_CODES.BAD_REQUEST;
+            throw error;
         }
 
         req.user = user;

@@ -1,15 +1,24 @@
 import fs from 'fs/promises';
 import path from 'node:path';
 import { Picture } from '../../models/association.js';
+import { STATUS_CODES, ERROR_MESSAGES } from "../../utils/constants.js";
 
 const modifyPicture = async (req, res, next) => {
   const { imageId, newImageBase64 } = req.body;
+
+  if (!imageId || !newImageBase64) {
+    const error = new Error(ERROR_MESSAGES.INVALID_INPUT);
+    error.statusCode = STATUS_CODES.BAD_REQUEST;
+    return next(error);
+  }
 
   try {
     // Vérifiez si l'image existe dans la base de données
     const picture = await Picture.findByPk(imageId);
     if (!picture) {
-      return res.status(404).json({ message: 'Image not found' });
+      const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND);
+      error.statusCode = STATUS_CODES.NOT_FOUND + " (Image not found)";
+      return next(error);
     }
 
     // Chemin du fichier existant
@@ -33,9 +42,9 @@ const modifyPicture = async (req, res, next) => {
     next();
   } catch (err) {
     console.error(err);
-    return res.status(500).json({
-      message: 'Error while processing image',
-    });
+    const error = new Error(ERROR_MESSAGES.SERVER_ERROR + " (Error while processing image)");
+    error.statusCode = STATUS_CODES.SERVER_ERROR;
+    next(error);
   }
 };
 
