@@ -1,5 +1,6 @@
 import "dotenv/config"; // Importation de la configuration des variables d'environnement
 import express from "express"; // Importation du framework Express
+import session from "express-session";
 import cors from "cors";
 import { mainRouter } from "./src/routers/mainRouter.js";
 import { authRouter } from "./src/routers/authRouter.js";
@@ -12,6 +13,13 @@ const app = express();
 
 // Autoriser les requêtes "cross-origin"
 app.use(cors());
+
+app.use(session({
+  secret: 'votre_secret_de_session', // Utilisez une chaîne secrète pour signer les cookies de session
+  resave: false, // Ne pas sauvegarder la session si elle n'a pas été modifiée
+  saveUninitialized: true, // Sauvegarder une session non initialisée
+  cookie: { secure: false } // Utilisez 'true' si votre site utilise HTTPS
+}))
 
 // Body parsers
 app.use(express.json({ limit: '5mb' }));

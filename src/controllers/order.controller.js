@@ -1,7 +1,7 @@
 import { Article, Order, ArticleHasOrder, Tracking, ArticleTracking, Picture, User, sequelize } from "../models/association.js";
-import { sendEmail } from "../services/emailService.js";
-import { withTransaction } from "../utils/commonOperations.js";
-import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.js";
+import { sendEmail } from "../services/emailService.js"; // Service d'envoi d'email
+import { withTransaction } from "../utils/commonOperations.js"; // Fonction utilitaire de gestion des transactions
+import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.js"; // Constantes pour les codes de statut HTTP et les messages d'erreur
 
 const orderController = {
     createOrder: async (req, res, next) => {
@@ -22,7 +22,7 @@ const orderController = {
                 const error = new Error(ERROR_MESSAGES.INVALID_INPUT + "(Les articles sont obligatoires pour passer une commande.)");
                 error.statusCode = STATUS_CODES.BAD_REQUEST;
                 return next(error);
-            }
+            };
 
             const result = await withTransaction(async (transaction) => {
 
@@ -32,7 +32,8 @@ const orderController = {
 
                 for (const articleInfo of articles) {
                     // Récupération des informations de l'article
-                    const article = await Article.findByPk(articleInfo.id, { transaction });
+                    const article = await Article.findByPk(articleInfo.id, {
+                        transaction });
                     if (!article) {
                         const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + ` (Article avec l'ID ${articleInfo.id} non trouvé)`);
                         error.statusCode = STATUS_CODES.NOT_FOUND;
@@ -45,6 +46,7 @@ const orderController = {
                         name: article.name,
                         quantity: articleInfo.quantity,
                         price: articlePrice,
+                        stripe_price_id: article.stripe_price_id || articleInfo.stripe_price_id,
                         id: article.id
                     });
                 }
@@ -57,7 +59,8 @@ const orderController = {
                     article_summary,
                     total_price,
                     date: new Date(),
-                    user_id: userId
+                    user_id: userId,
+                    sessionStripeId: req.session.id
                 }, { transaction });
 
                 // Création du suivi global de la commande dans la table Tracking
@@ -109,11 +112,17 @@ const orderController = {
                 const user = await User.findByPk(userId, { transaction });
                 const email = user.email;
                 const firstname = user.firstname;
-    
+
+                const date = new Date();
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const dateStr = `${year}${month}${day}`;
+
                 // Envoi de l'e-mail de confirmation de commande
-                await sendEmail(email, "Confirmation de commande", "newOrder", { 
-                    firstname, 
-                    createdAt: newOrder.date,
+                await sendEmail(email, "Confirmation de commande", "newOrder", {
+                    firstname,
+                    createdAt: dateStr,
                     orderId: newOrder.id,
                     articleDetails,
                     totalPrice: newOrder.total_price
@@ -122,17 +131,9 @@ const orderController = {
                 return { newOrder, articleDetails };
             });
 
-            // Réponse avec les détails de la commande créée
-            res.status(STATUS_CODES.CREATED).json({
-                message: "Commande créée avec succès",
-                order: {
-                    id: result.newOrder.id,
-                    article_summary: result.newOrder.article_summary,
-                    total_price: result.newOrder.total_price,
-                    date: result.newOrder.date
-                },
-                articleDetails: result.articleDetails
-            });
+            req.orderId = result.newOrder.id;
+            req.articleDetails = result.articleDetails;
+            next();
         } catch (error) {
             next(error);
         }
@@ -177,7 +178,7 @@ const orderController = {
             }
 
             // Réponse avec les détails de la commande
-            res.status(OK).json(order);
+            res.status(STATUS_CODES.OK).json(order);
         } catch (error) {
             next(error);
         }
@@ -252,7 +253,7 @@ const orderController = {
             }; */
 
             // Réponse (pour la réponse formatée, modifier "order" en "formattedOrder")
-            res.status(OK).json(order);
+            res.status(STATUS_CODES.OK).json(order);
         } catch (error) {
             next(error);
         }
@@ -318,7 +319,7 @@ const orderController = {
                         }; */
 
             // Réponse (pour la réponse formatée, modifier "articleTracking" en "formattedTracking")
-            res.status(OK).json(articleTracking);
+            res.status(STATUS_CODES.OK).json(articleTracking);
         } catch (error) {
             next(error);
         }
@@ -369,14 +370,14 @@ const orderController = {
                 const user = await User.findByPk(userId, { transaction });
                 const email = user.email;
                 const firstname = user.firstname;
-    
+
                 // Envoi de l'e-mail de confirmation de commande
                 await sendEmail(email, "Nouvelles informations concernant le suivi de votre arbre", "newNicknameUpdate", { firstname, nickname: articleTracking.nickname });
 
                 return articleTracking;
             });
 
-            res.status(OK).json({
+            res.status(STATUS_CODES.OK).json({
                 message: "Nom personnalisé de l'article mis à jour avec succès",
                 articleTracking: {
                     id: result.id,

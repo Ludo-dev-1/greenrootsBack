@@ -19,7 +19,7 @@ adminRouter.get("/api/articles", authenticate, checkAdminAccess, cw(adminShopCon
 // Page d'un article (admin)
 adminRouter.get("/api/articles/:id", authenticate, checkAdminAccess, cw(adminShopController.getOneArticle));
 // Création d'un article
-adminRouter.post("/api/articles", authenticate, checkAdminAccess, crudAdminShopValidator, uploadPicture, cw(adminShopController.createArticleWithPicture));
+adminRouter.post("/api/articles", authenticate, checkAdminAccess, crudAdminShopValidator, cw(adminShopController.createArticleWithPicture)); // , uploadPicture
 // Modification d'un article
 adminRouter.patch("/api/articles/:id", authenticate, checkAdminAccess, crudAdminShopValidator, cw(adminShopController.updateArticle));// EN ATTENTE DE TEST POUR LES IMAGES
 // Suppression d'un article 
@@ -35,6 +35,6 @@ adminRouter.get("/api/commandes/:id/suivi", authenticate, checkAdminAccess, cw(a
 // Page de suivi d'un article d'une commande
 adminRouter.get("/api/commandes/:orderId/suivi/:trackingId", authenticate, checkAdminAccess, cw(adminOrderController.getArticleTrackingAdmin));
 // Modification de suivi d'un article
-adminRouter.patch("/api/commandes/:orderId/suivi/:trackingId", authenticate, checkAdminAccess, cw(adminOrderController.updateArticleTracking));// EN ATTENTE DE TEST POUR LES IMAGES modifyPicture
+adminRouter.patch("/api/commandes/:orderId/suivi/:trackingId", authenticate, checkAdminAccess, modifyPicture, cw(adminOrderController.updateArticleTracking));// EN ATTENTE DE TEST POUR LES IMAGES
 
 export { adminRouter };
