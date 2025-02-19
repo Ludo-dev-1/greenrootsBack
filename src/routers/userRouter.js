@@ -7,6 +7,7 @@ import { createOrderJoiValidator } from "../middlewares/JoiValidator/createOrder
 import userController from "../controllers/user.controller.js";
 import orderController from "../controllers/order.controller.js";
 import { verifyEmailVerified } from "../middlewares/verifyEmailVerified.js";
+import createCheckoutSession from "../middlewares/stripeSession.middleware.js";
 
 const userRouter = Router();
 
@@ -19,7 +20,7 @@ const userRouter = Router();
 // Page de validation de commande
 userRouter.get("/commande", authenticate, cw(mainController.getOrderPage));
 // Validation de la commande
-userRouter.post("/commande", authenticate, verifyEmailVerified, createOrderJoiValidator, cw(orderController.createOrder));
+userRouter.post("/commande", authenticate, verifyEmailVerified, createOrderJoiValidator, cw(orderController.createOrder), createCheckoutSession);
 
 // * COMPTE CRUD
 // Page de compte utilisateur

@@ -1,6 +1,10 @@
+import "dotenv/config";
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../database.js";
 import { Picture } from "./Picture.js";
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export class Article extends Model {}
 
@@ -39,5 +43,22 @@ Article.init({
     },
 }, {
     sequelize,
-    tableName: "article"
+    tableName: "article",
+    hooks: {
+        beforeCreate: async (article) => {
+            const product = await stripe.products.create({
+                name: article.name,
+                description: article.description,
+            });
+
+            const price = await stripe.prices.create({
+                product: product.id,
+                unit_amount: article.price * 100, // Conversion en centimes
+                currency: 'eur',
+            });
+
+            article.stripe_product_id = product.id;
+            article.stripe_price_id = price.id;
+        }
+    }
 });

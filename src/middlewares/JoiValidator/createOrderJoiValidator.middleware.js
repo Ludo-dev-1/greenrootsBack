@@ -12,13 +12,17 @@ const createOrderSchema = Joi.object({
                 'number.base': 'La quantité doit être un nombre entier.',
                 'number.min': 'La quantité doit être au moins 1.',
                 'any.required': 'La quantité est obligatoire.'
-            })
+            }),
+            stripe_price_id: Joi.string().optional().messages({
+                'string.base': "L'identifiant de prix Stripe doit être une chaîne de caractères.",
+                'any.required': "L'identifiant de prix Stripe est obligatoire."
+            }),
         })
     ).min(1).required().messages({
         'array.base': 'La liste des articles doit être un tableau.',
         'array.min': 'Au moins un article est requis.',
         'any.required': 'La liste des articles est obligatoire.'
-    })
+    }),
 });
 
 export const createOrderJoiValidator = validate(createOrderSchema);
