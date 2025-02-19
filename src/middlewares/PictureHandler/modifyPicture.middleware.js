@@ -13,13 +13,13 @@ const modifyPicture = async (req, res, next) => {
     }
 
     // Chemin du fichier existant
-    const oldImagePath = path.join(__dirname, '../../public/uploads', picture.url);
+    const oldImagePath = path.join('/var/www/html/apothéose/projet-GreenRoots-back/public/uploads', path.basename(picture.url));
 
     // Supprimez l'ancienne image du système de fichiers
     await fs.unlink(oldImagePath);
 
     // Enregistrez la nouvelle image
-    const basePath = 'public/uploads/';
+    const basePath = '/var/www/html/apothéose/projet-GreenRoots-back/public/uploads';
     const imageName = `${Date.now()}.png`;
     const imagePath = path.join(basePath, imageName);
 

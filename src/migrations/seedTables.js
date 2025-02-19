@@ -100,10 +100,10 @@ async function seedDatabase() {
 
         // Insertion des utilisateurs
         await User.bulkCreate([
-            { firstname: "Nathan", lastname: "Begue", email: "nathan.begue@oclock.school", password: await argon2.hash("arbre"), role_id: 1 },
-            { firstname: "Donovan", lastname: "Grout", email: "donovan.grout@oclock.school", password: await argon2.hash("arbre"), role_id: 1 },
-            { firstname: "Ludovic", lastname: "Thibaud", email: "ludovic.thibaud@oclock.school", password: await argon2.hash("arbre"), role_id: 2 },
-            { firstname: "Léo", lastname: "Khatchatourian", email: "leo.khatchatourian@oclock.school", password: await argon2.hash("arbre"), role_id: 2 },
+            { firstname: "Nathan", lastname: "Begue", email: "nathan.begue@oclock.school", password: await argon2.hash("arbre"), role_id: 1, emailVerified: true },
+            { firstname: "Donovan", lastname: "Grout", email: "donovan.grout@oclock.school", password: await argon2.hash("arbre"), role_id: 1, emailVerified: true },
+            { firstname: "Ludovic", lastname: "Thibaud", email: "ludovic.thibaud@oclock.school", password: await argon2.hash("arbre"), role_id: 2, emailVerified: true },
+            { firstname: "Léo", lastname: "Khatchatourian", email: "leo.khatchatourian@oclock.school", password: await argon2.hash("arbre"), role_id: 2, emailVerified: true },
         ]);
 
         // Insertion d'une commande

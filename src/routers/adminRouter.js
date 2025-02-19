@@ -35,6 +35,6 @@ adminRouter.get("/api/commandes/:id/suivi", authenticate, checkAdminAccess, cw(a
 // Page de suivi d'un article d'une commande
 adminRouter.get("/api/commandes/:orderId/suivi/:trackingId", authenticate, checkAdminAccess, cw(adminOrderController.getArticleTrackingAdmin));
 // Modification de suivi d'un article
-adminRouter.patch("/api/commandes/:orderId/suivi/:trackingId", authenticate, checkAdminAccess, cw(adminOrderController.updateArticleTracking));// EN ATTENTE DE TEST POUR LES IMAGES modifyPicture
+adminRouter.patch("/api/commandes/:orderId/suivi/:trackingId", authenticate, checkAdminAccess, modifyPicture, cw(adminOrderController.updateArticleTracking));// EN ATTENTE DE TEST POUR LES IMAGES
 
 export { adminRouter };

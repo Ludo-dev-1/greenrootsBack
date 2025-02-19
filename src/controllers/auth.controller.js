@@ -93,7 +93,7 @@ const authController = {
         }
     },
 
-    login: async (req, res) => {
+    login: async (req, res, next) => {
         try {
             const { email, password } = req.body;
 

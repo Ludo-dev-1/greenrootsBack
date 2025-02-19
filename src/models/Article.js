@@ -28,7 +28,15 @@ Article.init({
             key: "id",
             onDelete: "CASCADE"
         }
-    }
+    },
+    stripe_product_id: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    stripe_price_id: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
 }, {
     sequelize,
     tableName: "article"
