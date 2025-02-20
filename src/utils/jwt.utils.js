@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 
+// Génération d'un token JWT
 export const generateToken = (user) => {
     const payload = {
         id: user.id,
@@ -13,6 +14,7 @@ export const generateToken = (user) => {
     return jwt.sign(payload, secret, options);
 };
 
+// Vérification d'un token JWT
 export const verifyToken = (token) => {
     const secret = process.env.JWT_SECRET;
 

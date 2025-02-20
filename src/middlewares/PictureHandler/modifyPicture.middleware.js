@@ -1,51 +1,28 @@
-import fs from 'fs/promises';
-import path from 'node:path';
-import { Picture } from '../../models/association.js';
-import { STATUS_CODES, ERROR_MESSAGES } from "../../utils/constants.js";
+import fs from "fs";
+import path from "node:path";
 
-const modifyPicture = async (req, res, next) => {
-  const { imageId, newImageBase64 } = req.body;
+const modifyPicture = (req, res, next) => {
+    try {
+        const { pictureUrl } = req.body;
 
-  if (!imageId || !newImageBase64) {
-    const error = new Error(ERROR_MESSAGES.INVALID_INPUT);
-    error.statusCode = STATUS_CODES.BAD_REQUEST;
-    return next(error);
-  }
+        // Vérifie si l'URL de l'image est en base64 sans préfixe
+        if (pictureUrl && pictureUrl.match(/^[A-Za-z0-9+/=]*$/)) {
+            const base64Image = pictureUrl;
+            const basePath = 'public/uploads/';
+            const imageName = `${Date.now()}.png`;
+            const imagePath = `${basePath}${imageName}`;
 
-  try {
-    // Vérifiez si l'image existe dans la base de données
-    const picture = await Picture.findByPk(imageId);
-    if (!picture) {
-      const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND);
-      error.statusCode = STATUS_CODES.NOT_FOUND + " (Image not found)";
-      return next(error);
+            fs.writeFileSync(imagePath, base64Image, { encoding: 'base64' });
+
+            const newPictureUrl = `${req.protocol}://${req.get('host')}/uploads/${imageName}`;
+            req.body.pictureUrl = newPictureUrl;
+        }
+
+        next();
+    } catch (error) {
+        console.error("Erreur lors du traitement de l'image en base 64:", error);
+        next(error);
     }
-
-    // Chemin du fichier existant
-    const oldImagePath = path.join('/var/www/html/apothéose/projet-GreenRoots-back/public/uploads', path.basename(picture.url));
-
-    // Supprimez l'ancienne image du système de fichiers
-    await fs.unlink(oldImagePath);
-
-    // Enregistrez la nouvelle image
-    const basePath = '/var/www/html/apothéose/projet-GreenRoots-back/public/uploads';
-    const imageName = `${Date.now()}.png`;
-    const imagePath = path.join(basePath, imageName);
-
-    await fs.writeFile(imagePath, newImageBase64, { encoding: 'base64' });
-
-    // Mettez à jour l'URL de l'image dans la base de données
-    picture.url = imagePath;
-    await picture.save();
-
-    req.updatedPicture = picture;
-    next();
-  } catch (err) {
-    console.error(err);
-    const error = new Error(ERROR_MESSAGES.SERVER_ERROR + " (Error while processing image)");
-    error.statusCode = STATUS_CODES.SERVER_ERROR;
-    next(error);
-  }
 };
 
 export { modifyPicture };

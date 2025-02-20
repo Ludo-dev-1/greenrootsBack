@@ -1,5 +1,5 @@
-import { verifyToken } from "../../utils/jwt.js"; // Pour le jeton d'authentification
-import { ROLES, STATUS_CODES, ERROR_MESSAGES } from "../../utils/constants.js"; // Constantes pour les codes de statut HTTP et les messages d'erreur
+import { verifyToken } from "../../utils/jwt.utils.js"; // Pour le jeton d'authentification
+import { ROLES, STATUS_CODES, ERROR_MESSAGES } from "../../utils/constants.utils.js"; // Constantes pour les codes de statut HTTP et les messages d'erreur
 
 // Middleware d'authentification
 export const authenticate = (req, res, next) => {

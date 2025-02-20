@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { controllerWrapper as cw } from "../utils/controllerWrapper.js";
+import { controllerWrapper as cw } from "../utils/controllerWrapper.utils.js";
 import mainController from "../controllers/main.controller.js";
 
 const mainRouter = Router();

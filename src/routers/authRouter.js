@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { controllerWrapper as cw } from "../utils/controllerWrapper.js";
+import { controllerWrapper as cw } from "../utils/controllerWrapper.utils.js";
 import authController from "../controllers/auth.controller.js";
 import { registerJoiValidator } from "../middlewares/JoiValidator/registerJoiValidator.middleware.js";
 import { emailForgetPasswordJoiValidator } from "../middlewares/JoiValidator/emailForgetPasswordJoiValidator.middleware.js";

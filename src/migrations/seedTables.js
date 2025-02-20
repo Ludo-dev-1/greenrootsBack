@@ -3,7 +3,7 @@ import path from "node:path";
 import { User, Role, Order, Tracking, ArticleTracking, Picture, Article, Category, ArticleHasOrder, ArticleHasCategory, sequelize } from "../models/association.js";
 import argon2 from "argon2";
 import { saveImage, convertImageToBase64 } from "../utils/pictureUtils.js";
-import Stripe from "stripe";
+import { createProductAndPrice } from "../utils/stripeUtils.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,23 +15,6 @@ const fakeReq = {
         return 'localhost:3000'; // Change cette valeur selon ton environnement
       }
     }
-  };
-
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
-  const createProductAndPrice = async (name, description, unit_amount) => {
-      const product = await stripe.products.create({
-          name,
-          description,
-      });
-  
-      const price = await stripe.prices.create({
-          product: product.id,
-          unit_amount,
-          currency: 'eur',
-      });
-  
-      return { product_id: product.id, price_id: price.id };
   };
 
 async function seedDatabase() {

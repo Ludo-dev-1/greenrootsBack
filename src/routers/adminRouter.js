@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { controllerWrapper as cw } from "../utils/controllerWrapper.js";
+import { controllerWrapper as cw } from "../utils/controllerWrapper.utils.js";
 import { authenticate, checkAdminAccess } from "../middlewares/token/auth.middleware.js";
 import { crudAdminShopValidator } from "../middlewares/JoiValidator/crudAdminShopValidator.middleware.js";
-import adminShopController from "../controllers/adminshop.controller.js";
+import adminShopController from "../controllers/adminShop.controller.js";
 import adminOrderController from "../controllers/adminOrder.controller.js";
 import { uploadPicture } from "../middlewares/PictureHandler/uploadPicture.middleware.js";
 import { modifyPicture } from "../middlewares/PictureHandler/modifyPicture.middleware.js";
@@ -19,7 +19,7 @@ adminRouter.get("/api/articles", authenticate, checkAdminAccess, cw(adminShopCon
 // Page d'un article (admin)
 adminRouter.get("/api/articles/:id", authenticate, checkAdminAccess, cw(adminShopController.getOneArticle));
 // Création d'un article
-adminRouter.post("/api/articles", authenticate, checkAdminAccess, crudAdminShopValidator, cw(adminShopController.createArticleWithPicture)); // , uploadPicture
+adminRouter.post("/api/articles", authenticate, checkAdminAccess, crudAdminShopValidator, uploadPicture, cw(adminShopController.createArticleWithPicture));
 // Modification d'un article
 adminRouter.patch("/api/articles/:id", authenticate, checkAdminAccess, crudAdminShopValidator, cw(adminShopController.updateArticle));// EN ATTENTE DE TEST POUR LES IMAGES
 // Suppression d'un article 

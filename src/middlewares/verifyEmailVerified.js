@@ -1,5 +1,5 @@
 import { User } from "../models/association.js"
-import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.js";
+import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.utils.js";
 
 export const verifyEmailVerified = async (req, res, next) => {
     try {

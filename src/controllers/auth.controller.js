@@ -1,10 +1,10 @@
-import { generateToken } from "../utils/jwt.js"; // Pour le jeton d'authentification
+import { generateToken } from "../utils/jwt.utils.js"; // Pour le jeton d'authentification
 import { User } from "../models/association.js";
 import { sendEmail } from "../services/emailService.js"; // Service d'envoi d'email
 import argon2 from "argon2"; // Pour le hash du mot de passe
 import { v4 as uuidv4 } from "uuid"; // Pour le jeton de vérification 
-import { withTransaction } from "../utils/commonOperations.js"; // Fonction utilitaire de gestion des transactions
-import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.js"; // Constantes pour les codes de statut HTTP et les messages d'erreur
+import { withTransaction } from "../utils/commonOperations.utils.js"; // Fonction utilitaire de gestion des transactions
+import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.utils.js"; // Constantes pour les codes de statut HTTP et les messages d'erreur
 
 const authController = {
     // Affiche le formulaire d'inscription

@@ -1,4 +1,4 @@
-import { STATUS_CODES, ERROR_MESSAGES } from "../../utils/constants.js";
+import { STATUS_CODES, ERROR_MESSAGES } from "../../utils/constants.utils.js";
 
 export const validate = (schema) => (req, res, next) => {
     try {

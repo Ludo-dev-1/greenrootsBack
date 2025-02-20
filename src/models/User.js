@@ -30,8 +30,8 @@ User.init({
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false,
-      },
-      verificationToken: {
+    },
+    verificationToken: {
         type: DataTypes.STRING,
         allowNull: true,
     },
@@ -39,11 +39,11 @@ User.init({
     resetToken: {
         type: DataTypes.STRING,
         allowNull: true,
-      },
-      resetTokenExpiration: {
+    },
+    resetTokenExpiration: {
         type: DataTypes.DATE,
         allowNull: true,
-      }
+    }
 }, {
     sequelize,
     tableName: "user"

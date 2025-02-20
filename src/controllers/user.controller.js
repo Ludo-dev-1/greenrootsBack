@@ -1,7 +1,7 @@
 import { Article, User, Tracking, ArticleHasOrder, ArticleTracking, Order, sequelize } from "../models/association.js";
 import argon2 from "argon2"; // Pour le hash du mot de passe
-import { withTransaction } from "../utils/commonOperations.js"; // Fonction utilitaire de gestion des transactions
-import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.js"; // Constantes pour les codes de statut HTTP et les messages d'erreur
+import { withTransaction } from "../utils/commonOperations.utils.js"; // Fonction utilitaire de gestion des transactions
+import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.utils.js"; // Constantes pour les codes de statut HTTP et les messages d'erreur
 
 
 const userController = {
