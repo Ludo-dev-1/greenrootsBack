@@ -15,9 +15,9 @@ Toutes les requêtes doivent être envoyées à : `http://localhost:3000`
 L'API utilise l'authentification JWT. Inclure le token dans le header des requêtes API :
 `Authorization: Bearer <votre_token_jwt>`
 
-## Endpoints
+## Points d'accès (Endpoints)
 
-(Les "?" dans la documentation indiquent que le champ est optionnel)
+Les "?" dans la documentation indiquent que le champ est optionnel.
 
 ### Utilisateurs
 
@@ -194,8 +194,31 @@ L'API utilise l'authentification JWT. Inclure le token dans le header des requê
 #### Mettre à jour le suivi d'un article d'une commande (admin)
 
 - **PATCH** `/api/commandes/:orderId/suivi/:trackingId`
-- Body: `{ "status?": "string", "growth?": "string", "plant_place?": "string", "picture_url?": "string" }`
-- Réponse: `{ "message": "Suivi d'article mis à jour avec succès", "articleTracking": { "id": "number", "status": "string", "growth": "string", "plant_place": "string", "picture_url": "string" } }`
+- Body :
+  
+```json
+{
+  "status?": "string",
+  "growth?": "string",
+  "plant_place?": "string",
+  "picture_url?": "string"
+}
+```
+
+- Réponse:
+
+```json
+{
+  "message": "Suivi d'article mis à jour avec succès",
+  "articleTracking": {
+    "id": "number",
+    "status": "string",
+    "growth": "string",
+    "plant_place": "string",
+    "picture_url": "string"
+  }
+}
+```
 
 ### Pages statiques
 
@@ -213,3 +236,17 @@ L'API utilise l'authentification JWT. Inclure le token dans le header des requê
 
 - **GET** `/mentions-legales`
 - Réponse: `{ message: "Mentions légales" }`
+
+### Exemples de requêtes et réponses
+
+#### Inscription d'un nouvel utilisateur
+
+### Codes d'état HTTP
+
+- **200 OK**: La requête a réussi
+- **201 Created**: La ressource a été créée avec succès
+- **400 Bad Request**: La requête est invalide
+- **401 Unauthorized**: Authentification nécessaire
+- **403 Forbidden**: Accès refusé
+- **404 Not Found**: Ressource non trouvée
+- **500 Internal Server Error**: Erreur serveur
