@@ -35,11 +35,11 @@ Article.init({
     },
     stripe_product_id: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: false
     },
     stripe_price_id: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: false
     },
 }, {
     sequelize,

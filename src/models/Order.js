@@ -1,7 +1,8 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../database.js";
+import { User } from "./User.js";
 
-export class Order extends Model {}
+export class Order extends Model { }
 
 Order.init({
     article_summary: {
@@ -13,8 +14,16 @@ Order.init({
         allowNull: false
     },
     total_price: { // Montant total de la commande, calculé à partir des prix des articles commandés
-        type: DataTypes.DECIMAL(10,2),  // Type de données : décimal avec 10 chiffres dont 2 après la virgule
+        type: DataTypes.DECIMAL(10, 2),  // Type de données : décimal avec 10 chiffres dont 2 après la virgule
         allowNull: false
+    },
+    user_id: {
+        type: DataTypes.INTEGER,
+        references: {
+            model: User,
+            key: "id",
+            onDelete: "CASCADE"
+        }
     }
 }, {
     sequelize,

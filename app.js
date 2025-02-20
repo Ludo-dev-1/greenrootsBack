@@ -1,3 +1,4 @@
+// Importation des dépendances
 import "dotenv/config"; // Importation de la configuration des variables d'environnement
 import express from "express"; // Importation du framework Express
 import session from "express-session";
@@ -11,34 +12,34 @@ import { errorHandler, notFound } from "./src/middlewares/errorHandler.js";
 // Création de l'instance Express
 const app = express();
 
-// Autoriser les requêtes "cross-origin"
+// Gestion des requêtes "cross-origin"
 app.use(cors());
-
+// Configuration de la session
 app.use(session({
-  secret: 'votre_secret_de_session', // Utilisez une chaîne secrète pour signer les cookies de session
+  secret: 'votre_secret_de_session', // Chaîne secrète pour signer les cookies de session
   resave: false, // Ne pas sauvegarder la session si elle n'a pas été modifiée
   saveUninitialized: true, // Sauvegarder une session non initialisée
-  cookie: { secure: false } // Utilisez 'true' si votre site utilise HTTPS
+  cookie: { secure: false } // Utiliser 'true' si votre site utilise HTTPS
 }))
 
-// Body parsers
+// Body parsers pour le corps des requêtes
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ limit: '5mb', extended: true }));
 
 // Configuration des fichiers statiques
 app.use("/uploads", express.static("public/uploads"));
 
-// Liste des routes
+// Définition des routes
 app.use(mainRouter);
 app.use(authRouter);
 app.use(userRouter);
 app.use(adminRouter);
 
-// Gestion des routes d'erreurs
+// Gestion des erreurs
 app.use(notFound);
 app.use(errorHandler);
 
-// Initialisation du port d'écoute
+// Démarrage du serveur (initialisation du port d'écoute)
 app.listen(process.env.PORT, () => {
   console.log(`GreenRoots est désormais lancé sur le port ${process.env.PORT}`);
 });

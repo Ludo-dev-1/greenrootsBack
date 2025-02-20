@@ -1,5 +1,5 @@
 import { Article, Picture, Category } from "../models/association.js";
-import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.js"; // Constantes pour les codes de statut HTTP et les messages d'erreur
+import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.utils.js"; // Constantes pour les codes de statut HTTP et les messages d'erreur
 
 const mainController = {
     // Récupération de tous les articles nouvellement créés

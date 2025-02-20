@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { STATUS_CODES, ERROR_MESSAGES } from "../../utils/constants.js";
+import { STATUS_CODES, ERROR_MESSAGES } from "../../utils/constants.utils.js";
 
 const uploadPicture = (req, res, next) => {
   if (!req.body.pictureUrl) {

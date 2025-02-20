@@ -1,6 +1,8 @@
+import "dotenv/config";
 import express from 'express';
 import bodyParser from 'body-parser';
 import Stripe from 'stripe';
+import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.utils.js";
 
 const app = express();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -14,7 +16,10 @@ app.post('/webhook', (req, res) => {
    try {
       event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
    } catch (err) {
-      return res.status(400).send(`Webhook Error: ${err.message}`);
+      console.error(`Webhook error: ${err.message}`);
+      const error = new Error(ERROR_MESSAGES.INVALID_INPUT + " (Erreur de signature Stripe)");
+      error.statusCode = STATUS_CODES.BAD_REQUEST;
+      return next(error);
    }
 
    switch (event.type) {
@@ -34,7 +39,7 @@ app.post('/webhook', (req, res) => {
 }
 
 
-   res.json({ received: true });
+   res.status(STATUS_CODES.OK).json({ received: true });
 });
 
-app.listen(4242, () => console.log('Webhook server running on port 4242'));
+app.listen(process.env.STRIPE_PORT, () => console.log('Webhook server running on port 4242'));

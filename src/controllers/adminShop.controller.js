@@ -1,6 +1,8 @@
 import { Article, Picture, Category, sequelize } from "../models/association.js";
-import { withTransaction } from "../utils/commonOperations.js"; // Fonction utilitaire de gestion des transactions
-import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.js"; // Constantes pour les codes de statut HTTP et les messages d'erreur
+import path from 'node:path';
+import fs from "fs";
+import { withTransaction } from "../utils/commonOperations.utils.js"; // Fonction utilitaire de gestion des transactions
+import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.utils.js"; // Constantes pour les codes de statut HTTP et les messages d'erreur
 
 const adminShopController = {
 
@@ -84,12 +86,12 @@ const adminShopController = {
                     error.statusCode = STATUS_CODES.NOT_FOUND;
                     throw error;
                 }
-    
+
                 // Crée une nouvelle image dans la base de données
                 const newPicture = await Picture.create({
                     url: "req.base64Image1"
                 }, { transaction });
-    
+
                 // Crée un nouvel article avec les informations fournies
                 const newArticle = await Article.create({
                     name,
@@ -98,10 +100,10 @@ const adminShopController = {
                     available,
                     picture_id: newPicture.id // Associe l'image à l'article
                 }, { transaction });
-    
+
                 // Associe les catégories à l'article
                 for (const category of categories) {
-                    await newArticle.addCategory(category, { transaction }); 
+                    await newArticle.addCategory(category, { transaction });
                 }
 
                 return newArticle;
@@ -121,97 +123,85 @@ const adminShopController = {
     // Mise à jour d'un article existant
     updateArticle: async (req, res, next) => {
         try {
-            // Récupération de l'ID de l'article depuis les paramètres de la requête
+            console.log("Corps de la requête reçu:", req.body);
+            
             const articleId = req.params.id;
-
             const { categoryName, name, description, price, available, pictureUrl } = req.body;
-
-            // Validation des données : vérifie que des champs à mettre à jour ont bien été fournis
+    
             if (!categoryName && !name && !description && !price && available === undefined && !pictureUrl) {
                 const error = new Error(ERROR_MESSAGES.INVALID_INPUT + " (Aucun champ à mettre à jour n'a été fourni.)");
                 error.statusCode = STATUS_CODES.BAD_REQUEST;
                 return next(error);
             }
-
-            // Récupération de l'article existant
+    
             await withTransaction(async (transaction) => {
-                // Recherche l'article existant par son ID
                 const article = await Article.findByPk(articleId, {
-                    include: [{
-                        model: Picture
-                    },
-                    {
-                        model: Category,
-                        as: "categories"
-                    }],
+                    include: [
+                        { model: Picture },
+                        { model: Category, as: "categories" }
+                    ],
                     transaction
                 });
-
-                // Si pas trouvé, renvoie une erreur
+    
                 if (!article) {
                     const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + " (Article)");
                     error.statusCode = STATUS_CODES.NOT_FOUND;
                     throw error;
                 }
-
-                // Mise à jour des champs de l'article si des valeurs sont fournies
-
+    
                 if (name) article.name = name;
                 if (description) article.description = description;
                 if (price) article.price = price;
                 if (available !== undefined) article.available = available;
-
-                // Mise à jour de l'image associée si une nouvelle URL est fournie
+    
                 if (pictureUrl) {
                     let picture = await Picture.findByPk(article.picture_id, { transaction });
-                    picture.url = pictureUrl;
-                    // Sauvegarde des modifications de la photo
-                    await picture.save({ transaction });
+    
+                    const receivedFileName = path.basename(pictureUrl);
+                    const storedFileName = path.basename(picture.url);
+    
+                    if (receivedFileName !== storedFileName) {
+                        picture.url = pictureUrl;
+                        await picture.save({ transaction });
+                    }
                 }
-
-                // Mise à jour des catégories associées si nécessaire
+    
                 if (categoryName) {
-                    let existingCategories = await article.getCategories({ transaction })
+                    let existingCategories = await article.getCategories({ transaction });
                     let newCategories = await Category.findAll({
                         where: { name: categoryName },
                         transaction
                     });
-
+    
                     if (newCategories.length === 0) {
                         const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + " (Catégorie)");
                         error.statusCode = STATUS_CODES.NOT_FOUND;
                         throw error;
                     }
-
-                    // Ajoute les catégories qui ne sont pas encore associées à l'article
+    
                     let categoriesToAdd = newCategories.filter(newCat => !existingCategories.some(exCat => exCat.id === newCat.id));
-                    // Retire les catégories qui sont associés à l'article
-                    let categoriesToRemove = existingCategories.filter(exCat => !newCategories.some(newCat => newCat.id === exCat.id));
-        
-                    // Met à jour l'article avec les catégories ajoutées et retirées
+                    let categoriesToRemove = existingCategories.filter(exCat => !newCategories.some(newCat => exCat.id === exCat.id));
+    
                     await article.addCategories(categoriesToAdd, { transaction });
                     await article.removeCategories(categoriesToRemove, { transaction });
-
-                };
-                // Sauvegarde des modifications de l'article
+                }
                 await article.save({ transaction });
             });
-
-            // Recharge l'article avec les relations mises à jour
+    
             const updatedArticle = await Article.findByPk(articleId, {
                 include: [
                     { model: Picture },
                     { model: Category, as: "categories" }
                 ]
             });
-
+    
             res.status(STATUS_CODES.OK).json({
                 message: "Article mis à jour avec succès",
                 article: updatedArticle
             });
         }
         catch (error) {
-            // Passe l'erreur au middleware de gestion d'erreurs
+            console.error("Erreur rencontrée:", error);
             next(error);
         }
     },

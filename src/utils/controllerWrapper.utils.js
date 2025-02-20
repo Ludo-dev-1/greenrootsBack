@@ -1,4 +1,4 @@
-import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.js";
+import { STATUS_CODES, ERROR_MESSAGES } from "./constants.utils.js";
 
 export function controllerWrapper(mdw) {
     return async (req, res, next) => {

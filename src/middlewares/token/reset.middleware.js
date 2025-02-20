@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import { Op } from 'sequelize';
 import { User } from "../../models/association.js";
-import { STATUS_CODES, ERROR_MESSAGES } from "../../utils/constants.js";
+import { STATUS_CODES, ERROR_MESSAGES } from "../../utils/constants.utils.js";
 
 const generateResetToken = async (req, res, next) => {
     try {

@@ -1,4 +1,4 @@
-import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.js";
+import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.utils.js";
 
 const notFound = (req, res, next) => {
     const error = new Error(ERROR_MESSAGES.ROUTE_NOT_FOUND);

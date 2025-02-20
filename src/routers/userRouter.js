@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { controllerWrapper as cw } from "../utils/controllerWrapper.js";
+import { controllerWrapper as cw } from "../utils/controllerWrapper.utils.js";
 import mainController from "../controllers/main.controller.js";
 import { authenticate } from "../middlewares/token/auth.middleware.js";
 import { crudUserProfileValidator } from "../middlewares/JoiValidator/crudUserProfileValidator.middleware.js";
@@ -20,7 +20,7 @@ const userRouter = Router();
 // Page de validation de commande
 userRouter.get("/commande", authenticate, cw(mainController.getOrderPage));
 // Validation de la commande
-userRouter.post("/commande", authenticate, verifyEmailVerified, createOrderJoiValidator, cw(orderController.createOrder), createCheckoutSession);
+userRouter.post("/commande", authenticate, verifyEmailVerified,createOrderJoiValidator, cw(orderController.createOrder), createCheckoutSession);
 
 // * COMPTE CRUD
 // Page de compte utilisateur
