@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { controllerWrapper as cw } from "../utils/controllerWrapper.utils.js";
 import authController from "../controllers/auth.controller.js";
-import { registerJoiValidator } from "../middlewares/JoiValidator/registerJoiValidator.middleware.js";
-import { emailForgetPasswordJoiValidator } from "../middlewares/JoiValidator/emailForgetPasswordJoiValidator.middleware.js";
+import { registerJoiValidator } from "../middlewares/joiValidator/registerJoiValidator.middleware.js";
+import { emailForgetPasswordJoiValidator } from "../middlewares/joiValidator/emailForgetPasswordJoiValidator.middleware.js";
 import { generateResetToken, verifyResetToken } from "../middlewares/token/reset.middleware.js";
-import { updateForgetPasswordJoiValidator } from "../middlewares/JoiValidator/updateForgetPasswordJoiValidator.middleware.js"
+import { updateForgetPasswordJoiValidator } from "../middlewares/joiValidator/updateForgetPasswordJoiValidator.middleware.js"
 
 const authRouter = Router();
 

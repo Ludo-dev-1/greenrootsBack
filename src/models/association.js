@@ -23,7 +23,7 @@ Role.hasMany(User, {foreignKey: "role_id"});
 // Article <=> Picture (One-to-Many)
 Article.belongsTo(Picture, {
     foreignKey: "picture_id",
-    onDelete: "CASCADE"
+    onDelete: "CASCADE" // Suppression en cascade
 });
 Picture.hasMany(Article, {foreignKey: "picture_id", onDelete: "CASCADE"});
 

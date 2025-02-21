@@ -17,12 +17,13 @@ Order.init({
         type: DataTypes.DECIMAL(10, 2),  // Type de données : décimal avec 10 chiffres dont 2 après la virgule
         allowNull: false
     },
+    // ID de l'utilisateur qui a passé la commande
     user_id: {
         type: DataTypes.INTEGER,
         references: {
             model: User,
             key: "id",
-            onDelete: "CASCADE"
+            onDelete: "CASCADE" // Suppression en cascade si l'utilisateur est supprimé
         }
     }
 }, {

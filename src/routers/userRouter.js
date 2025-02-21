@@ -2,12 +2,12 @@ import { Router } from "express";
 import { controllerWrapper as cw } from "../utils/controllerWrapper.utils.js";
 import mainController from "../controllers/main.controller.js";
 import { authenticate } from "../middlewares/token/auth.middleware.js";
-import { crudUserProfileValidator } from "../middlewares/JoiValidator/crudUserProfileValidator.middleware.js";
-import { createOrderJoiValidator } from "../middlewares/JoiValidator/createOrderJoiValidator.middleware.js";
+import { crudUserProfileValidator } from "../middlewares/joiValidator/crudUserProfileValidator.middleware.js";
+import { createOrderJoiValidator } from "../middlewares/joiValidator/createOrderJoiValidator.middleware.js";
 import userController from "../controllers/user.controller.js";
 import orderController from "../controllers/order.controller.js";
-import { verifyEmailVerified } from "../middlewares/verifyEmailVerified.js";
-import createCheckoutSession from "../middlewares/stripeSession.middleware.js";
+import { verifyEmailVerified } from "../middlewares/verifyEmailVerified.middleware.js";
+import createCheckoutSession from "../middlewares/stripe/stripeSession.middleware.js";
 
 const userRouter = Router();
 

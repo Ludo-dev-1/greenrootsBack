@@ -1,21 +1,30 @@
+import "dotenv/config";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { User, Role, Order, Tracking, ArticleTracking, Picture, Article, Category, ArticleHasOrder, ArticleHasCategory, sequelize } from "../models/association.js";
 import argon2 from "argon2";
-import { saveImage, convertImageToBase64 } from "../utils/pictureUtils.js";
-import { createProductAndPrice } from "../utils/stripeUtils.js";
+import { saveImage, convertImageToBase64 } from "../utils/picture.utils.js";
+import { createProductAndPrice } from "../utils/stripe.utils.js";
+import { ERROR_MESSAGES } from "../utils/constants.utils.js";
 
+
+// Configuration du chemin du fichier
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Objet de requête factice pour simuler l'upload d'une image côté back
 const fakeReq = {
-    protocol: 'http',
+    protocol: `${process.env.PROTOCOL}`,
     get: (header) => {
       if (header === 'host') {
-        return 'localhost:3000'; // Change cette valeur selon ton environnement
+        return `${process.env.HOST}:${process.env.PORT}`;
       }
     }
   };
+
+/**
+ * Fonction principale pour peupler la base de données
+ */
 
 async function seedDatabase() {
     try {
@@ -174,11 +183,16 @@ async function seedDatabase() {
             { article_id: 16, category_id: 10 }
         ]);
 
-        await sequelize.close()
+        await sequelize.close();
     } catch (error) {
-        // A remplacer par l'errorHandler
-        console.error("Error seeding database:", error);
+        console.error(ERROR_MESSAGES.SERVER_ERROR, error);
+        throw new Error(ERROR_MESSAGES.SERVER_ERROR);
+    } finally {
+        await sequelize.close();
     }
 }
 
-seedDatabase();
+seedDatabase().catch(error => {
+    console.error("Erreur lors du peuplement de la base de données:", error.message);
+    process.exit(1);
+});
