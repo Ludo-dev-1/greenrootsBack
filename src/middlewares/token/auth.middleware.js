@@ -1,7 +1,15 @@
 import { verifyToken } from "../../utils/jwt.utils.js"; // Pour le jeton d'authentification
 import { ROLES, STATUS_CODES, ERROR_MESSAGES } from "../../utils/constants.utils.js"; // Constantes pour les codes de statut HTTP et les messages d'erreur
 
-// Middleware d'authentification
+
+/**
+ * Middleware d'authentification
+ * Vérifie la présence et la validité du token JWT dans les en-têtes de la requête
+ * @param {Object} req - L'objet de requête Express
+ * @param {Object} res - L'objet de réponse Express
+ * @param {Function} next - La fonction next d'Express pour passer au middleware suivant
+ */
+
 export const authenticate = (req, res, next) => {
     // Récupère le header d'autorisation
     const authHeader = req.headers.authorization;
@@ -18,7 +26,7 @@ export const authenticate = (req, res, next) => {
 
     try {
         const decoded = verifyToken(token); // Vérifie et décode le token
-        req.user = decoded; // Ajoute les infos utilisateur "décodées" à la requête
+        req.user = decoded; // Ajoute les informations utilisateur décodées à la requête
         next();
     } catch (error) {
         error.statusCode = STATUS_CODES.FORBIDDEN;
@@ -26,7 +34,15 @@ export const authenticate = (req, res, next) => {
     }
 };
 
-// Middleware de vérification du rôle administrateur 
+/**
+ * Middleware de vérification du rôle administrateur 
+ * Vérifie si l'utilisateur authentifié a les droits d'administrateur
+ * @param {Object} req - L'objet de requête Express
+ * @param {Object} res - L'objet de réponse Express
+ * @param {Function} next - La fonction next d'Express pour passer au middleware suivant
+ */
+
+
 export const checkAdminAccess = (req, res, next) => {
     // Vérifie si l'utilisateur a le rôle administrateur
     if (req.user.role_id !== ROLES.ADMIN) {

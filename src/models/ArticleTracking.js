@@ -20,6 +20,7 @@ ArticleTracking.init({
         type: DataTypes.STRING,
         allowNull: true
     },
+    // ID de l'article associé
     article_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -28,6 +29,7 @@ ArticleTracking.init({
             key: 'id'
         }
     },
+    // ID de la relation article-commande
     article_has_order_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -36,6 +38,7 @@ ArticleTracking.init({
             key: 'id'
         }
     },
+    // ID de l'image associée
     picture_id: {
         type: DataTypes.INTEGER,
         allowNull: true,

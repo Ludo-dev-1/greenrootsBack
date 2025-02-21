@@ -8,6 +8,7 @@ Tracking.init({
         type: DataTypes.TEXT,
         allowNull: false
     },
+    // ID de la commande associée
     order_id: {
         type: DataTypes.INTEGER,
         allowNull: false,

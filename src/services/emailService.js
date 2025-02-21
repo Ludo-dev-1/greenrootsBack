@@ -3,6 +3,10 @@ import nodemailer from "nodemailer";
 import path from "node:path";
 import hbs from "nodemailer-express-handlebars";
 
+/**
+ * Configuration du transporteur d'emails avec Nodemailer
+ */
+
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -11,7 +15,10 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// Configurer le moteur de template Handlebars
+/**
+ * Configuration du moteur de templates Handlebars pour les emails
+ */
+
 const handlebarOptions = {
     viewEngine: {
         extName: '.hbs',
@@ -22,7 +29,16 @@ const handlebarOptions = {
     extName: '.hbs'
 };
 
+// Application du moteur de template Handlebars au transporteur
 transporter.use('compile', hbs(handlebarOptions));
+
+/**
+ * Fonction d'envoi de mail
+ * @param {string} to - Adresse email du destinataire
+ * @param {string} subject - Sujet de l'email
+ * @param {string} template - Nom du template Handlebars à utiliser
+ * @param {Object} context - Données à injecter dans le template
+ */
 
 const sendEmail = (to, subject, template, context) => {
     const mailOptions = {
