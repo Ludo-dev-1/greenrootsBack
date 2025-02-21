@@ -11,27 +11,28 @@ import { authRouter } from "./src/routers/authRouter.js";
 import { userRouter } from "./src/routers/userRouter.js";
 import { adminRouter } from "./src/routers/adminRouter.js";
 import { errorHandler, notFound } from "./src/middlewares/errorHandler.middleware.js";
-// import { createRequire } from "module";
-// import Redis from "ioredis";
+import connectMemcached from "connect-memcached";
+import helmet from "helmet";
+
+const MemcachedStore = connectMemcached(session);
 
 // Création de l'instance Express
 const app = express();
 
-// const redisClient = new Redis({
-//   host: "localhost",
-//   port: 6379,
-// });
-
-// import { default as connectRedis } from 'connect-redis';
-
-// const RedisStore = connectRedis(session);
+// Utilisation de Helmet pour sécuriser les en-têtes HTTP
+app.use(helmet({
+  contentSecurityPolicy: process.env.NODE_ENV === 'production' ? undefined : false
+}));
 
 // Configuration de la session
 app.use(session({
-  // store: new RedisStore({ client: redisClient }),
   secret: process.env.SESSION_SECRET, // Chaîne secrète pour signer les cookies de session
   resave: false, // Ne pas sauvegarder la session si elle n'a pas été modifiée
   saveUninitialized: true, // Sauvegarder une session non initialisée
+  store: new MemcachedStore({
+    hosts: [process.env.MEMCACHED_HOST], // Adresse du serveur Memcached
+    secret: process.env.MEMCACHED_SECRET // Chaîne secrète pour sécuriser les données de session
+  }),
   cookie: {
     secure: process.env.NODE_ENV === "production", // 'true' si le site utilise HTTPS (en production)
     httpOnly: true, // Rend le cookie inaccessible via JavaScript côté client

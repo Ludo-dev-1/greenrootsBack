@@ -5,6 +5,20 @@
 GreenRoots est une API permettant de gérer une plateforme de vente d'arbres et de suivi de plantation. Elle offre des fonctionnalités pour les utilisateurs, les commandes et l'administration des articles.
 
 ## Guide de démarrage
+Pour accéder à cet API faite une demande de clé API à cette addresse: `company.greenroots@gmail.com`
+Puis lors de vos requête veillez à bien spécifiez dans votre header la clé API.
+Exemple :
+
+```js
+const response = await fetch(apiUrl, {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${jwtToken}`,
+    'x-api-key': apiKey // Ajout de la clé API dans l'en-tête
+  }
+});
+```
 
 ### Base URL
 
