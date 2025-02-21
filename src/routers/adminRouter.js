@@ -1,11 +1,11 @@
 import { Router } from "express";
 import { controllerWrapper as cw } from "../utils/controllerWrapper.utils.js";
 import { authenticate, checkAdminAccess } from "../middlewares/token/auth.middleware.js";
-import { crudAdminShopValidator } from "../middlewares/JoiValidator/crudAdminShopValidator.middleware.js";
+import { crudAdminShopValidator } from "../middlewares/joiValidator/crudAdminShopValidator.middleware.js";
 import adminShopController from "../controllers/adminShop.controller.js";
 import adminOrderController from "../controllers/adminOrder.controller.js";
-import { uploadPicture } from "../middlewares/PictureHandler/uploadPicture.middleware.js";
-import { modifyPicture } from "../middlewares/PictureHandler/modifyPicture.middleware.js";
+import { uploadPicture } from "../middlewares/pictureHandler/uploadPicture.middleware.js";
+import { modifyPicture } from "../middlewares/pictureHandler/modifyPicture.middleware.js";
 
 const adminRouter = Router();
 
@@ -35,6 +35,6 @@ adminRouter.get("/api/commandes/:id/suivi", authenticate, checkAdminAccess, cw(a
 // Page de suivi d'un article d'une commande
 adminRouter.get("/api/commandes/:orderId/suivi/:trackingId", authenticate, checkAdminAccess, cw(adminOrderController.getArticleTrackingAdmin));
 // Modification de suivi d'un article
-adminRouter.patch("/api/commandes/:orderId/suivi/:trackingId", authenticate, checkAdminAccess, modifyPicture, cw(adminOrderController.updateArticleTracking));// EN ATTENTE DE TEST POUR LES IMAGES
+adminRouter.patch("/api/commandes/:orderId/suivi/:trackingId", authenticate, checkAdminAccess, modifyPicture, cw(adminOrderController.updateArticleTracking));
 
 export { adminRouter };

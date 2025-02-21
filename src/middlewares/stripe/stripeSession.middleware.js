@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.utils.js";
+import { STATUS_CODES, ERROR_MESSAGES } from "../../utils/constants.utils.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
