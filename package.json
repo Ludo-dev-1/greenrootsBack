@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "start": "nodemon --inspect app.js",
-    "db:create": "",
-    "db:seed": "",
-    "db:reset": "npm run db:create && npm run db:seed"
+    "db:create": "node /var/www/html/apothéose/projet-GreenRoots-back/src/migrations/createTables.js",
+    "db:seed": "node /var/www/html/apothéose/projet-GreenRoots-back/src/migrations/seedTables.js",
+    "db:reset": "npm run db:create && npm run db:seed && npm start"
   },
   "keywords": [],
   "author": "",
@@ -15,16 +15,29 @@
   "description": "",
   "dependencies": {
     "argon2": "^0.41.1",
+    "connect-memcached": "^2.0.0",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "express-session": "^1.18.1",
+    "express-xss-sanitizer": "^2.0.0",
+    "handlebars": "^4.7.8",
+    "helmet": "^8.0.0",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
+    "memcached": "^2.2.2",
+    "nodemailer": "^6.10.0",
+    "nodemailer-express-handlebars": "^7.0.0",
     "pg": "^8.13.1",
-    "sequelize": "^6.37.5"
+    "sequelize": "^6.37.5",
+    "stripe": "^17.6.0",
+    "uuid": "^11.0.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",
-    "eslint": "^9.19.0",
+    "eslint": "^9.21.0",
     "globals": "^15.14.0",
     "nodemon": "^3.1.9"
   }
