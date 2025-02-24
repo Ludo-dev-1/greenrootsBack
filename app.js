@@ -21,30 +21,30 @@ const app = express();
 
 // Utilisation de Helmet pour sécuriser les en-têtes HTTP
 app.use(helmet({
-  contentSecurityPolicy: process.env.NODE_ENV === "production" ? undefined : false
+    contentSecurityPolicy: process.env.NODE_ENV === "production" ? undefined : false
 }));
 
 // Configuration de la session
 app.use(session({
-  secret: process.env.SESSION_SECRET, // Chaîne secrète pour signer les cookies de session
-  resave: false, // Ne pas sauvegarder la session si elle n'a pas été modifiée
-  saveUninitialized: true, // Sauvegarder une session non initialisée
-  store: new MemcachedStore({
-    hosts: [process.env.MEMCACHED_HOST], // Adresse du serveur Memcached
-    secret: process.env.MEMCACHED_SECRET // Chaîne secrète pour sécuriser les données de session
-  }),
-  cookie: {
-    secure: process.env.NODE_ENV === "production", // 'true' si le site utilise HTTPS (en production)
-    httpOnly: true, // Rend le cookie inaccessible via JavaScript côté client
-    sameSite: "strict", // 'strict' pour une protection maximale contre les CSRF
-    maxAge: 24 * 60 * 60 * 1000 // Durée de vie du cookie en millisecondes (ici 24 heures)
-  }
+    secret: process.env.SESSION_SECRET, // Chaîne secrète pour signer les cookies de session
+    resave: false, // Ne pas sauvegarder la session si elle n'a pas été modifiée
+    saveUninitialized: true, // Sauvegarder une session non initialisée
+    store: new MemcachedStore({
+        hosts: [process.env.MEMCACHED_HOST], // Adresse du serveur Memcached
+        secret: process.env.MEMCACHED_SECRET // Chaîne secrète pour sécuriser les données de session
+    }),
+    cookie: {
+        secure: process.env.NODE_ENV === "production", // 'true' si le site utilise HTTPS (en production)
+        httpOnly: true, // Rend le cookie inaccessible via JavaScript côté client
+        sameSite: "strict", // 'strict' pour une protection maximale contre les CSRF
+        maxAge: 24 * 60 * 60 * 1000 // Durée de vie du cookie en millisecondes (ici 24 heures)
+    }
 }));
 
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limiter chaque clé API à 100 requêtes par fenêtre de 15 minutes
-  message: "Trop de requêtes provenant de cette IP, veuillez réessayer plus tard."
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limiter chaque clé API à 100 requêtes par fenêtre de 15 minutes
+    message: "Trop de requêtes provenant de cette IP, veuillez réessayer plus tard."
 });
 
 // Limitation des requêtes sur l'API
@@ -52,17 +52,17 @@ app.use(apiLimiter);
 
 // Configuration de CORS avec validation dynamique de l'origine
 app.use(cors({
-  origin: (origin, callback) => {
+    origin: (origin, callback) => {
     // Implémentez la logique pour valider l'origine basée sur la clé API
-    const validOrigins = process.env.ALLOWED_ORIGINS.split(','); // Liste des origines autorisées de l'environnement
-    if (!origin || validOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Non autorisé par CORS"));
-    }
-  },
-  methods: ["GET", "POST", "PATCH", "DELETE"],
-  credentials: true
+        const validOrigins = process.env.ALLOWED_ORIGINS.split(","); // Liste des origines autorisées de l'environnement
+        if (!origin || validOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Non autorisé par CORS"));
+        }
+    },
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+    credentials: true
 }));
 
 // Body parsers pour le corps des requêtes
@@ -88,6 +88,4 @@ app.use(notFound);
 app.use(errorHandler);
 
 // Démarrage du serveur (initialisation du port d'écoute)
-app.listen(process.env.PORT, () => {
-  console.log(`GreenRoots est désormais lancé sur le port ${process.env.PORT}`);
-});
+app.listen(process.env.PORT);

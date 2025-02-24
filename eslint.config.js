@@ -14,7 +14,7 @@ export default {
     eqeqeq: ["error", "always"],
     "no-unused-vars": ["warn"],
     quotes: ["error", "double"],
-    indent: ["error", 2, 4, 8],
+    indent: ["error", 4],
     "no-trailing-spaces": "error",
     "no-console": "error",
     "no-alert": "error",

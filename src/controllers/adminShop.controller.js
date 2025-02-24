@@ -1,6 +1,5 @@
 import { Article, Picture, Category } from "../models/association.js";
-import path from 'node:path';
-import fs from "fs";
+import path from "node:path";
 import { withTransaction } from "../utils/commonOperations.utils.js"; // Fonction utilitaire de gestion des transactions
 import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.utils.js"; // Constantes pour les codes de statut HTTP et les messages d'erreur
 
@@ -123,17 +122,15 @@ const adminShopController = {
     // Mise à jour d'un article existant
     updateArticle: async (req, res, next) => {
         try {
-            console.log("Corps de la requête reçu:", req.body);
-            
             const articleId = req.params.id;
             const { categoryName, name, description, price, available, pictureUrl } = req.body;
-    
+
             if (!categoryName && !name && !description && !price && available === undefined && !pictureUrl) {
                 const error = new Error(ERROR_MESSAGES.INVALID_INPUT + " (Aucun champ à mettre à jour n'a été fourni.)");
                 error.statusCode = STATUS_CODES.BAD_REQUEST;
                 return next(error);
             }
-    
+
             await withTransaction(async (transaction) => {
                 const article = await Article.findByPk(articleId, {
                     include: [
@@ -142,66 +139,65 @@ const adminShopController = {
                     ],
                     transaction
                 });
-    
+
                 if (!article) {
                     const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + " (Article)");
                     error.statusCode = STATUS_CODES.NOT_FOUND;
                     throw error;
                 }
-    
+
                 if (name) article.name = name;
                 if (description) article.description = description;
                 if (price) article.price = price;
                 if (available !== undefined) article.available = available;
-    
+
                 if (pictureUrl) {
                     let picture = await Picture.findByPk(article.picture_id, { transaction });
-    
+
                     const receivedFileName = path.basename(pictureUrl);
                     const storedFileName = path.basename(picture.url);
-    
+
                     if (receivedFileName !== storedFileName) {
                         picture.url = pictureUrl;
                         await picture.save({ transaction });
                     }
                 }
-    
+
                 if (categoryName) {
                     let existingCategories = await article.getCategories({ transaction });
                     let newCategories = await Category.findAll({
                         where: { name: categoryName },
                         transaction
                     });
-    
+
                     if (newCategories.length === 0) {
                         const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + " (Catégorie)");
                         error.statusCode = STATUS_CODES.NOT_FOUND;
                         throw error;
                     }
-    
+
                     let categoriesToAdd = newCategories.filter(newCat => !existingCategories.some(exCat => exCat.id === newCat.id));
-                    let categoriesToRemove = existingCategories.filter(exCat => !newCategories.some(newCat => exCat.id === exCat.id));
-    
+                    let categoriesToRemove = existingCategories.filter(exCat => !newCategories.some(newCat => newCat.id === exCat.id));
+
                     await article.addCategories(categoriesToAdd, { transaction });
                     await article.removeCategories(categoriesToRemove, { transaction });
                 }
                 await article.save({ transaction });
             });
-    
+
             const updatedArticle = await Article.findByPk(articleId, {
                 include: [
                     { model: Picture },
                     { model: Category, as: "categories" }
                 ]
             });
-    
+
             res.status(STATUS_CODES.OK).json({
                 message: "Article mis à jour avec succès",
                 article: updatedArticle
             });
         }
         catch (error) {
-            console.error("Erreur rencontrée:", error);
             next(error);
         }
     },

@@ -44,12 +44,12 @@ Article.hasMany(ArticleTracking, { foreignKey: "article_id" });
 ArticleTracking.belongsTo(Article, { foreignKey: "article_id" });
 
 // Order <=> ArticleHasOrder (One-to-Many)
-Order.hasMany(ArticleHasOrder, { foreignKey: 'order_id' });
-ArticleHasOrder.belongsTo(Order, { foreignKey: 'order_id' });
+Order.hasMany(ArticleHasOrder, { foreignKey: "order_id" });
+ArticleHasOrder.belongsTo(Order, { foreignKey: "order_id" });
 
 // Article <=> ArticleHasOrder (One-to-Many)
-Article.hasMany(ArticleHasOrder, { foreignKey: 'article_id' });
-ArticleHasOrder.belongsTo(Article, { foreignKey: 'article_id' });
+Article.hasMany(ArticleHasOrder, { foreignKey: "article_id" });
+ArticleHasOrder.belongsTo(Article, { foreignKey: "article_id" });
 
 // Many-to-Many associations
 // Article <=> Category (Many-to-Many)

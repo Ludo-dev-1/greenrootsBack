@@ -2,7 +2,7 @@ import { generateToken } from "../utils/jwt.utils.js"; // Pour le jeton d'authen
 import { User } from "../models/association.js";
 import { sendEmail } from "../services/emailService.js"; // Service d'envoi d'email
 import argon2 from "argon2"; // Pour le hash du mot de passe
-import { v4 as uuidv4 } from "uuid"; // Pour le jeton de vérification 
+import { v4 as uuidv4 } from "uuid"; // Pour le jeton de vérification
 import { withTransaction } from "../utils/commonOperations.utils.js"; // Fonction utilitaire de gestion des transactions
 import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.utils.js"; // Constantes pour les codes de statut HTTP et les messages d'erreur
 
@@ -21,6 +21,7 @@ const authController = {
         // Génère un token unique pour la vérification de l'email
         const verificationToken = uuidv4();
         try {
+            // eslint-disable-next-line no-unused-vars
             const { firstname, lastname, email, password, repeat_password, role_id } = req.body;
 
             const result = await withTransaction(async (transaction) => {
@@ -74,19 +75,19 @@ const authController = {
     verifyEmail: async (req, res, next) => {
         try {
             const { verifyToken } = req.params;
-    
+
             // Recherche l'utilisateur avec le jeton de vérification
             const user = await User.findOne({ where: { verificationToken: verifyToken } });
-    
+
             if (!user) {
                 return res.status(STATUS_CODES.BAD_REQUEST).json({ message: "Lien de vérification invalide." });
             }
-    
+
             // Met à jour le champ emailVerified à true
             user.emailVerified = true;
             user.verificationToken = null; // Optionnel : supprime le jeton de vérification après usage
             await user.save();
-    
+
             res.status(STATUS_CODES.OK).json({ message: "Votre email a bien été validé." });
         } catch (error) {
             // Passe l'erreur au middleware de gestion d'erreurs
@@ -181,16 +182,16 @@ const authController = {
             const user = req.user;
 
             if (newPassword !== repeat_password) {
-                return res.status(STATUS_CODES.BAD_REQUEST).json({ message: "Les mots de passes ne correspondent pas" })
+                return res.status(STATUS_CODES.BAD_REQUEST).json({ message: "Les mots de passes ne correspondent pas" });
             };
-            const hashedPassword = await argon2.hash(newPassword)
+            const hashedPassword = await argon2.hash(newPassword);
             // Met à jour le mot de passe de l'utilisateur
             user.password = hashedPassword;
             user.resetToken = null;
             user.resetTokenExpiration = null;
             await user.save();
 
-            res.status(STATUS_CODES.OK).json({ message: 'Mot de passe modifié avec succès' });
+            res.status(STATUS_CODES.OK).json({ message: "Mot de passe modifié avec succès" });
         } catch (error) {
             // Passe l'erreur au middleware de gestion d'erreurs
             next(error);

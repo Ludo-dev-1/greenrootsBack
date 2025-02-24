@@ -27,7 +27,7 @@ userRouter.post("/commande", authenticate, verifyEmailVerified,createOrderJoiVal
 userRouter.get("/compte", authenticate, cw(userController.getUserProfile));
 // Modification des infos utilisateur
 userRouter.patch("/compte", authenticate, crudUserProfileValidator, cw(userController.updateUserProfile));
-// Suppression du compte 
+// Suppression du compte
 userRouter.delete("/compte", authenticate, cw(userController.deleteUserProfile));
 
 // * COMPTE COMMANDE

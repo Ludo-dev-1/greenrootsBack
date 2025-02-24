@@ -3,7 +3,7 @@ import { STATUS_CODES, ERROR_MESSAGES } from "../../utils/constants.utils.js";
 
 /**
  * Fonction de création d'un middleware de validation générique utilisant Joi
- * @param {Object} schema - Le schéma Joi à utiliser pour la validation 
+ * @param {Object} schema - Le schéma Joi à utiliser pour la validation
  * @returns {Function} Middleware de validation
  */
 
@@ -14,9 +14,10 @@ export const validate = (schema) => (req, res, next) => {
         // Si une erreur de validation est détectée
         if (error) {
             // Renvoie une réponse avec le statut 400 (Bad Request) et les détails de l'erreur
-            return res.status(STATUS_CODES.BAD_REQUEST).json({
-                error: error.details.map(detail => detail.message).join(", ")
-            });
+            const customError = new Error(ERROR_MESSAGES.INVALID_INPUT);
+            customError.statusCode = STATUS_CODES.BAD_REQUEST;
+            customError.details = error.details.map(detail => detail.message).join(", ");
+            throw customError;
         }
         next();
     } catch (error) {

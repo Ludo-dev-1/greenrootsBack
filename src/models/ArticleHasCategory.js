@@ -24,7 +24,7 @@ ArticleHasCategory.init({
         },
         onDelete: "CASCADE", // Si l'article est supprimé, cette entrée sera aussi supprimée
     },
-    }, {
+}, {
     sequelize,
     tableName: "article_has_category"
 });

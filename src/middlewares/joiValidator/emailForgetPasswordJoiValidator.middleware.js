@@ -6,8 +6,8 @@ const emailForgetPasswordSchema = Joi.object({
         .email({ minDomainSegments: 2 })
         .required()
         .messages({
-            'string.email': 'L\'email doit être valide.',
-            'any.required': 'L\'email est obligatoire.'
+            "string.email": "L'email doit être valide.",
+            "any.required": "L'email est obligatoire."
         }),
 });
 

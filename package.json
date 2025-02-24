@@ -7,7 +7,8 @@
     "start": "nodemon --inspect app.js",
     "db:create": "node /var/www/html/apothéose/projet-GreenRoots-back/src/migrations/createTables.js",
     "db:seed": "node /var/www/html/apothéose/projet-GreenRoots-back/src/migrations/seedTables.js",
-    "db:reset": "npm run db:create && npm run db:seed && npm start"
+    "db:reset": "npm run db:create && npm run db:seed && npm start",
+    "lint": "eslint ."
   },
   "keywords": [],
   "author": "",
@@ -37,7 +38,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",
-    "eslint": "^9.19.0",
+    "eslint": "^9.21.0",
     "globals": "^15.14.0",
     "nodemon": "^3.1.9"
   }

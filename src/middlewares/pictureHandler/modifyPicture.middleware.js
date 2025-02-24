@@ -28,7 +28,6 @@ const modifyPicture = (req, res, next) => {
 
         next();
     } catch (error) {
-        console.error("Erreur lors du traitement de l'image en base 64:", error);
         next(error);
     }
 };

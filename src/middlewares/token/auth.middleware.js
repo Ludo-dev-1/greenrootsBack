@@ -35,7 +35,7 @@ export const authenticate = (req, res, next) => {
 };
 
 /**
- * Middleware de vérification du rôle administrateur 
+ * Middleware de vérification du rôle administrateur
  * Vérifie si l'utilisateur authentifié a les droits d'administrateur
  * @param {Object} req - L'objet de requête Express
  * @param {Object} res - L'objet de réponse Express

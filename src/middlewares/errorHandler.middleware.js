@@ -16,14 +16,13 @@ const notFound = (req, res, next) => {
 
 /**
  * Middleware de gestion globale des erreurs
- * @param {Error} error - L'objet d'erreur 
+ * @param {Error} error - L'objet d'erreur
  * @param {Object} req - L'objet de requête Express
  * @param {Object} res - L'objet de réponse Express
  * @param {Function} next - La fonction next d'Express pour passer au middleware suivant (pas utilisée ici mais nécessaire pour la signature du middleware)
  */
 
-const errorHandler = (error, req, res, next) => {
-    console.error("Erreur interceptée :", error);
+const errorHandler = (error, req, res) => {
     // Détermination du code de statut HTTP
     const status = error.statusCode || STATUS_CODES.SERVER_ERROR;
     // Détermination du message d'erreur
@@ -31,8 +30,8 @@ const errorHandler = (error, req, res, next) => {
 
     // Envoi de la réponse d'erreur
     res.status(status).json({
-        status, 
-        error: Array.isArray(errorMessage) ? errorMessage : [errorMessage] 
+        status,
+        error: Array.isArray(errorMessage) ? errorMessage : [errorMessage]
     });
 };
 

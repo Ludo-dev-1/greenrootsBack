@@ -61,7 +61,7 @@ Article.init({
             const price = await stripe.prices.create({
                 product: product.id,
                 unit_amount: article.price * 100, // Conversion en centimes
-                currency: 'eur',
+                currency: "eur",
             });
 
             // Assignation des IDs Stripe à l'article

@@ -25,8 +25,8 @@ ArticleTracking.init({
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'article',
-            key: 'id'
+            model: "article",
+            key: "id"
         }
     },
     // ID de la relation article-commande
@@ -34,8 +34,8 @@ ArticleTracking.init({
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'article_has_order',
-            key: 'id'
+            model: "article_has_order",
+            key: "id"
         }
     },
     // ID de l'image associée
@@ -43,8 +43,8 @@ ArticleTracking.init({
         type: DataTypes.INTEGER,
         allowNull: true,
         references: {
-            model: 'picture',
-            key: 'id'
+            model: "picture",
+            key: "id"
         }
     }
 }, {

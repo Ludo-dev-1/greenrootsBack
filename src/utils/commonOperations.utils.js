@@ -2,7 +2,7 @@ import { sequelize } from "../models/association.js";
 
 /**
  * Fonction pour exécuter une opération dans une transaction
- * @param {Function} operation - La fonction à exécuter dans la transaction 
+ * @param {Function} operation - La fonction à exécuter dans la transaction
  * @returns {Promise<any>} - Le résultat de l'opération
  * @throws {Error} - Si une erreur se produit pendant l'opération
  */
