@@ -12,21 +12,21 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
  */
 
 const createProductAndPrice = async (name, description, unit_amount) => {
-  // Création du produit dans Stripe
-  const product = await stripe.products.create({
-      name,
-      description,
-  });
+    // Création du produit dans Stripe
+    const product = await stripe.products.create({
+        name,
+        description,
+    });
 
-  // Création du prix associé au produit dans Stripe
-  const price = await stripe.prices.create({
-      product: product.id,
-      unit_amount,
-      currency: 'eur', // Définition de la devise en euros
-  });
+    // Création du prix associé au produit dans Stripe
+    const price = await stripe.prices.create({
+        product: product.id,
+        unit_amount,
+        currency: "eur", // Définition de la devise en euros
+    });
 
-  // Retourne les IDs du produit et du prix créés
-  return { product_id: product.id, price_id: price.id };
+    // Retourne les IDs du produit et du prix créés
+    return { product_id: product.id, price_id: price.id };
 };
 
 export { createProductAndPrice };

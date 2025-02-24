@@ -5,7 +5,7 @@ import { User, Role, Order, Tracking, ArticleTracking, Picture, Article, Categor
 import argon2 from "argon2";
 import { saveImage, convertImageToBase64 } from "../utils/picture.utils.js";
 import { createProductAndPrice } from "../utils/stripe.utils.js";
-import { ERROR_MESSAGES } from "../utils/constants.utils.js";
+import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.utils.js";
 
 
 // Configuration du chemin du fichier
@@ -16,11 +16,11 @@ const __dirname = path.dirname(__filename);
 const fakeReq = {
     protocol: `${process.env.PROTOCOL}`,
     get: (header) => {
-      if (header === 'host') {
-        return `${process.env.HOST}:${process.env.PORT}`;
-      }
+        if (header === "host") {
+            return `${process.env.HOST}:${process.env.PORT}`;
+        }
     }
-  };
+};
 
 /**
  * Fonction principale pour peupler la base de données
@@ -50,31 +50,30 @@ async function seedDatabase() {
 
         // Insertion des images d'arbres
         const images = [
-            'chene_pedoncule.webp', 
-            'platane_commun.webp', 
-            'hetre.webp', 
-            'saule.webp', 
-            'bouleau_verruqueux.webp',
-            'pin_sylvestre.webp', 
-            'cedre_du_liban.webp', 
-            'olivier.webp', 
-            'acacia.webp', 
-            'ginkgo_biloba.webp',
-            'sequoia_geant.webp', 
-            'magnolia.webp', 
-            'tilleul_a_grandes_feuilles.webp', 
-            'noyer.webp',
-            'cerisier_sauvage.webp', 
-            'charme_commun.webp', 
-            'frene_eleve.webp', 
-            'cocotier.webp', 
-            'mimosa.webp',
-            'eucalyptus.webp',
-            'logo.webp'
+            "chene_pedoncule.webp",
+            "platane_commun.webp",
+            "hetre.webp",
+            "saule.webp",
+            "bouleau_verruqueux.webp",
+            "pin_sylvestre.webp",
+            "cedre_du_liban.webp",
+            "olivier.webp",
+            "acacia.webp",
+            "ginkgo_biloba.webp",
+            "sequoia_geant.webp",
+            "magnolia.webp",
+            "tilleul_a_grandes_feuilles.webp",
+            "noyer.webp",
+            "cerisier_sauvage.webp",
+            "charme_commun.webp",
+            "frene_eleve.webp",
+            "cocotier.webp",
+            "mimosa.webp",
+            "eucalyptus.webp"
         ];
 
         const imagePromises = images.map(async (imageName) => {
-            const imagePath = path.join(__dirname, '..', '..', 'images', imageName);
+            const imagePath = path.join(__dirname, "..", "..", "images", imageName);
             const base64Image = convertImageToBase64(imagePath);
             const publicUrl = await saveImage(base64Image, imageName, fakeReq);
 
@@ -184,15 +183,15 @@ async function seedDatabase() {
         ]);
 
         await sequelize.close();
-    } catch (error) {
-        console.error(ERROR_MESSAGES.SERVER_ERROR, error);
-        throw new Error(ERROR_MESSAGES.SERVER_ERROR);
+    } catch {
+        const customError = new Error(ERROR_MESSAGES.SERVER_ERROR);
+        customError.statusCode = STATUS_CODES.SERVER_ERROR;
+        throw customError;
     } finally {
         await sequelize.close();
     }
 }
 
-seedDatabase().catch(error => {
-    console.error("Erreur lors du peuplement de la base de données:", error.message);
+seedDatabase().catch(() => {
     process.exit(1);
 });

@@ -34,7 +34,7 @@ ArticleHasOrder.init({
         },
         onDelete: "CASCADE", // Si l'article est supprimé, cette entrée sera aussi supprimée
     },
-    }, {
+}, {
     sequelize,
     tableName: "article_has_order",
     indexes: [ // Index pour assurer l'unicité de la combinaison article_id et order_id (remplace les "primaryKey: true" des article_id et order_id qui causaient des conflits)

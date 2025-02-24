@@ -9,8 +9,7 @@ async function createTables() {
         await sequelize.sync();
         // Mettre fin a sequelize pour enlever le temps d'attente
         await sequelize.close();
-    } catch (error) {
-        console.log(error);
+    } catch {
         // Termine le processus avec un code d'erreur (1)
         process.exit(1);
     };

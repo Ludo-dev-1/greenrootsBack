@@ -1,9 +1,9 @@
-import { User } from "../models/association.js"
+import { User } from "../models/association.js";
 import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.utils.js";
 
 /**
  * Middleware pour vérifier si l'email de l'utilisateur est vérifié
- * @param {Object} req - L'objet de requête Express 
+ * @param {Object} req - L'objet de requête Express
  * @param {Object} res - L'objet de réponse Express
  * @param {Function} next - La fonction next d'Express pour passer au middleware suivant
  */
@@ -22,4 +22,4 @@ export const verifyEmailVerified = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-}
+};

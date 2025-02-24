@@ -1,5 +1,5 @@
-import crypto from 'crypto';
-import { Op } from 'sequelize';
+import crypto from "crypto";
+import { Op } from "sequelize";
 import { User } from "../../models/association.js";
 import { STATUS_CODES, ERROR_MESSAGES } from "../../utils/constants.utils.js";
 
@@ -24,7 +24,7 @@ const generateResetToken = async (req, res, next) => {
         }
 
         // Générer un token de réinitialisation sécurisé
-        const token = crypto.randomBytes(32).toString('hex');
+        const token = crypto.randomBytes(32).toString("hex");
 
         // Sauvegarder le token dans la base de données avec une durée de validité
         user.resetToken = token;

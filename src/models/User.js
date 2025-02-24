@@ -24,7 +24,7 @@ User.init({
     role_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        defaultValue: 2 
+        defaultValue: 2
     },
     // Indique si l'email de l'utilisateur a été vérifié
     emailVerified: {

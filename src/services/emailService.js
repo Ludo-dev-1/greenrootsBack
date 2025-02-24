@@ -2,13 +2,14 @@ import "dotenv/config";
 import nodemailer from "nodemailer";
 import path from "node:path";
 import hbs from "nodemailer-express-handlebars";
+import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.utils.js";
 
 /**
  * Configuration du transporteur d'emails avec Nodemailer
  */
 
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    service: "gmail",
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASSWORD
@@ -21,16 +22,16 @@ const transporter = nodemailer.createTransport({
 
 const handlebarOptions = {
     viewEngine: {
-        extName: '.hbs',
-        partialsDir: path.resolve('/var/www/html/apothéose/projet-GreenRoots-back/views'),
+        extName: ".hbs",
+        partialsDir: path.resolve("/var/www/html/apothéose/projet-GreenRoots-back/views"),
         defaultLayout: false
     },
-    viewPath: path.resolve('/var/www/html/apothéose/projet-GreenRoots-back/views'),
-    extName: '.hbs'
+    viewPath: path.resolve("/var/www/html/apothéose/projet-GreenRoots-back/views"),
+    extName: ".hbs"
 };
 
 // Application du moteur de template Handlebars au transporteur
-transporter.use('compile', hbs(handlebarOptions));
+transporter.use("compile", hbs(handlebarOptions));
 
 /**
  * Fonction d'envoi de mail
@@ -38,6 +39,7 @@ transporter.use('compile', hbs(handlebarOptions));
  * @param {string} subject - Sujet de l'email
  * @param {string} template - Nom du template Handlebars à utiliser
  * @param {Object} context - Données à injecter dans le template
+ * @throws {Error} - Erreur si l'envoi de l'email échoue
  */
 
 const sendEmail = (to, subject, template, context) => {
@@ -49,11 +51,11 @@ const sendEmail = (to, subject, template, context) => {
         context
     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
+    transporter.sendMail(mailOptions, (error) => {
         if (error) {
-            console.log('Erreur lors de l\'envoi de l\'email :', error);
-        } else {
-            console.log('Email envoyé :', info.response);
+            const customError = new Error(ERROR_MESSAGES.SERVER_ERROR);
+            customError.statusCode = STATUS_CODES.SERVER_ERROR + " (Erreur lors de l'envoi du mail)";
+            throw customError;
         }
     });
 };

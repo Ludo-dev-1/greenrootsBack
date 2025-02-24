@@ -13,8 +13,8 @@ Tracking.init({
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'order',
-            key: 'id'
+            model: "order",
+            key: "id"
         }
     }
 }, {

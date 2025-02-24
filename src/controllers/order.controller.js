@@ -1,4 +1,4 @@
-import { Article, Order, ArticleHasOrder, Tracking, ArticleTracking, Picture, User, sequelize } from "../models/association.js";
+import { Article, Order, ArticleHasOrder, Tracking, ArticleTracking, Picture, User } from "../models/association.js";
 import { sendEmail } from "../services/emailService.js"; // Service d'envoi d'email
 import { withTransaction } from "../utils/commonOperations.utils.js"; // Fonction utilitaire de gestion des transactions
 import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.utils.js"; // Constantes pour les codes de statut HTTP et les messages d'erreur
@@ -115,8 +115,8 @@ const orderController = {
 
                 const date = new Date();
                 const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, "0");
+                const day = String(date.getDate()).padStart(2, "0");
                 const dateStr = `${year}${month}${day}`;
 
                 // Envoi de l'e-mail de confirmation de commande
@@ -388,6 +388,6 @@ const orderController = {
             next(error);
         }
     }
-}
+};
 
 export default orderController;

@@ -1,7 +1,7 @@
-import { Article, User, Tracking, ArticleHasOrder, ArticleTracking, Order, sequelize } from "../models/association.js";
+import { Article, User, Tracking, ArticleHasOrder, ArticleTracking, Order } from "../models/association.js";
 import argon2 from "argon2"; // Pour le hash du mot de passe
 import { withTransaction } from "../utils/commonOperations.utils.js"; // Fonction utilitaire de gestion des transactions
-import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.utils.js"; // Constantes pour les codes de statut HTTP et les messages d'erreur
+import { ROLES, STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.utils.js"; // Constantes pour les codes de statut HTTP et les messages d'erreur
 
 
 const userController = {
@@ -158,54 +158,60 @@ const userController = {
             await withTransaction(async (transaction) => {
                 // Vérifie si l'utilisateur existe
                 const user = await User.findByPk(userId, { transaction });
-                
+
                 if (!user) {
                     const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + " (Utilisateur)");
                     error.statusCode = STATUS_CODES.NOT_FOUND;
                     throw error;
                 }
-                
+
+                // Vérifie si l'utilisateur est un administrateur
+                if (user.role_id === ROLES.ADMIN) {
+                    await user.destroy({ transaction });
+
+                } else {
                 // Supprime les suivis d'articles associés aux commandes de l'utilisateur
-                await ArticleTracking.destroy({
-                    where: {},
-                    include: [{
-                        model: ArticleHasOrder,
+                    await ArticleTracking.destroy({
+                        where: {},
+                        include: [{
+                            model: ArticleHasOrder,
+                            include: [{
+                                model: Order,
+                                where: { user_id: userId }
+                            }]
+                        }],
+                        transaction
+                    });
+
+                    // Supprime les relations ArticleHasOrder associées aux commandes de l'utilisateur
+                    await ArticleHasOrder.destroy({
+                        where: {},
                         include: [{
                             model: Order,
                             where: { user_id: userId }
-                        }]
-                    }],
-                    transaction
-                });
+                        }],
+                        transaction
+                    });
 
-                // Supprime les relations ArticleHasOrder associées aux commandes de l'utilisateur
-                await ArticleHasOrder.destroy({
-                    where: {},
-                    include: [{
-                        model: Order,
-                        where: { user_id: userId }
-                    }],
-                    transaction
-                });
+                    // Supprime les suivis de commandes associés à l'utilisateur
+                    await Tracking.destroy({
+                        where: {},
+                        include: [{
+                            model: Order,
+                            where: { user_id: userId }
+                        }],
+                        transaction
+                    });
 
-                // Supprime les suivis de commandes associés à l'utilisateur
-                await Tracking.destroy({
-                    where: {},
-                    include: [{
-                        model: Order,
-                        where: { user_id: userId }
-                    }],
-                    transaction
-                });
+                    // Supprime les commandes associées à l'utilisateur
+                    await Order.destroy({
+                        where: { user_id: userId },
+                        transaction
+                    });
 
-                // Supprime les commandes associées à l'utilisateur
-                await Order.destroy({
-                    where: { user_id: userId },
-                    transaction
-                });
-
-                // Supprime l'utilisateur
-                await user.destroy({ transaction });
+                    // Supprime l'utilisateur
+                    await user.destroy({ transaction });
+                }
             });
 
             // Réponse

@@ -1,5 +1,5 @@
 import "dotenv/config";
-import Stripe from 'stripe';
+import Stripe from "stripe";
 import { STATUS_CODES, ERROR_MESSAGES } from "../../utils/constants.utils.js";
 
 // Initialisation de l'instance Stripe avec la clé secrète
@@ -12,10 +12,10 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
  * @param {Function} next - La fonction next d'Express pour passer au middleware suivant
  */
 
-const createCheckoutSession = async (req, res, next) => {
+const createCheckoutSession = async (req, res) => {
     try {
         // Détermination de l'origine de la requête pour les URLs de redirection
-        const origin = req.headers.origin || `process.env.PROTOCOL://process.env.HOST:process.env.PORT`;
+        const origin = req.headers.origin || `${process.env.PROTOCOL}://${process.env.HOST}:${process.env.PORT}`;
 
         // Création des éléments de ligne pour la session Stripe
         const lineItems = req.articleDetails.map(article => {
@@ -32,13 +32,13 @@ const createCheckoutSession = async (req, res, next) => {
 
         // Création de la session de paiement Stripe
         const session = await stripe.checkout.sessions.create({
-            payment_method_types: ['card'],
+            payment_method_types: ["card"],
             line_items: lineItems,
-            mode: 'payment',
+            mode: "payment",
             success_url: `${origin}/success.html`,
             cancel_url: `${origin}/cancel.html`,
         });
-        
+
         // Réponse avec les détails de la commande créée
         res.status(STATUS_CODES.CREATED).json({
             message: "Commande créée avec succès",
@@ -48,9 +48,8 @@ const createCheckoutSession = async (req, res, next) => {
             },
             articleDetails: req.articleDetails
         });
-        
-    } catch (error) {
-        console.error("Stripe error: ", error);
+
+    } catch {
         res.status(STATUS_CODES.SERVER_ERROR).json({
             error: ERROR_MESSAGES.SERVER_ERROR
         });

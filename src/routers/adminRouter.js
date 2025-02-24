@@ -22,7 +22,7 @@ adminRouter.get("/api/articles/:id", authenticate, checkAdminAccess, cw(adminSho
 adminRouter.post("/api/articles", authenticate, checkAdminAccess, crudAdminShopValidator, uploadPicture, cw(adminShopController.createArticleWithPicture));
 // Modification d'un article
 adminRouter.patch("/api/articles/:id", authenticate, checkAdminAccess, crudAdminShopValidator, modifyPicture, cw(adminShopController.updateArticle));
-// Suppression d'un article 
+// Suppression d'un article
 adminRouter.delete("/api/articles/:id", authenticate, checkAdminAccess, cw(adminShopController.deleteArticle));
 
 // * COMMANDE / SUIVI (admin)
