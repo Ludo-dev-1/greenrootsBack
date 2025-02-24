@@ -16,7 +16,7 @@ export default {
     quotes: ["error", "double"],
     indent: ["error", 2, 4, 8],
     "no-trailing-spaces": "error",
-    "no-console": ["warn", { allow: ["warn", "error", "log"] }],
+    "no-console": "error",
     "no-alert": "error",
   },
 };

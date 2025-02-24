@@ -5,8 +5,9 @@
 GreenRoots est une API permettant de gérer une plateforme de vente d'arbres et de suivi de plantation. Elle offre des fonctionnalités pour les utilisateurs, les commandes et l'administration des articles.
 
 ## Guide de démarrage
-Pour accéder à cet API faite une demande de clé API à cette addresse: `company.greenroots@gmail.com`
-Puis lors de vos requête veillez à bien spécifiez dans votre header la clé API.
+
+Pour accéder à cette API, faire une demande de clé API à cette adresse: `company.greenroots@gmail.com`
+Puis lors des requêtes, veiller à bien spécifier dans le header la clé API.
 Exemple :
 
 ```js
@@ -793,6 +794,139 @@ Les "?" dans la documentation indiquent que le champ est optionnel.
 ### Exemples de requêtes et réponses
 
 #### Inscription d'un nouvel utilisateur
+
+```json
+Requête POST sur "http://localhost:3000/inscription" : 
+{
+  "firstname": "Jean",
+  "lastname": "Dupont",
+  "email": "jean.dupont@example.com",
+  "password": "motdepasse123",
+  "repeat_password": "motdepasse123"
+}
+```
+
+```json
+Réponse (201 CREATED): 
+{
+  "message": "Utilisateur créé avec succès",
+  "user": {
+    "id": 1,
+    "firstname": "Jean",
+    "lastname": "Dupont",
+    "email": "jean.dupont@example.com"
+  }
+}
+```
+
+#### Connexion d'un nouvel utilisateur
+
+```json
+Requête POST sur "http://localhost:3000/connexion": 
+{
+  "email": "jean.dupont@example.com",
+  "password": "motdepasse123"
+}
+```
+
+```json
+Réponse (200 OK) : 
+{
+  "message": "Connexion réussie",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTYxNjc2MjQ0MCwiZXhwIjoxNjE2ODQ4ODQwfQ.7U-W1AvSNxB1VTRUeGPNvVQgRPdoGzjIPhwpKB9MjS0"
+}
+```
+
+#### Récupération des articles de la boutique
+
+```json
+Requête GET sur "http://localhost:3000/boutique"
+```
+
+```json
+Réponse (200 OK) : 
+{
+  "articles": [
+    {
+      "id": 1,
+      "name": "Chêne pédonculé",
+      "description": "Arbre robuste à longue durée de vie, utilisé en menuiserie et pour la biodiversité.",
+      "price": "120.00",
+      "available": true,
+      "picture_id": 1,
+      "stripe_product_id": "prod_RodLWxHVEakD0q",
+      "stripe_price_id": "price_1Qv04YPOw5MoeoJ9RJI0Tno5",
+      "created_at": "2025-02-21T17:31:33.853Z",
+      "updated_at": "2025-02-21T17:31:33.853Z",
+      "Picture": {
+        "id": 1,
+        "url": "https://localhost:3000/uploads/chene_pedoncule.webp",
+        "created_at": "2025-02-21T17:31:33.168Z",
+        "updated_at": "2025-02-21T17:31:33.168Z"
+      },
+      "categories": [
+        {
+          "id": 10,
+          "name": "Arbres forestiers",
+          "created_at": "2025-02-21T17:31:33.061Z",
+          "updated_at": "2025-02-21T17:31:33.061Z",
+          "ArticleHasCategory": {
+            "article_id": 1,
+            "category_id": 10,
+            "created_at": "2025-02-21T17:31:56.174Z",
+            "updated_at": "2025-02-21T17:31:56.174Z"
+          }
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Olivier",
+      "description": "Arbre méditerranéen produisant des olives, symbole de paix et de résilience.",
+      "price": "250.00",
+      "available": true,
+      "picture_id": 8,
+      "stripe_product_id": "prod_RodLJt2PI7meXd",
+      "stripe_price_id": "price_1Qv04gPOw5MoeoJ9HcJafQAt",
+      "created_at": "2025-02-21T17:31:41.702Z",
+      "updated_at": "2025-02-21T17:31:41.702Z",
+      "Picture": {
+        "id": 8,
+        "url": "https://localhost:3000/uploads/olivier.webp",
+        "created_at": "2025-02-21T17:31:33.168Z",
+        "updated_at": "2025-02-21T17:31:33.168Z"
+      },
+      "categories": [
+        {
+          "id": 1,
+          "name": "Arbres fruitiers",
+          "created_at": "2025-02-21T17:31:33.061Z",
+          "updated_at": "2025-02-21T17:31:33.061Z",
+          "ArticleHasCategory": {
+            "article_id": 8,
+            "category_id": 1,
+            "created_at": "2025-02-21T17:31:56.174Z",
+            "updated_at": "2025-02-21T17:31:56.174Z"
+          }
+        },
+        {
+          "id": 2,
+          "name": "Arbres légendaires",
+          "created_at": "2025-02-21T17:31:33.061Z",
+          "updated_at": "2025-02-21T17:31:33.061Z",
+          "ArticleHasCategory": {
+            "article_id": 8,
+            "category_id": 2,
+            "created_at": "2025-02-21T17:31:56.174Z",
+            "updated_at": "2025-02-21T17:31:56.174Z"
+          }
+        }
+      ]
+    },
+  ...
+  ]
+}
+```
 
 ### Codes d'état HTTP
 

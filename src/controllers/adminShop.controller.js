@@ -1,4 +1,4 @@
-import { Article, Picture, Category, sequelize } from "../models/association.js";
+import { Article, Picture, Category } from "../models/association.js";
 import path from 'node:path';
 import fs from "fs";
 import { withTransaction } from "../utils/commonOperations.utils.js"; // Fonction utilitaire de gestion des transactions

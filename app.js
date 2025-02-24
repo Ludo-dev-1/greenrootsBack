@@ -21,7 +21,7 @@ const app = express();
 
 // Utilisation de Helmet pour sécuriser les en-têtes HTTP
 app.use(helmet({
-  contentSecurityPolicy: process.env.NODE_ENV === 'production' ? undefined : false
+  contentSecurityPolicy: process.env.NODE_ENV === "production" ? undefined : false
 }));
 
 // Configuration de la session
@@ -36,7 +36,7 @@ app.use(session({
   cookie: {
     secure: process.env.NODE_ENV === "production", // 'true' si le site utilise HTTPS (en production)
     httpOnly: true, // Rend le cookie inaccessible via JavaScript côté client
-    sameSite: 'strict', // 'strict' pour une protection maximale contre les CSRF
+    sameSite: "strict", // 'strict' pour une protection maximale contre les CSRF
     maxAge: 24 * 60 * 60 * 1000 // Durée de vie du cookie en millisecondes (ici 24 heures)
   }
 }));
@@ -66,8 +66,8 @@ app.use(cors({
 }));
 
 // Body parsers pour le corps des requêtes
-app.use(express.json({ limit: '5mb' }));
-app.use(express.urlencoded({ limit: '5mb', extended: true }));
+app.use(express.json({ limit: "5mb" }));
+app.use(express.urlencoded({ limit: "5mb", extended: true }));
 
 app.use(xss());
 
