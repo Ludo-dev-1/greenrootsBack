@@ -158,13 +158,13 @@ const userController = {
             await withTransaction(async (transaction) => {
                 // Vérifie si l'utilisateur existe
                 const user = await User.findByPk(userId, { transaction });
-                
+
                 if (!user) {
                     const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + " (Utilisateur)");
                     error.statusCode = STATUS_CODES.NOT_FOUND;
                     throw error;
                 }
-                
+
                 // Supprime les suivis d'articles associés aux commandes de l'utilisateur
                 await ArticleTracking.destroy({
                     where: {},

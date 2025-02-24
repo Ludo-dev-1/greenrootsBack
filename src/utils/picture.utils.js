@@ -9,25 +9,25 @@ import fs from "fs";
  */
 
 const saveImage = (base64Image, imageName, req) => {
-  // Définition du chemin de base pour les uploads
-  const basePath = "public/uploads/";
-  // Chemin complet du fichier image
-  const imagePath = `${basePath}${imageName}`;
+    // Définition du chemin de base pour les uploads
+    const basePath = "public/uploads/";
+    // Chemin complet du fichier image
+    const imagePath = `${basePath}${imageName}`;
 
-  return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
     // Ecriture du fichier image
-    fs.writeFile(imagePath, base64Image, { encoding: "base64" }, (err) => {
-      if (err) {
-        // Rejet de la promesse en cas d'erreur
-        reject(err);
-      } else {
-        // Création de l'URL publique de l'image
-        const publicUrl = `${req.protocol}://${req.get("host")}/uploads/${imageName}`;
-        // Résolution de la promesse avec l'URL publique
-        resolve(publicUrl);
-      }
+        fs.writeFile(imagePath, base64Image, { encoding: "base64" }, (err) => {
+            if (err) {
+                // Rejet de la promesse en cas d'erreur
+                reject(err);
+            } else {
+                // Création de l'URL publique de l'image
+                const publicUrl = `${req.protocol}://${req.get("host")}/uploads/${imageName}`;
+                // Résolution de la promesse avec l'URL publique
+                resolve(publicUrl);
+            }
+        });
     });
-  });
 };
 
 const convertImageToBase64 = (imagePath) => {

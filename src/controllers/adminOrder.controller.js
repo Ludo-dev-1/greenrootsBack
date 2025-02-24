@@ -183,7 +183,7 @@ const adminOrderController = {
                     ],
                     transaction // Exécution dans le contexte de la transaction
                 });
-    
+
                 // Si le suivi d'article n'est pas trouvé, renvoie une erreur
                 if (!articleTracking) {
                     const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + " (Suivi d'article)");
@@ -210,7 +210,7 @@ const adminOrderController = {
                     plant_place: articleTracking.plant_place,
                     nickname: articleTracking.nickname ? articleTracking.nickname : "", // Ajout du surnom de l'article si disponible
                 });
-                
+
 
                 // Sauvegarde des changements dans la base de données
                 await articleTracking.save({ transaction });

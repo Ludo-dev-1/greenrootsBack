@@ -78,7 +78,7 @@ const mainController = {
             next(error);
         }
     },
-    
+
     // Page de validation de commande
     getOrderPage: async (req, res, next) => {
         try {
