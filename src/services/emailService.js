@@ -2,7 +2,7 @@ import "dotenv/config";
 import nodemailer from "nodemailer";
 import path from "node:path";
 import hbs from "nodemailer-express-handlebars";
-import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.js";
+import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.utils.js";
 
 /**
  * Configuration du transporteur d'emails avec Nodemailer

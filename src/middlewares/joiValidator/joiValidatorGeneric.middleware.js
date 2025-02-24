@@ -17,7 +17,10 @@ export const validate = (schema) => (req, res, next) => {
             const customError = new Error(ERROR_MESSAGES.INVALID_INPUT);
             customError.statusCode = STATUS_CODES.BAD_REQUEST;
             customError.details = error.details.map(detail => detail.message).join(", ");
-            throw customError;
+            return res.status(STATUS_CODES.BAD_REQUEST).json({
+                error: ERROR_MESSAGES.INVALID_INPUT,
+                details: customError.details
+            });
         }
         next();
     } catch (error) {

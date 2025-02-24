@@ -15,7 +15,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const createCheckoutSession = async (req, res) => {
     try {
         // Détermination de l'origine de la requête pour les URLs de redirection
-        const origin = req.headers.origin || "process.env.PROTOCOL://process.env.HOST:process.env.PORT";
+        const origin = req.headers.origin || `${process.env.PROTOCOL}://${process.env.HOST}:${process.env.PORT}`;
 
         // Création des éléments de ligne pour la session Stripe
         const lineItems = req.articleDetails.map(article => {
