@@ -117,6 +117,13 @@ const adminOrderController = {
         try {
             const { orderId, trackingId } = req.params;
 
+            const order = await Order.findByPk(orderId);
+            if (!order) {
+                const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + " (Commande)");
+                error.statusCode = STATUS_CODES.NOT_FOUND;
+                return next(error);
+            }
+
             // Récupère le suivi de l'article avec les informations de l'image et de la commande associée
             const articleTracking = await ArticleTracking.findOne({
                 where: { id: trackingId },
@@ -214,6 +221,25 @@ const adminOrderController = {
 
                 // Sauvegarde des changements dans la base de données
                 await articleTracking.save({ transaction });
+
+                // Recharge les relations pour inclure les données nécessaires
+                await articleTracking.reload({
+                    include: [
+                        {
+                            model: Picture
+                        },
+                        {
+                            model: ArticleHasOrder,
+                            include: [
+                                {
+                                    model: Order,
+                                    where: { id: orderId }
+                                }
+                            ]
+                        }
+                    ],
+                    transaction
+                });
 
                 // Retourne le suivi mis à jour
                 return articleTracking;

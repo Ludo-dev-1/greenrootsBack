@@ -17,7 +17,7 @@ export const generateToken = (user) => {
     // Récupération de la clé secrète depuis les variables d'environnement
     const secret = process.env.JWT_SECRET;
     // Configuration des options du token, notamment sa durée de validité
-    const options = { expiresIn: "8h" }; // Expiration du token dans 8h
+    const options = { expiresIn: "1h" }; // Expiration du token dans 1h
 
     // Génération et retour du token signé
     return jwt.sign(payload, secret, options);
