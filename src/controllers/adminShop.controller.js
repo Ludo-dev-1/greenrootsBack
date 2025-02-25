@@ -88,7 +88,7 @@ const adminShopController = {
 
                 // Crée une nouvelle image dans la base de données
                 const newPicture = await Picture.create({
-                    url: "req.base64Image1"
+                    url: req.base64Image
                 }, { transaction });
 
                 // Crée un nouvel article avec les informations fournies
