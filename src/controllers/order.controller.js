@@ -334,7 +334,7 @@ const orderController = {
 
             const result = await withTransaction(async (transaction) => {
                 const articleTracking = await ArticleTracking.findOne({
-                    where: { id: articleTrackingId },
+                    where: { id: articleTrackingId, user_id: userId },
                     include: [
                         {
                             model: ArticleHasOrder,

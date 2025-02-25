@@ -10,7 +10,7 @@ import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.utils.js";
 
 const apiKeyMiddleware = (req, res, next) => {
     // Extraction de la clé API de l'en-tête de la requête
-    const apiKey = req.headers["x-api-key"];
+    const apiKey = req.headers["x-api-key"] || req.query["x-api-key"];
     // Vérification de la présence et de la validité de la clé API
     if (!apiKey || apiKey !== process.env.API_KEY) {
         const error = new Error(ERROR_MESSAGES.UNAUTHORIZED_ACCESS);
