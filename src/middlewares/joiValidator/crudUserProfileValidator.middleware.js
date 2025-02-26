@@ -41,7 +41,6 @@ const crudUserProfileSchema = Joi.object({
         .pattern(new RegExp("(?=.*[0-9])"))
         .pattern(new RegExp("(?=.*[!@#\$%\^&\*])"))
         .required()
-        .optional()
         .messages({
             "string.min": "Le mot de passe doit contenir au moins 14 caractères.",
             "string.pattern.base": "Le mot de passe doit contenir au moins une lettre minuscule, une lettre majuscule, un chiffre et un caractère spécial.",
@@ -49,7 +48,6 @@ const crudUserProfileSchema = Joi.object({
         }),
 
     repeat_password: Joi.any().valid(Joi.ref("password"))
-        .optional()
         .required()
         .messages({
             "any.only": "Les mots de passe doivent correspondre.",
