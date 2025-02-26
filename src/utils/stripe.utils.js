@@ -21,7 +21,7 @@ const createProductAndPrice = async (name, description, unit_amount) => {
     // Création du prix associé au produit dans Stripe
     const price = await stripe.prices.create({
         product: product.id,
-        unit_amount,
+        unit_amount: unit_amount * 100,
         currency: "eur", // Définition de la devise en euros
     });
 

@@ -1,4 +1,4 @@
-import crypto from "crypto";
+import crypto from "node:crypto";
 import { Op } from "sequelize";
 import { User } from "../../models/association.js";
 import { STATUS_CODES, ERROR_MESSAGES } from "../../utils/constants.utils.js";
