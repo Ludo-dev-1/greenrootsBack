@@ -24,6 +24,8 @@ app.use(helmet({
     contentSecurityPolicy: process.env.NODE_ENV === "production" ? undefined : false
 }));
 
+app.set("trust proxy", true);
+
 // Configuration de la session
 app.use(session({
     secret: process.env.SESSION_SECRET, // Chaîne secrète pour signer les cookies de session

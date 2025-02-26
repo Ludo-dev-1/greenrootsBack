@@ -2,6 +2,7 @@ import { Article, Picture, Category } from "../models/association.js";
 import path from "node:path";
 import { withTransaction } from "../utils/commonOperations.utils.js"; // Fonction utilitaire de gestion des transactions
 import { STATUS_CODES, ERROR_MESSAGES } from "../utils/constants.utils.js"; // Constantes pour les codes de statut HTTP et les messages d'erreur
+import { createProductAndPrice } from "../utils/stripe.utils.js";
 
 const adminShopController = {
 
@@ -91,13 +92,18 @@ const adminShopController = {
                     url: req.base64Image
                 }, { transaction });
 
+                // Crée les produits et prix Stripe
+                const { product_id, price_id } = await createProductAndPrice(name, description, price);
+
                 // Crée un nouvel article avec les informations fournies
                 const newArticle = await Article.create({
                     name,
                     description,
                     price,
                     available,
-                    picture_id: newPicture.id // Associe l'image à l'article
+                    picture_id: newPicture.id, // Associe l'image à l'article
+                    stripe_product_id: product_id,
+                    stripe_price_id: price_id
                 }, { transaction });
 
                 // Associe les catégories à l'article
