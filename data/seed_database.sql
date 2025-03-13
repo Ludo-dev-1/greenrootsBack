@@ -43,27 +43,27 @@ INSERT INTO "role" ("id", "name") VALUES
 -- ----------------------------------------
 -- Déchargement des données de la table "picture"
 -- ----------------------------------------
-INSERT INTO "picture" ("id", "url") VALUES
-(1, 'Chêne pédonculé'),
-(2, 'Platane commun'),
-(3, 'Hêtre commun'),
-(4, 'Saule pleureur'),
-(5, 'Bouleau verruqueux'),
-(6, 'Pin sylvestre'),
-(7, 'Cèdre du Liban'),
-(8, 'Olivier'),
-(9, 'Acacia'),
-(10, 'Ginkgo biloba'),
-(11, 'Sequoia géant'),
-(12, 'Magnolia grandiflora'),
-(13, 'Tilleul à grandes feuilles'),
-(14, 'Noyer commun'),
-(15, 'Cerisier sauvage'),
-(16, 'Charme commun'),
-(17, 'Frêne élevé'),
-(18, 'Cocotier'),
-(19, 'Mimosa'),
-(20, 'Eucalyptus');
+INSERT INTO "picture" ("id", "url", "description") VALUES
+(1, 'Chêne pédonculé', 'Un grand arbre majestueux avec une écorce rugueuse'),
+(2, 'Platane commun', 'Arbre avec un tronc caractéristique et des grandes feuilles'),
+(3, 'Hêtre commun', 'Arbre à feuillage dense et très apprécié en forêt'),
+(4, 'Saule pleureur', 'Arbre avec des branches qui pendent élégamment'),
+(5, 'Bouleau verruqueux', 'Arbre avec une écorce blanche et lisse'),
+(6, 'Pin sylvestre', 'Conifère avec des aiguilles fines et un tronc droit'),
+(7, 'Cèdre du Liban', 'Un arbre imposant et résistant aux intempéries'),
+(8, 'Olivier', 'Petit arbre au feuillage argenté et aux olives'),
+(9, 'Acacia', 'Arbre à fleurs jaunes et écorce épaisse'),
+(10, 'Ginkgo biloba', 'Arbre aux feuilles en forme d’éventail, très ancien'),
+(11, 'Sequoia géant', 'Un des plus grands arbres du monde'),
+(12, 'Magnolia grandiflora', 'Arbre à grandes fleurs blanches parfumées'),
+(13, 'Tilleul à grandes feuilles', 'Arbre à feuilles en forme de cœur'),
+(14, 'Noyer commun', 'Arbre fruitier donnant des noix savoureuses'),
+(15, 'Cerisier sauvage', 'Arbre au tronc droit et aux petites fleurs blanches'),
+(16, 'Charme commun', 'Arbre au tronc lisse et aux feuilles dentées'),
+(17, 'Frêne élevé', 'Arbre robuste avec une grande hauteur'),
+(18, 'Cocotier', 'Arbre tropical à grandes feuilles et noix de coco'),
+(19, 'Mimosa', 'Arbre aux fleurs roses et parfumées'),
+(20, 'Eucalyptus', 'Arbre avec un tronc souvent argenté et des feuilles aromatiques');
 
 -- ----------------------------------------
 -- Déchargement des données de la table "article"
@@ -96,7 +96,7 @@ INSERT INTO "article" ("id", "name", "description", "picture_id", "price", "avai
 -- ----------------------------------------
 INSERT INTO "user" ("id", "firstname", "lastname", "email", "password", "role_id") VALUES
 (1, 'Nathan', 'begue', 'nathan.begue@oclock.school', 'arbre', 1),
-(2, 'Donovan', 'Grout', 'donovan.grout@oclock.school', 'arbre', 1);
+(2, 'Donovan', 'Grout', 'donovan.grout@oclock.school', 'arbre', 1),
 (3, 'Ludovic', 'Thibaud', 'ludovic.thibaud@oclock.school','arbre', 2),
 (4, 'Léo', 'Khatchatourian', 'leo.khatchatourian@oclock.school', 'arbre', 2),
 
