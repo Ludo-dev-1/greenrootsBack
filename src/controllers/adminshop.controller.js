@@ -20,7 +20,7 @@ const adminShopController = {
                 return next(error);
             };
 
-            res.status(OK).json({ articles });
+            res.status(200).json({ articles });
 
         } catch (error) {
             next(error);
@@ -51,55 +51,69 @@ const adminShopController = {
         }
     },
 
-    createArticleWithPicture: async (req, res, next) => {
-        try {
-            const { categoryName, name, description, price, available, pictureUrl } = req.body;
+   // Création d'un nouvel article avec une image associée
+   createArticleWithPicture: async (req, res, next) => {
+    try {
+        const { categoryName, name, description, price, available, pictureUrl } = req.body;
 
-            if (!categoryName || !name || !description || !price || available === undefined || !pictureUrl) {
-                const error = new Error(ERROR_MESSAGES.INVALID_INPUT + " (Tous les champs sont obligatoires)");
-                error.statusCode = BAD_REQUEST;
-                return next(error);
-            };
+        // Vérifie que tous les champs requis sont fournis
+        if (!categoryName || !name || !description || !price || available === undefined || !pictureUrl) {
+            const error = new Error(ERROR_MESSAGES.INVALID_INPUT + " (Tous les champs sont obligatoires)");
+            error.statusCode = STATUS_CODES.BAD_REQUEST;
+            return next(error);
+        };
 
-            const result = await withTransaction(async (transaction) => {
-                const categories = await Category.findAll({
-                    where: { name: categoryName },
-                    transaction
-                });
-
-                if (categories.length === 0) {
-                    const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + " (Catégorie)");
-                    error.statusCode = NOT_FOUND;
-                    throw error;
-                }
-    
-                const newPicture = await Picture.create({
-                    url: req.base64Image
-                }, { transaction });
-    
-                const newArticle = await Article.create({
-                    name,
-                    description,
-                    price,
-                    available,
-                    picture_id: newPicture.id
-                }, { transaction });
-    
-                for (const category of categories) {
-                    await newArticle.addCategory(category, { transaction }); 
-                }
-
-                return newArticle;
+        const result = await withTransaction(async (transaction) => {
+            // Recherche les catégories correspondantes dans la base de données
+            const categories = await Category.findAll({
+                where: { name: categoryName },
+                transaction
             });
 
-            res.status(CREATED).json({
-                message: "Article créé avec succès",
-                article: result
-            });
-        } catch (error) {
-            next(error);
-        }
-    },
+            // Si pas trouvé, renvoie une erreur
+            if (categories.length === 0) {
+                const error = new Error(ERROR_MESSAGES.RESOURCE_NOT_FOUND + " (Catégorie)");
+                error.statusCode = STATUS_CODES.NOT_FOUND;
+                throw error;
+            }
+
+            // Crée une nouvelle image dans la base de données
+            const newPicture = await Picture.create({
+                url: req.base64Image
+            }, { transaction });
+
+            // Crée les produits et prix Stripe
+          /*   const { product_id, price_id } = await createProductAndPrice(name, description, price); */
+
+            // Crée un nouvel article avec les informations fournies
+            const newArticle = await Article.create({
+                name,
+                description,
+                price,
+                available,
+               /*  picture_id: newPicture.id, */ // Associe l'image à l'article
+                /* stripe_product_id: product_id,
+                stripe_price_id: price_id */
+            }, { transaction });
+
+            // Associe les catégories à l'article
+            for (const category of categories) {
+                await newArticle.addCategory(category, { transaction });
+            }
+
+            return newArticle;
+        });
+
+        // Renvoie le nouvel article créé en réponse
+        res.status(STATUS_CODES.CREATED).json({
+            message: "Article créé avec succès",
+            article: result
+        });
+    } catch (error) {
+        // Passe l'erreur au middleware de gestion d'erreurs
+        next(error);
+    }
+},
 
     updateArticle: async (req, res, next) => {
         try {
@@ -185,7 +199,7 @@ const adminShopController = {
                 ]
             });
 
-            res.status(OK).json({
+            res.status(200).json({
                 message: "Article mis à jour avec succès",
                 article: updatedArticle
             });
